@@ -1,9 +1,15 @@
 [rotulo:] [instrucao] [# comentario]
+
 [instrucao] [# comentario]
+
 [# comentario]
+
 [rotulo:]
+
 [instrucao] [# comentario]
+
 [instrucao]
+
 
 
 
