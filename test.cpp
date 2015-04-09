@@ -1,5 +1,3 @@
-/* Lexycal Analysis                    */
-/* Author: Guilherme Kairalla Kolotelo */
 
 #include <stdio.h>
 #include <string.h>
