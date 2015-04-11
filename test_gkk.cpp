@@ -4,37 +4,39 @@
 #include <sstream>
 #include <mach/mach_time.h>
 
-uint64_t        start_, end_, elapsed;
-char data[10001];
+uint64_t        start_, end_, elapsed_;
 
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-	//if(argc != 2)
-    //{
-    //    printf("%s", "File path needed\n");
-    //    return 1;
-    //}
+	if(argc != 2)
+	{
+	    printf("%s", "File path needed\n");
+	    return 1;
+	}
 
-    start_ = mach_absolute_time();
+	stringstream data;
 
-    //std::fstream fs;
-    //fs.open(argv[1], std::fstream::in);
+	//start_ = mach_absolute_time();
+	//end_ = mach_absolute_time();
+	//elapsed_ = end_ - start_;
 
-    cin >> data;
+	std::fstream fs;
+	fs.open(argv[1], std::fstream::in);
+	data << fs.rdbuf();
 
-	end_ = mach_absolute_time();
-	elapsed = end_ - start_;
-
-	//fs.read(data, 10000);
-
-	cout << elapsed << "µs" << endl;
+	//getline(cin, dataString);
 
 
+	cout << elapsed_ << "µs" << endl;
 
+	//while(data.peek() != '\r' && data.peek() != EOF && data.peek() != '\n')
+	//{
+	//	cout << data;
+	//}
 
-	cout << "Output: " << data << endl;
+	cout << "Output: " << fs.rdbuf() << endl;
 
 
 }
