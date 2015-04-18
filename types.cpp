@@ -11,7 +11,7 @@ using namespace std;
 typedef struct 
 {
 	string tokens[5];
-	int amount = 0;
+	int amount;
 }TokenContainer;
 
 //Tipos de elementos
