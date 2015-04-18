@@ -4,6 +4,8 @@
 //
 //
 
+#define types_cpp
+using namespace std;
 
 //Tipos de elementos
 typedef enum{
@@ -48,6 +50,10 @@ typedef enum{
 
 //Elemento
 class Element{
+	public:
+		Element(string _content);
+		Element(DirectiveType _dir, string _content);
+		Element(OpCodeType _op, string _content);
 	ElementType type;
 	string content;
 	//Algo mais aqui?
@@ -61,15 +67,15 @@ Element::Element(string _content){
 }
 
 //Construtor para elemento do tipo Diretiva
-Element::Element(ElementType _element, DirectiveType _dir){
+Element::Element(DirectiveType _dir, string _content){
 	type = Directive;
-	Directive dir = _dir;
+	DirectiveType dir = _dir;
 	content = _content;
 }
 
 //Construtor para elemento tipo Operacao
-Element::Element(ElementType _element, OpCodeType _op){
+Element::Element(OpCodeType _op, string _content){
 	type = Instruction;
-	opcode = _op;
+	OpCodeType opcode = _op;
 	content = _content;
 }
