@@ -63,7 +63,9 @@ class Element{
 		Element(OpCodeType _op, string _content);
 	ElementType type;
 	string content;
-	//Algo mais aqui?
+
+	DirectiveType dir;
+	OpCodeType opcode;
 };
 
 //Construtor para elemento do tipo Label
@@ -76,13 +78,13 @@ Element::Element(string _content){
 //Construtor para elemento do tipo Diretiva
 Element::Element(DirectiveType _dir, string _content){
 	type = Directive;
-	DirectiveType dir = _dir;
+	dir = _dir;
 	content = _content;
 }
 
 //Construtor para elemento tipo Operacao
 Element::Element(OpCodeType _op, string _content){
 	type = Instruction;
-	OpCodeType opcode = _op;
+	opcode = _op;
 	content = _content;
 }

@@ -8,8 +8,8 @@
 //Main para testes
 int main(){
 	Element lab("ThisIsALabel");
-	Element op(Load_MQ, "ThisIsAOperation");
-	Element dir(Org,"ThisIsADirective");
+	Element op(Sub_MX, "ThisIsAOperation");
+	Element dir(Wfill,"ThisIsADirective");
 	
 	cout 	<< "Label: " << lab.content << " | tipo: " << lab.type << endl 
 			<< "Operacao: " << op.content << " | tipo: " << op.type << " | " << op.opcode << endl
