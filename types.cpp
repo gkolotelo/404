@@ -7,6 +7,13 @@
 #define types_cpp
 using namespace std;
 
+//Token Container
+typedef struct 
+{
+	string tokens[5];
+	int amount = 0;
+}TokenContainer;
+
 //Tipos de elementos
 typedef enum{
 	Label,
