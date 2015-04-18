@@ -4,7 +4,10 @@
 
 using namespace std;
 
-#include "types.cpp"
+#ifndef types_cpp
+	#include "types.cpp"
+#endif
+#define reading_cpp
 
 
 // Returns string up to comment (delimited by '#')
@@ -22,10 +25,10 @@ string getLineNoCommentLowercase(string in)
 ElementType getType(char *in)
 {
 	if(strchr(in, ':') != NULL)
-		return label;
+		return Label;
 	if(strchr(in, '.') != NULL)
-		return directive;
-	return instruction;
+		return Directive;
+	return Instruction;
 }
 
 void tokenize(char *in, string *tokens)
