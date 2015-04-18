@@ -3,8 +3,9 @@
 #include <fstream>
 #include <sstream>
 #include <mach/mach_time.h>
-#include "reading.cpp"
 #include "types.cpp"
+#include "reading.cpp"
+
 
 uint64_t        start_, end_, elapsed_;
 
