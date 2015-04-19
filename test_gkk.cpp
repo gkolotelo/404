@@ -12,69 +12,6 @@ uint64_t        start_, end_, elapsed_;
 using namespace std;
 
 
-
-
-
-
-
-//string *tokenize(char *in)
-//{
-//	string tokens[5];
-//	int i = 0;
-//	stringstream data;
-//	char *label, *directive, *instruction, *aux;
-//
-//	label = strtok(in, ":");
-//	remaining = strtok(NULL, ".");
-//	if(remaining == NULL) //INVALID!! Label is only element of line
-//	{
-//
-//
-//	}
-//	dir_or_int = strtok(remaining, ".");
-//	remaining = strtok(NULL, ".");
-//	if(remaining == NULL) // Instruction is only remaining element of line
-//	{
-//		// Parse instruction:
-//
-//	}
-//	// Parse directive:
-//	cout << (token == NULL) << endl;
-//
-//	while(token != NULL)
-//	{
-//		data << token << '|';
-//
-//		//if(getType(token) == label)
-//		//{
-////
-//		//}
-//		//else if
-//
-//		token = strtok(NULL, "5");
-//	}
-//	cout << data.rdbuf() << endl;
-//}
-
-//string *tokenize_old(char *in)
-//{
-//	string tokens[5];
-//	int i = 0;
-//	stringstream data;
-//	char *token;
-//
-//	//cout << "|" << strtok(in, "(") << "|" << endl;
-//
-//	token = strtok(in, ", \t");
-//
-//	while(token != NULL)
-//	{
-//		cout << token << '|';
-//		token = strtok(NULL, ", \t");
-//	}
-//	cout << token << endl;
-//}
-
 int main(int argc, char *argv[])
 {
 	if(argc != 2)
@@ -84,9 +21,11 @@ int main(int argc, char *argv[])
 	}
 
 	fstream fs;
-	string tempStr;
-	string tokens[5];
+	string tempStr, tempStr2;
+	TokenContainer TC;
+	int pos;
 	char tempStrCA[100];
+	char *token1, *token2;
 
 	start_ = mach_absolute_time();
 
@@ -95,23 +34,36 @@ int main(int argc, char *argv[])
 	while(getline(fs, tempStr, '\n'))
 	{
 		tempStr = getLineNoCommentLowercase(tempStr); // Strip comments out of input line
+		//cout << tempStr << endl;
 		if (tempStr.length() != 0)
 		{
-			//cout << tempStr << endl;
-			stringstream data;
-			//cout << tempStr << endl;
-			strcpy(tempStrCA, tempStr.c_str());
-			tokenize(tempStrCA, tokens);
-			//token = strtok(tempStrCA, " \t");
-			//data << '|' << token << '|';
-			//while(token != NULL)
+			pos = tempStr.find(':');
+			//cout << "POS: " << pos << endl;
+			if(pos != -1) // Has label
+			{
+				getElement(tokenize(tempStr.substr(0, tempStr.find(':') + 1)));
+				// getElements();
+				getElement(tokenize(tempStr.substr(pos + 1)));
+				// getElements();
+			}
+			else
+			{
+				getElement(tokenize(tempStr));
+				// getElements();
+			}
+
+			//stringstream data;
+			//strcpy(tempStrCA, tempStr.c_str());
+			//tokenize(tempStrCA, &TC);
+			//cout << TC.amount << '|';
+			//for(int i=0; i < 5; i++)
 			//{
-			//	token = strtok(NULL, " \t");
-			//	if(token != NULL) data << token << '|';
+			//	cout << getType(TC.tokens[i]) << '|';
 			//}
-			//cout << data.rdbuf() << endl;
+			//cout << endl;
+
+			
 		}
-		
 		
 	}
 
