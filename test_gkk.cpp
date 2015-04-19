@@ -57,29 +57,38 @@ int main(int argc, char *argv[]) {
         // }
     }
 
-    ContentContainer CC;
-    string input = "51435";
+    DirectiveContentContainer CC;
+    string input = "51435,";
     CC = contentParser(input);
     cout << input << ' ' << CC.content1 << ' ' << CC.content2 << ' ' << CC.amount << endl;
 
 
 
-    // //List Example:
-    // // #include <list>
-    // std::list<string> list_sample;
-    // std::list<string>::iterator list_iterator;
-    // for (int i = 0; i < 10; i++) {  // Adicionar 10 inteiros a lista
-    //     list_sample.push_back( ("Number: " + to_string(i)) ); // Adiciona ao fim da lista, tem outras funcoes de insercao tbm
-    //     cout << "Just inserted: '" << list_sample.back() << "' to list_sample" << endl;  // .back acessa ultimo elemento da lista sem remove-lo 
-    // }
-    // cout << "# of elements in list: " << list_sample.size() << endl;
-    // cout << "Printing list: \n" << endl;
-    // for (list_iterator = list_sample.begin(); list_iterator != list_sample.end(); list_iterator++) {  // Iterar pelo numero de elementos
-    //     string tmp = *list_iterator;  // pegar elementos do comeco da lista -> FIFO
-    //     list_sample.pop_front();  // remover elemento
-    //     cout << tmp << endl;  // imprimir elemento
-    // }
-    // cout << "# of elements in list: " << list_sample.size() << endl;
+    //List Example:
+    // #include <list>
+    std::list<string> list_sample;
+    std::list<string>::iterator list_iterator;
+    for (int i = 0; i < 10; i++) {  // Adicionar 10 inteiros a lista
+        list_sample.push_back( ("Number: " + to_string(i)) ); // Adiciona ao fim da lista, tem outras funcoes de insercao tbm
+        cout << "Just inserted: '" << list_sample.back() << "' to list_sample" << endl;  // .back acessa ultimo elemento da lista sem remove-lo 
+    }
+    cout << "# of elements in list: " << list_sample.size() << endl;
+
+    list_iterator = list_sample.begin(); // Iterator no comeco da lista
+    advance(list_iterator, 5); // avanca iterator em 5 elementos
+    cout << *list_iterator << endl; // imprime elemento na posicao 6 do iterator ("Number: 5")
+    list_iterator = list_sample.erase(list_iterator); // Apaga elemento na posicao do iterator e retorna novo iterator: atencao vc deve pegar o iterator novo pq o antigo nao funciona mais, o elemento foi removido
+    list_iterator = list_sample.insert(list_iterator, "Hello World!!!"); // insere elemento na posicao do iterator, e retorna o iterator para o elemento que acabou de ser inserido 
+    cout << *list_iterator << endl; // imprime novo elemento na posicao do iterator
+
+    cout << "Printing list: \n" << endl;
+    for (list_iterator = list_sample.begin(); list_iterator != list_sample.end(); list_iterator++) {  // Iterar pelo numero de elementos
+        string tmp = *list_iterator;  // pegar elementos do comeco da lista -> FIFO
+        list_sample.pop_front();  // remover elemento
+        cout << tmp << endl;  // imprimir elemento
+    }
+    cout << "# of elements in list: " << list_sample.size() << endl;
+
 
     end_ = mach_absolute_time();
     elapsed_ = end_ - start_;
