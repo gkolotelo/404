@@ -122,21 +122,18 @@ Element* getElement(TokenContainer TC)
 	else if (TC.tokens[0] == "str") _op = Stor_MX;
 	else if (TC.tokens[0] == "load") _op = Load_MX;
 	else if (TC.tokens[0] == "ldn") _op = Load_MX_neg;
-	else if (TC.tokens[0] == "ldabs") _op = Load_MX_mod;
-	else if (TC.tokens[0] == "jmp") _op = Jump_M_L; // Do not need L/R versions
-	else if (TC.tokens[0] == "jmp") _op = Jump_M_R; // Do not need L/R versions
-	else if (TC.tokens[0] == "jgez") _op = Jump_M_cond_L; // Do not need L/R versions
-	else if (TC.tokens[0] == "jgez") _op = Jump_M_cond_R; // Do not need L/R versions
+	else if (TC.tokens[0] == "ldabs") _op = Load_MX_abs;
+	else if (TC.tokens[0] == "jmp") _op = Jump_M;
+	else if (TC.tokens[0] == "jgez") _op = Jump_M_P;
 	else if (TC.tokens[0] == "add") _op = Add_MX;
-	else if (TC.tokens[0] == "addabs") _op = Add_MX_mod;
+	else if (TC.tokens[0] == "addabs") _op = Add_MX_abs;
 	else if (TC.tokens[0] == "sub") _op = Sub_MX;
-	else if (TC.tokens[0] == "subabs") _op = Sub_MX_mod;
+	else if (TC.tokens[0] == "subabs") _op = Sub_MX_abs;
 	else if (TC.tokens[0] == "mul") _op = Mul_MX;
 	else if (TC.tokens[0] == "div") _op = Div_MX;
 	else if (TC.tokens[0] == "lsh") _op = Lsh;
 	else if (TC.tokens[0] == "rsh") _op = Rsh;
-	else if (TC.tokens[0] == "stm") _op = Stor_M_L; // Do not need L/R versions
-	else if (TC.tokens[0] == "stm") _op = Stor_M_R; // Do not need L/R versions
+	else if (TC.tokens[0] == "stm") _op = Stor_M;
 	else return NULL;
 	Element *_element = new Element(_op, TC.tokens[1]);
 	cout << "Instruction: " << _element->opcode << " Content: " << _element->content << endl;
