@@ -50,8 +50,8 @@ int64_t convertValue(char *in) {
     else return strtol(in, NULL, 10);
 }
 
-ContentContainer contentParser(string in) {
-    ContentContainer CC;
+DirectiveContentContainer contentParser(string in) {
+    DirectiveContentContainer CC;
     char *token;
     token = strtok((char *)in.c_str(), ", \t");
     CC.content1 = convertValue(token);
@@ -94,8 +94,8 @@ TokenContainer tokenize(string in) {
 Element* getElement(TokenContainer TC) {
     if (TC.amount == 0) return NULL;
     if (getType(TC.tokens[0]) == Label) {
-        Element *_element = new Element(TC.tokens[0]);
-        cout << "Label: " << _element->content << endl;
+        Element *_element = new Element((LabelContentContainer)TC.tokens[0]);
+        //cout << "Label: " << _element->content << endl;
         return _element;
     }
     if (getType(TC.tokens[0]) == Directive) {
@@ -107,8 +107,8 @@ Element* getElement(TokenContainer TC) {
         else if (TC.tokens[0] == ".set") _dir = Set;
         else
             return NULL;
-        Element *_element = new Element(_dir, (TC.tokens[1] + ',' + TC.tokens[2]));
-        cout << "Directive: " << _element->dir << " Content: " << _element->content << endl;
+        Element *_element = new Element(_dir, contentParser(TC.tokens[1] + ',' + TC.tokens[2]));
+        //cout << "Directive: " << _element->dir << " Content: " << _element->content << endl;
         return _element;
     }
     OpCodeType _op;
@@ -131,8 +131,8 @@ Element* getElement(TokenContainer TC) {
     else if (TC.tokens[0] == "stm") _op = Stor_M;
     else
         return NULL;
-    Element *_element = new Element(_op, TC.tokens[1]);
-    cout << "Instruction: " << _element->opcode << " Content: " << _element->content << endl;
+    Element *_element = new Element(_op, (InstructionContentContainer)convertValue((char *)TC.tokens[1].c_str()));
+    //cout << "Instruction: " << _element->opcode << " Content: " << _element->content << endl;
 
     return NULL;
 }
