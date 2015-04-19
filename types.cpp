@@ -16,11 +16,18 @@ typedef struct  {
     int amount;
 }TokenContainer;
 
+// Directive Content Container, reune 1 ou 2 dos argumentos de uma diretiva
 typedef struct {
     int64_t content1;
     int64_t content2;
     int amount;
-}ContentContainer;
+}DirectiveContentContainer;
+
+// Instruction Contentn Container, armazena o argumento de uma instrução
+typedef int InstructionContentContainer;
+
+// Label Content Container, armazena o argumento de um label
+typedef string LabelContentContainer;
 
 // Tipos de elementos
 typedef enum {
@@ -69,33 +76,39 @@ typedef enum {
 // Elemento
 class Element {
  public:
-    Element(string _content);
-    Element(DirectiveType _dir, string _content);
-    Element(OpCodeType _op, string _content);
+    Element(LabelContentContainer _content);
+    Element(DirectiveType _dir, DirectiveContentContainer _content);
+    Element(OpCodeType _op, InstructionContentContainer _content);
+ private:
     ElementType type;
-    string content;
+    
+    //union content {
+    DirectiveContentContainer DCC;
+    InstructionContentContainer ICC;
+    LabelContentContainer LCC;
+    //}C;
 
     DirectiveType dir;
     OpCodeType opcode;
 };
 
 // Construtor para elemento do tipo Label
-Element::Element(string _content) {
+Element::Element(LabelContentContainer _content) {
     // Campos de Label
     type = Label;
-    content = _content;
+    LCC = _content;
 }
 
 // Construtor para elemento do tipo Diretiva
-Element::Element(DirectiveType _dir, string _content) {
+Element::Element(DirectiveType _dir, DirectiveContentContainer _content) {
     type = Directive;
     dir = _dir;
-    content = _content;
+    DCC = _content;
 }
 
 // Construtor para elemento tipo Operacao
-Element::Element(OpCodeType _op, string _content) {
+Element::Element(OpCodeType _op, InstructionContentContainer _content) {
     type = Instruction;
     opcode = _op;
-    content = _content;
+    ICC = _content;
 }
