@@ -33,10 +33,36 @@ ElementType getType(string in) {
 }
 
 string splitLabel(string *in) {
+    // cout << "splitLabel in: " << *in << endl;
     int pos = in->find(':');
     if (pos == -1) return "";
+    string tmp = in->substr(0, pos + 1);
     *in = in->substr(pos + 1);
-    return in->substr(0, pos + 1);
+    // cout << "splitLabel new in: " << *in << endl;
+    // cout << "splitLabel retval: " << tmp << endl;
+    return tmp;
+}
+
+int64_t convertValue(char *in) {
+    if (in[1] == 'x') return strtol(in + 2, NULL, 16);
+    else if (in[1] == 'b') return strtol(in + 2, NULL, 2);
+    else if (in[1] == 'o') return strtol(in + 2, NULL, 8);
+    else return strtol(in, NULL, 10);
+}
+
+ContentContainer contentParser(string in) {
+    ContentContainer CC;
+    char *token;
+    token = strtok((char *)in.c_str(), ", \t");
+    CC.content1 = convertValue(token);
+    token = strtok(NULL, ", \t");
+    if (token == NULL) {
+        CC.amount = 1;
+        return CC;
+    }
+    CC.content2 = convertValue(token);
+    CC.amount = 2;
+    return CC;
 }
 
 TokenContainer tokenize(string in) {
@@ -45,11 +71,9 @@ TokenContainer tokenize(string in) {
     if (in == "") return TC;
 
     int i = 0;
-    char tempCA[50];
-    strcpy(tempCA, in.c_str());
     char *token;
 
-    token = strtok(tempCA, ", \t");
+    token = strtok((char *)in.c_str(), ", \t");
 
     while(token != NULL) {
         (TC.tokens[i++]).assign(token);
