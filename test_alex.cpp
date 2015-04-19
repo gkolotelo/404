@@ -26,14 +26,19 @@ class MemoryMap{
 	int addr;
 	Side side;
 	tipo label_link;
-	add(){
-		switch(elem.type)
-			case Label:
-			case Instruction:
-			case Directive:
-	}
+
 };
 
+//Tem que pensar como vai ser isso
+//Acho q ao inves de ser uma funcao sozinha, 
+//vai ser uma etapa da main ou de outra funcao.
+void add(){
+	switch(elem.type){
+		case Label:
+		case Instruction:
+		case Directive:
+	}
+}
 
 
 
