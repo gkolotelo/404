@@ -16,6 +16,12 @@ typedef struct  {
     int amount;
 }TokenContainer;
 
+typedef struct {
+    int64_t content1;
+    int64_t content2;
+    int amount;
+}ContentContainer;
+
 // Tipos de elementos
 typedef enum {
     Label,
