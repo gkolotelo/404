@@ -30,10 +30,12 @@ typedef enum{
 	Load_MX,
 	Load_MX_neg,
 	Load_MX_mod,
-	Jump_M_L,
-	Jump_M_R,
-	Jump_M_cond_L,
-	Jump_M_cond_R,
+	Jump_M,
+	//Jump_M_L,
+	//Jump_M_R,
+	Jump_M_P, //P por causa do plus
+	//Jump_M_cond_L,
+	//Jump_M_cond_R,
 	Add_MX,
 	Add_MX_mod,
 	Sub_MX,
@@ -42,8 +44,9 @@ typedef enum{
 	Div_MX,
 	Lsh,
 	Rsh,
-	Stor_M_L,
-	Stor_M_R
+	Stor_M,
+	//Stor_M_L,
+	//Stor_M_R
 }OpCodeType;
 
 //Tipos de diretivas

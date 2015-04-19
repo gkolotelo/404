@@ -6,24 +6,56 @@
 //#include "reading.cpp"
 
 //Main para testes
-int main(){
-	Element lab("ThisIsALabel");
-	Element op(Sub_MX, "ThisIsAOperation");
-	Element dir(Wfill,"ThisIsADirective");
-	
-	cout 	<< "Label: " << lab.content << " | tipo: " << lab.type << endl 
-			<< "Operacao: " << op.content << " | tipo: " << op.type << " | " << op.opcode << endl
-			<< "Diretiva: " << dir.content << " | tipo: " << dir.type << " | " << dir.dir << endl;
-}
+//int main(){
+//	Element lab("ThisIsALabel");
+//	Element op(Sub_MX, "ThisIsAOperation");
+//	Element dir(Wfill,"ThisIsADirective");
+//	
+//	cout 	<< "Label: " << lab.content << " | tipo: " << lab.type << endl 
+//			<< "Operacao: " << op.content << " | tipo: " << op.type << " | " << op.opcode << endl
+//			<< "Diretiva: " << dir.content << " | tipo: " << dir.type << " | " << dir.dir << endl;
+//}
 
-//int interpreter();
+typedef enum{
+	Left,
+	Right
+}Side;
 
-//void assembly(){
-//	//Loop de leitura
-//	while(){
-//		//Loop de traducao
-//		while(){
+class MemoryMap{
+	Element elem;
+	int addr;
+	Side side;
+	tipo label_link;
+	add(){
+		switch(elem.type)
+			case Label:
+			case Instruction:
+			case Directive:
+	}
+};
+
+
+
+
+
+//void montagem(){
+//	while(leitura(arquivo, linha)){
+//		for each elemento in linha{ //acho q precisa de um interpretador
+//			switch(elemento.type){
+//				case label{
 //
+//				}
+//				case directive{
+//
+//				}
+//				case operation{
+//
+//				}
+//			}
 //		}
 //	}
+//}
+//
+//void escrita(memorymap){
+//
 //}
