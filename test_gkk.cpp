@@ -7,6 +7,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <list>
 
 #include "types.cpp"
 #include "reading.cpp"
@@ -32,27 +33,47 @@ int main(int argc, char *argv[]) {
 
     fs.open(argv[1], fstream::in);
 
-    while (getline(fs, tempStr, '\n')) {
-        // Strip comments out of input line
-        tempStr = getLineNoCommentLowercase(tempStr);
-        // Cria Element somente dos tokens correspondentes ao label, se existir
-        getElement(tokenize(splitLabel(&tempStr)));
-        // Cria Element de diretiva ou instrução
-        getElement(tokenize(tempStr));
+    // while (getline(fs, tempStr, '\n')) {
+    //     // Strip comments out of input line
+    //     tempStr = getLineNoCommentLowercase(tempStr);
+    //     // Cria Element somente dos tokens correspondentes ao label, se existir
+    //     getElement(tokenize(splitLabel(&tempStr)));
+    //     // Cria Element de diretiva ou instrução
+    //     getElement(tokenize(tempStr));
+    // 
+    //     // cout << tempStr << endl;
+    //     // if (tempStr.length() != 0)
+    //     // {
+    //     //   pos = tempStr.find(':');
+    //     //   //cout << tempStr << endl;
+    //     //   if(pos != -1) // Linha possui label:
+    //     //   {
+    //     //       getElement(tokenize(tempStr.substr(0, pos + 1))); // Cria Element somente do label, se existir
+    //     //       tempStr = tempStr.substr(pos + 1);
+    //     //   }
+    //     //   getElement(tokenize(tempStr)); // Cria Element de diretiva ou instrução
+    //     // }
+    // }
 
-        // cout << tempStr << endl;
-        // if (tempStr.length() != 0)
-        // {
-        //   pos = tempStr.find(':');
-        //   //cout << tempStr << endl;
-        //   if(pos != -1) // Linha possui label:
-        //   {
-        //       getElement(tokenize(tempStr.substr(0, pos + 1))); // Cria Element somente do label, se existir
-        //       tempStr = tempStr.substr(pos + 1);
-        //   }
-        //   getElement(tokenize(tempStr)); // Cria Element de diretiva ou instrução
-        // }
-    }
+
+
+
+            // List Example:
+        // #include <list>
+        std::list<string> list_sample;
+        std::list<string>::iterator list_iterator;
+        for (int i = 0; i < 10; i++) {  // Adicionar 10 inteiros a lista
+            list_sample.push_back( ("Number: " + to_string(i)) ); // Adiciona ao fim da lista, tem outras funcoes de insercao tbm
+            cout << "Just inserted: '" << list_sample.back() << "' to list_sample" << endl;  // .back acessa ultimo elemento da lista sem remove-lo 
+        }
+        cout << "# of elements in list: " << list_sample.size() << endl;
+        cout << "Printing list: \n" << endl;
+        for (list_iterator = list_sample.begin(); list_iterator != list_sample.end(); list_iterator++) {  // Iterar pelo numero de elementos
+            string tmp = *list_iterator;  // pegar elementos do comeco da lista -> FIFO
+            list_sample.pop_front();  // remover elemento
+            cout << tmp << endl;  // imprimir elemento
+        }
+        cout << "# of elements in list: " << list_sample.size() << endl;
 
     end_ = mach_absolute_time();
     elapsed_ = end_ - start_;
