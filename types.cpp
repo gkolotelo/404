@@ -29,7 +29,7 @@ typedef enum{
 	Stor_MX,
 	Load_MX,
 	Load_MX_neg,
-	Load_MX_mod,
+	Load_MX_abs,
 	Jump_M,
 	//Jump_M_L,
 	//Jump_M_R,
