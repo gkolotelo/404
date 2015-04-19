@@ -37,9 +37,9 @@ typedef enum{
 	//Jump_M_cond_L,
 	//Jump_M_cond_R,
 	Add_MX,
-	Add_MX_mod,
+	Add_MX_abs, //Add_MX_mod
 	Sub_MX,
-	Sub_MX_mod,
+	Sub_MX_abs, //Sub_MX_mod
 	Mul_MX,
 	Div_MX,
 	Lsh,
