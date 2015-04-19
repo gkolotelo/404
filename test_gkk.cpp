@@ -6,11 +6,9 @@
 #include "types.cpp"
 #include "reading.cpp"
 
-
 uint64_t        start_, end_, elapsed_;
 
 using namespace std;
-
 
 int main(int argc, char *argv[])
 {
@@ -22,10 +20,10 @@ int main(int argc, char *argv[])
 
 	fstream fs;
 	string tempStr, tempStr2;
-	TokenContainer TC;
-	int pos;
-	char tempStrCA[100];
-	char *token1, *token2;
+	//int pos;
+	//TokenContainer TC;
+	//char tempStrCA[100];
+	//char *token1, *token2;
 
 	start_ = mach_absolute_time();
 
@@ -34,36 +32,21 @@ int main(int argc, char *argv[])
 	while(getline(fs, tempStr, '\n'))
 	{
 		tempStr = getLineNoCommentLowercase(tempStr); // Strip comments out of input line
+		getElement(tokenize(splitLabel(&tempStr))); // Cria Element somente dos tokens correspondentes ao label, se existir
+		getElement(tokenize(tempStr)); // Cria Element de diretiva ou instrução
 		//cout << tempStr << endl;
-		if (tempStr.length() != 0)
-		{
-			pos = tempStr.find(':');
-			//cout << "POS: " << pos << endl;
-			if(pos != -1) // Has label
-			{
-				getElement(tokenize(tempStr.substr(0, tempStr.find(':') + 1)));
-				// getElements();
-				getElement(tokenize(tempStr.substr(pos + 1)));
-				// getElements();
-			}
-			else
-			{
-				getElement(tokenize(tempStr));
-				// getElements();
-			}
-
-			//stringstream data;
-			//strcpy(tempStrCA, tempStr.c_str());
-			//tokenize(tempStrCA, &TC);
-			//cout << TC.amount << '|';
-			//for(int i=0; i < 5; i++)
-			//{
-			//	cout << getType(TC.tokens[i]) << '|';
-			//}
-			//cout << endl;
-
-			
-		}
+		//if (tempStr.length() != 0)
+		//{
+		//	pos = tempStr.find(':');
+		//	//cout << tempStr << endl;
+		//	if(pos != -1) // Linha possui label:
+		//	{
+		//		getElement(tokenize(tempStr.substr(0, pos + 1))); // Cria Element somente do label, se existir
+		//		tempStr = tempStr.substr(pos + 1);
+		//	}
+		//	getElement(tokenize(tempStr)); // Cria Element de diretiva ou instrução
+		//}
+		
 		
 	}
 
