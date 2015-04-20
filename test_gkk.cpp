@@ -81,6 +81,7 @@ void MemoryMap::add(Element* _elem) {
         ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
         cursor++;
     }
+
     else if ((*_elem).type == Directive) {
         // TODO: switch-cases
         // Aparentemente diretivas nao causam um incremento em cursor
@@ -94,12 +95,12 @@ void MemoryMap::add(Element* _elem) {
             case Org:
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
-                getNewCursor(_elem->DCC, &cursor)  // Se DCC é numerico, seta novo cursor, senao procura
-                                                   // no mapa de labels por um set para setar novo cursor
+                getNewCursor(_elem->DCC, &cursor);  // Se DCC é numerico, seta novo cursor, senao procura
+                                                    // no mapa de labels por um set para setar novo cursor
                 break;
             case Align:
-                align(_elem->DCC, &cursor) // Se DCC é numerico, seta novo cursor, senao procura
-                                           // no mapa de labels por um set para setar novo cursor
+                align(_elem->DCC, &cursor); // Se DCC é numerico, seta novo cursor, senao procura
+                                            // no mapa de labels por um set para setar novo cursor
                 break;
             case Wfill:
                 for (int i = 0; i < convertValue(_elem->DCC.content1); i++) {
@@ -117,10 +118,16 @@ void MemoryMap::add(Element* _elem) {
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
                 // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
-                add(_elem->DCC.content1)
+                addLabel(_elem->DCC.content1);
                 break;
         }
     }
+
+    else if ((*_elem).type == Label) {
+        addLabel(_elem->LCC);
+    }
+
+    //else if ((*_elem).type == Word) // Novo tipo de elemento que deve ser criado
 
     me.addr = _addr;
     me.side = _side;
