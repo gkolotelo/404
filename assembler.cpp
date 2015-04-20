@@ -1,29 +1,72 @@
+// assembler.cpp
+// 
+
+
+#include <string>
+
+using namespace std;
+
+#ifndef types_cpp
+    #include "types.cpp"
+#endif
+#define assembler_cpp
+
 typedef enum{
     Left,
     Right
-}Side;
+} Side;
+
+typedef struct {
+    
+} LabelType;
 
 typedef struct {
     Element *elem;
     int addr;
     Side side;
-    link_type labelLink
+    LabelType labelLink;
 } MemoryElement;
 
-class MemoryMap{
+class LabelMap {
  private:
     list<MemoryElement> memoryList;
     list<MemoryElement>::iterator memoryIterator;
+ public:
+    LabelType updateLabel(InstructionContentContainer ICC);
+    LabelType updateLabel(LabelContentContainer LCC, int addr);
+    LabelType addLabel(LabelContentContainer LCC, int addr);
+
+};
+
+LabelType LabelMap::updateLabel(InstructionContentContainer ICC) {
+
+}
+
+LabelType LabelMap::updateLabel(LabelContentContainer LCC, int addr) {
+
+}
+
+LabelType LabelMap::addLabel(LabelContentContainer LCC, int addr) {
+
+}
+
+class MemoryMap {
+ private:
+    list<MemoryElement> memoryList;
+    list<MemoryElement>::iterator memoryIterator;
+    LabelMap *labelMap = new LabelMap();
     int cursor = 0;  // left se par, right se impar
 
-    string computeAddress(int addr);
-    string generateLine(string addr, MemoryElement el1, MemoryElement el2);
-
+    string generateLine(string add, MemoryElement el1, MemoryElement el2);
+    int getNewCursor(DirectiveContentContainer DCC, int *cursor);
+    int align(DirectiveContentContainer DCC, int *cursor);
+    string getAddressHexStr(int addr);
+    bool isLast();
 
  public:
     void add(Element *el);
-    void printMemoryMap();
-    bool isLast();
+
+    void printMemoryMap(fstream outputFS);
     //TODO: mais algum metodo?
 };
 
@@ -36,11 +79,13 @@ void MemoryMap::add(Element* _elem) {
     if ((*_elem).GetElementType() == Instruction) {
         insert_into_map = TRUE;
         switch((*_elem).GetOpCodeType()){
-            //Instrucoes sem endereco
+            // Instrucoes sem endereco
+            // Fully defined
             case Load_MQ: break;
             case Lsh: break;
             case Rsh: break;
-            //Instrucoes com endereco
+            case Null: break;
+            // Instrucoes com endereco
             case Load_MQ_MX:
             case Stor_MX:
             case Load_MX:
@@ -59,7 +104,7 @@ void MemoryMap::add(Element* _elem) {
                 // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
                 // Atencao! Nao há ':' na label em ICC, tratar isso corretamente no LabelMap
                 // Atencao! considerar caso em que content nao é label e sim valor hex
-                ME.labelLink = updateLabel(_elem->GetInstructionContentContainer());
+                ME.labelLink = labelMap->updateLabel(_elem->GetInstructionContentContainer());
                 break;
         }
     }
@@ -87,27 +132,27 @@ void MemoryMap::add(Element* _elem) {
             case Wfill:
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
-                    add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
-                    add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
+                    //add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
+                    //add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
                 }
                 break;
             case Word:
                 // quebrar _elem->DCC.content1 em 1st e 2nd half_of_words
-                add(new Element(1st_half_of_word));
-                add(new Element(2nd_half_of_word));
+                //add(new Element(1st_half_of_word));
+                //add(new Element(2nd_half_of_word));
                 break;
             case Set:
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
                 // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
-                updateLabel(_elem->GetDirectiveContentContainer().content1);
+                labelMap->updateLabel(_elem->GetDirectiveContentContainer().content1);
                 break;
         }
     }
 
-    else if ((*_elem).GetElementType()== Label) {
+    else if ((*_elem).GetElementType() == Label) {
         // Adiciona nova label se esta ainda nao existe com address = cursor/2, se a label ja existe apenas insere o endereco
-        updateLabel(_elem->GetLabelContentContainer(), (cursor/2));
+        labelMap->updateLabel(_elem->GetLabelContentContainer(), (cursor/2));
     }
 
     else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
@@ -116,7 +161,7 @@ void MemoryMap::add(Element* _elem) {
     }
 
     if (insert_into_map) {
-        ME.side = (cursor % 2)  // 0 se left (par), 1 se right (impar)
+        ME.side = (Side)(cursor % 2);  // 0 se left (par), 1 se right (impar)
         ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
         cursor++;
         if(isLast()){
@@ -132,20 +177,20 @@ void MemoryMap::add(Element* _elem) {
     }
 }
 
-void MemoryMap::printMemoryMap(fstream fs) {
+void MemoryMap::printMemoryMap(fstream outputFS) {
     MemoryElement e1, e2;
     string line;
-    fs.open();
+    //outputFS.open();
     for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++)
     {
         e1 = *memoryIterator++;
         e2 = *memoryIterator++;  // Don't need to check if it's past end, because elements must always come in pairs
 
-        line = generateLine(computeAddress(e1.addr), e1, e2);
+        line = generateLine(getAddressHexStr(e1.addr), e1, e2);
 
-        fs << line << '\n';
+        outputFS << line << '\n';
     }
-    fs.close();
+    outputFS.close();
 }
 
 bool MemoryMap::isLast(){
@@ -153,4 +198,20 @@ bool MemoryMap::isLast(){
         return true;
     else 
         return false;
+}
+
+string MemoryMap::getAddressHexStr(int addr) {
+
+}
+
+string MemoryMap::generateLine(string add, MemoryElement el1, MemoryElement el2) {
+
+}
+
+int MemoryMap::getNewCursor(DirectiveContentContainer DCC, int *cursor) {
+
+}
+
+int MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
+
 }
