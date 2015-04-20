@@ -16,9 +16,12 @@ typedef enum{
     Right
 } Side;
 
-typedef struct {
-    
-} LabelType;
+//typedef struct {
+//    
+//} LabelType;
+
+// Temporary!
+typedef string LabelType;
 
 typedef struct {
     Element *elem;
@@ -51,15 +54,15 @@ LabelType LabelMap::addLabel(LabelContentContainer LCC, int addr) {
 }
 
 class MemoryMap {
- private:
+ public:
     list<MemoryElement> memoryList;
-    list<MemoryElement>::iterator memoryIterator;
+    list<MemoryElement>::iterator memoryIterator = memoryList.begin();
     LabelMap *labelMap = new LabelMap();
     int cursor = 0;  // left se par, right se impar
 
     string generateLine(string add, MemoryElement el1, MemoryElement el2);
-    int getNewCursor(DirectiveContentContainer DCC, int *cursor);
-    int align(DirectiveContentContainer DCC, int *cursor);
+    bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
+    void align(DirectiveContentContainer DCC, int *cursor);
     string getAddressHexStr(int addr);
     bool isLast();
 
@@ -72,9 +75,13 @@ class MemoryMap {
 
 void MemoryMap::add(Element* _elem) {
     //Adiciona um MemoryElement na lista do MemoryMap
+    if (_elem == NULL) return;
+    //if (cursor > MAX_MEMORY_LINES * 2)  // ADD_ERROR maximo numero de addresses usados
     MemoryElement ME;
     ME.elem = _elem;
-    bool insert_into_map = FALSE;
+    ME.side = (Side)(cursor % 2);  // 0 se left (par), 1 se right (impar)
+    ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
+    bool insert_into_map = FALSE;  // Change to FALSE
 
     if ((*_elem).GetElementType() == Instruction) {
         insert_into_map = TRUE;
@@ -104,7 +111,7 @@ void MemoryMap::add(Element* _elem) {
                 // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
                 // Atencao! Nao há ':' na label em ICC, tratar isso corretamente no LabelMap
                 // Atencao! considerar caso em que content nao é label e sim valor hex
-                ME.labelLink = labelMap->updateLabel(_elem->GetInstructionContentContainer());
+                ME.labelLink = _elem->GetInstructionContentContainer();//labelMap->updateLabel(_elem->GetInstructionContentContainer());
                 break;
         }
     }
@@ -122,12 +129,17 @@ void MemoryMap::add(Element* _elem) {
             case Org:
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
-                getNewCursor(_elem->GetDirectiveContentContainer(), &cursor);  // Se DCC é numerico, seta novo cursor, senao procura
-                                                    // no mapa de labels por um set para setar novo cursor
+                if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
+
+                }
+                // Se DCC é numerico, seta novo cursor, senao procura
+                 // no mapa de labels por um set para setar novo cursor
                 break;
             case Align:
-                align(_elem->GetDirectiveContentContainer(), &cursor); // Se DCC é numerico, seta novo cursor, senao procura
-                                            // no mapa de labels por um set para setar novo cursor
+                if (ME.side == Right)  // Devemos completar Right com zeros (Element())
+                    add(new Element());
+                align(_elem->GetDirectiveContentContainer(), &cursor);
+                // Se DCC é numerico, seta novo cursor, senao procura no mapa de labels por um set para setar novo cursor
                 break;
             case Wfill:
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
@@ -138,6 +150,7 @@ void MemoryMap::add(Element* _elem) {
                 break;
             case Word:
                 // quebrar _elem->DCC.content1 em 1st e 2nd half_of_words
+                // Fazer funcao splitWord()
                 //add(new Element(1st_half_of_word));
                 //add(new Element(2nd_half_of_word));
                 break;
@@ -149,33 +162,33 @@ void MemoryMap::add(Element* _elem) {
                 break;
         }
     }
-
+    
     else if ((*_elem).GetElementType() == Label) {
         // Adiciona nova label se esta ainda nao existe com address = cursor/2, se a label ja existe apenas insere o endereco
         labelMap->updateLabel(_elem->GetLabelContentContainer(), (cursor/2));
     }
-
+    
     else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
         insert_into_map = TRUE;
         
     }
-
+    
     if (insert_into_map) {
-        ME.side = (Side)(cursor % 2);  // 0 se left (par), 1 se right (impar)
-        ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
+        cout << "Cursor: " << cursor << endl;
         cursor++;
-        if(isLast()){
-            //Insere no fim da lista
-            memoryList.push_back(ME);
-            memoryIterator = memoryList.end();
-        }
-        else{
-        	if(memoryIterator->addr == ME.addr){
-	            //Sobrescreve o elemento da lista
-	            memoryIterator = memoryList.erase(memoryIterator);
-	        }
-	        memoryIterator = memoryList.insert(memoryIterator, ME);
-        }
+        memoryList.push_back(ME);
+        //if(isLast()){
+        //    //Insere no fim da lista
+        //    memoryList.push_back(ME);
+        //    memoryIterator = memoryList.end();
+        //}
+        //else{
+        //	if(memoryIterator->addr == ME.addr){
+	    //       //Sobrescreve o elemento da lista
+	    //       memoryIterator = memoryList.erase(memoryIterator);
+	    //   }
+	    //   memoryIterator = memoryList.insert(memoryIterator, ME);
+        //}
     }
 }
 
@@ -210,10 +223,18 @@ string MemoryMap::generateLine(string add, MemoryElement el1, MemoryElement el2)
 
 }
 
-int MemoryMap::getNewCursor(DirectiveContentContainer DCC, int *cursor) {
-
+bool MemoryMap::getNewCursor(DirectiveContentContainer DCC, int *cursor) {
+    int new_cursor = 2*convertValue(DCC.content1);  // DCC.content1 é o argumento de .align
+    if (new_cursor < *cursor) {
+        *cursor = new_cursor;
+        return TRUE;
+    }
+    *cursor = new_cursor;
+    return FALSE;
 }
 
-int MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
-
+void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
+    int align_arg = convertValue(DCC.content1); 
+    int correction = (align_arg - (*cursor % align_arg));
+    *cursor = *cursor + correction;
 }
