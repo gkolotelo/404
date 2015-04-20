@@ -33,35 +33,113 @@ typedef struct {
 class MemoryMap{
  private:
     list<MemoryElement> memoryList;
-    list<MemoryElement>::iterator memoryListIterator;
-    int cursor;
+    list<MemoryElement>::iterator memoryIterator;
+    int cursor = 0;
 
-    string computeAddress(int addr) {
+    string computeAddress(int addr);
+    string generateLine(string addr, MemoryElement el1, MemoryElement el2);
 
-    }
-
-    string generateLine(string addr, MemoryElement el1, MemoryElement el2) {
-            
-    }
 
  public:
-    void add(Element el);
+    void add(Element *el);
     void printMemoryMap();
+    bool isLast();
     //TODO: mais algum metodo?
 };
 
-void MemoryMap::printMemoryMap() {
-    MemoryElement e1, e2;
-    string line;
-    for (memoryListIterator = memoryList.begin(); memoryListIterator != memoryList.end(); memoryListIterator++)
-    {
-        e1 = *memoryListIterator++;
-        e2 = *memoryListIterator++;  // Don't need to check if it's past end, because elements must always come in pairs
+void MemoryMap::add(Element* _elem){
+    //Adiciona um MemoryElement na lista do MemoryMap
+    MemoryElement me;
+    me.elem = _elem;
 
-        line = generateLine(computeAddress(e1.addr), e1, e2);
+    if((*_elem).type == Instruction){
+        switch((*_elem).opcode){
+            //Instrucoes sem endereco
+            case Load_MQ: break;
+            case Lsh: break;
+            case Rsh: break;
+            //Instrucoes com endereco
+            case Load_MQ_MX:
+            case Stor_MX:
+            case Load_MX:
+            case Load_MX_neg:
+            case Load_MX_abs:
+            case Jump_M:
+            case Jump_M_P:
+            case Add_MX:
+            case Add_MX_abs:
+            case Sub_MX:
+            case Sub_MX_abs:
+            case Mul_MX:
+            case Div_MX:
+            case Stor_M:
+                //Resolve os labels
+                //TODO: chamar a BUSCA de label
+                //--> se existir: "linka"
+                //--> se nao existir: INSERT vazio
+                break;
+        }
+    }
+    else{
+        //Diretiva
+        //TODO: switch-cases
+        switch((*elem).DirectiveType){
+            case Org:
+                //Mudar origem
+                break;
+            case Align:
+                //Pular linha
+                break;
+            case Wfill:
+                //Preencher varias linhas com a mesma palavra
+                break;
+            case Word:
+                //Preencher uma linha com uma palavra
+                break;
+            case Set:
+                //Parecido com label para uma word??
+                //TODO: verificar a semelhanca e possivel juncao
+                break;
+        }
+    }
+
+    me.addr = _addr;
+    me.side = _side;
+
+    if(isLast()){
+        //Insere no fim da lista
+        memoryList.push_back(me);
+        memoryIterator = memoryList.end();
+    }
+    else{
+        //Sobrescreve os elementos da lista
+        memoryIterator = memoryList.erase(memoryIterator);
+        memoryIterator = memoryList.insert(memoryIterator, me);
     }
 }
 
+void MemoryMap::printMemoryMap(fstream fs) {
+    MemoryElement e1, e2;
+    string line;
+    fs.open();
+    for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++)
+    {
+        e1 = *memoryIterator++;
+        e2 = *memoryIterator++;  // Don't need to check if it's past end, because elements must always come in pairs
+
+        line = generateLine(computeAddress(e1.addr), e1, e2);
+
+        fs << line << '\n';
+    }
+    fs.close();
+}
+
+bool MemoryMap::isLast(){
+    if((memoryIterator != memoryList.end()) && (next(memoryIterator) == memoryList.end()))
+        return true;
+    else 
+        return false;
+}
 
 
 
