@@ -22,7 +22,7 @@ typedef enum{
 }Side;
 
 typedef struct {
-    Element elem;
+    Element* elem;
     int addr;
     Side side;
 } MemoryElement;
@@ -30,6 +30,7 @@ typedef struct {
 class MemoryMap{
  private:
     list<MemoryElement> memoryList;
+    list<MemoryElement>::iterator memoryIterator;
     int cursor;
 
  public:
@@ -38,25 +39,21 @@ class MemoryMap{
     //TODO: mais algum metodo?
 };
 
+void MemoryMap::add(Element el){
+    //TODO
+}
 
-int main(int argc, char *argv[])
-{
-    if(argc != 2)
-    {
-        printf("%s", "File path needed\n");
-        return 1;
-    }
+void MemoryMap::printMemoryMap(){
+    //TODO
+}
 
-    fstream fs;
-    string tempStr, tempStr2;
 
-    fs.open(argv[1], fstream::in);
+MemoryMap* assembly(fstream fs){
 
-    std::list<MemoryMap> memoryMap;
-    std::list<MemoryMap>::iterator mIterator;
+    MemoryMap* memMap = new MemoryMap();
+    string tempStr;
     Element* elem;
-
-    //assembly();
+    
     //Para cada linha no arquivo
     //Comeca a montar o MemoryMap, elemento a elemento
     while(getline(fs, tempStr, '\n'))
@@ -144,3 +141,44 @@ int main(int argc, char *argv[])
         }
     }
 }
+
+int main(int argc, char *argv[])
+{
+    if(argc != 2)
+    {
+        printf("%s", "File path needed\n");
+        return 1;
+    }
+
+    fstream fs;
+    fs.open(argv[1], fstream::in);
+
+    MemoryMap* memMap = assembly(fs);
+    //writeMap(memMap); //<-- Not defined yet
+
+}
+
+
+/* * * * * * * * * *
+ * Busca da label  *
+ * * * * * * * * * */
+
+
+
+findLabel(string _label){
+
+}
+
+int getLabelMapAddress(string _label){
+    int addr;
+    if (findLabel(_label)==NULL){
+        //
+    }
+    else{
+
+    }
+
+}
+
+
+
