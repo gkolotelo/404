@@ -76,9 +76,18 @@ typedef enum {
 // Elemento
 class Element {
  public:
+    // Constructors:
     Element(LabelContentContainer _content);
     Element(DirectiveType _dir, DirectiveContentContainer _content);
     Element(OpCodeType _op, InstructionContentContainer _content);
+    // Get, Set Methods:
+    ElementType GetElementType() const { return type; }
+    DirectiveContentContainer GetDirectiveContentContainer() const { return DCC; }
+    InstructionContentContainer GetInstructionContentContainer() const { return ICC; }
+    LabelContentContainer GetLabelContentContainer() const { return LCC; }
+    DirectiveType GetDirectiveType() const { return dir; }
+    OpCodeType GetOpCodeType() const { return opcode; }
+
  private:
     ElementType type;
     
