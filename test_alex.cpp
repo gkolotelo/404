@@ -36,21 +36,46 @@ class MemoryMap{
  public:
     void add(Element el);
     void printMemoryMap();
+    bool isLast();
     //TODO: mais algum metodo?
 };
 
-void MemoryMap::add(Element el){
-    //TODO
+void MemoryMap::add(Element* _elem, int _addr, Side _side){
+    //Adiciona um MemoryElement na lista do MemoryMap
+    MemoryElement me;
+    me.elem = _elem;
+    me.addr = _addr;
+    me.side = _side;
+
+    if(isLast()){
+        //Insere no fim da lista
+        memoryList.push_back(me);
+        memoryIterator = memoryList.end();
+    }
+    else{
+        //Sobrescreve os elementos da lista
+        memoryIterator = memoryList.erase(memoryIterator);
+        memoryIterator = memoryList.insert(memoryIterator, me);
+    }
 }
 
-void MemoryMap::printMemoryMap(){
-    //TODO
+bool MemoryMap::isLast(){
+    if((memoryIterator != memoryList.end()) && (next(memoryIterator) == memoryList.end()))
+        return true;
+    else 
+        return false;
 }
+
+//void MemoryMap::printMemoryMap(){
+//    //TODO
+//}
 
 
 MemoryMap* assembly(fstream fs){
 
     MemoryMap* memMap = new MemoryMap();
+
+
     string tempStr;
     Element* elem;
     
@@ -73,6 +98,7 @@ MemoryMap* assembly(fstream fs){
             //TODO: chamar o INSERT de label
             //--> se ja existir, so altera o valor do endereco
             //--> se nao existir, cria e insere o valor
+            insertLabel();
         }
         //else //Nao tem label
 
@@ -91,7 +117,8 @@ MemoryMap* assembly(fstream fs){
                 case Load_MQ:
                 case Lsh:
                 case Rsh:
-                    memoryMap.push_back(MemoryMap(elem));
+                    //memoryMap.push_back(MemoryMap(elem));
+                    memMap.add()
                     //TODO: controle de endereco e lado
                     break;
 
@@ -163,8 +190,14 @@ int main(int argc, char *argv[])
  * Busca da label  *
  * * * * * * * * * */
 
+// Arvore digital com subcadeia eh suficiente para nomes diferentes entre si no comeco da cadeia
+// Ha a possibilidade de usar HashTable tambem, da pra usar um desses espalhamentos: http://www.cse.yorku.ca/~oz/hash.html
 
+void insertLabel(){
 
+}
+
+//Retorno de findLabel vai depender do metodo de armazenamento/busca
 findLabel(string _label){
 
 }
