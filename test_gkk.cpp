@@ -48,12 +48,12 @@ class MemoryMap{
     //TODO: mais algum metodo?
 };
 
-void MemoryMap::add(Element* _elem){
+void MemoryMap::add(Element* _elem) {
     //Adiciona um MemoryElement na lista do MemoryMap
     MemoryElement ME;
     ME.elem = _elem;
 
-    if((*_elem).type == Instruction){
+    if ((*_elem).type == Instruction) {
         switch((*_elem).opcode){
             //Instrucoes sem endereco
             case Load_MQ: break;
@@ -81,25 +81,43 @@ void MemoryMap::add(Element* _elem){
         ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
         cursor++;
     }
-    else{
-        //Diretiva
-        //TODO: switch-cases
-        switch((*elem).DirectiveType){
+    else if ((*_elem).type == Directive) {
+        // TODO: switch-cases
+        // Aparentemente diretivas nao causam um incremento em cursor
+        switch((*_elem).DirectiveType){
+            // Todos tem que funcionar como label, pois podemos ter algo como:
+            // .set ORIGIN 0x00
+            // .set STD_ALIGNMENT 1
+            // .org ORIGIN
+            // .org align STD_ALIGNMENT
+            // etc...
             case Org:
-                //Mudar origem
+                // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
+                // portanto o "Label" correspondente de um set ja teria sido adicionado
+                getNewCursor(_elem->DCC, &cursor)  // Se DCC é numerico, seta novo cursor, senao procura
+                                                   // no mapa de labels por um set para setar novo cursor
                 break;
             case Align:
-                //Pular linha
+                align(_elem->DCC, &cursor) // Se DCC é numerico, seta novo cursor, senao procura
+                                           // no mapa de labels por um set para setar novo cursor
                 break;
             case Wfill:
-                //Preencher varias linhas com a mesma palavra
+                for (int i = 0; i < convertValue(_elem->DCC.content1); i++) {
+                    // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
+                    add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
+                    add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
+                }
                 break;
             case Word:
-                //Preencher uma linha com uma palavra
+                // quebrar _elem->DCC.content1 em 1st e 2nd half_of_words
+                add(new Element(1st_half_of_word));
+                add(new Element(2nd_half_of_word));
                 break;
             case Set:
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
+                // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
+                add(_elem->DCC.content1)
                 break;
         }
     }
