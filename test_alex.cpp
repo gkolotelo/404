@@ -5,7 +5,7 @@
 // Caso nao a busca retorne algo diferente de NULL, este e o endereco desejado.
 // Caso contrario, indica um erro, neste ponte de montagem, de referencia a um rotulo nao definido.
 
-
+#define LABEL_NOT_DEFINED -1
 
 #include <iostream>
 #include <fstream>
@@ -37,6 +37,7 @@ class MemoryMap{
     void add(Element el);
     void printMemoryMap();
     bool isLast();
+    void moveTo(int _addr);
     //TODO: mais algum metodo?
 };
 
@@ -53,8 +54,10 @@ void MemoryMap::add(Element* _elem, int _addr, Side _side){
         memoryIterator = memoryList.end();
     }
     else{
-        //Sobrescreve os elementos da lista
-        memoryIterator = memoryList.erase(memoryIterator);
+        if(memoryList.elem.addr == me.addr){
+            //Sobrescreve o elemento da lista
+            memoryIterator = memoryList.erase(memoryIterator);
+        }
         memoryIterator = memoryList.insert(memoryIterator, me);
     }
 }
@@ -64,6 +67,10 @@ bool MemoryMap::isLast(){
         return true;
     else 
         return false;
+}
+
+void moveTo(int _addr){
+
 }
 
 //void MemoryMap::printMemoryMap(){
@@ -193,25 +200,63 @@ int main(int argc, char *argv[])
 // Arvore digital com subcadeia eh suficiente para nomes diferentes entre si no comeco da cadeia
 // Ha a possibilidade de usar HashTable tambem, da pra usar um desses espalhamentos: http://www.cse.yorku.ca/~oz/hash.html
 
-void insertLabel(){
-
-}
-
-//Retorno de findLabel vai depender do metodo de armazenamento/busca
-findLabel(string _label){
-
-}
-
-int getLabelMapAddress(string _label){
+typedef struct{
+    string name;
     int addr;
-    if (findLabel(_label)==NULL){
-        //
-    }
-    else{
+}LabelElement;
 
+class LabelMap {
+ private:
+    list<LabelElement> labelList;
+    list<LabelElement>::iterator labelIterator;
+    //hashstring()
+    //inserthash()
+ public:
+    void setLabelAddress(string _labelname, int _addr);
+    int getLabelAddress(string _labelname);
+};
+
+void setLabelAddress(string _labelname, int _addr){
+    
+    //Procura se a label ja existe
+    for (labelIterator = labelList.begin(); labelIterator != labelList.end(); labelIterator++){
+        if(labelIterator->name == _labelname){
+            //Verifica se a label ainda nao foi definida
+            if(labelIterator->addr == LABEL_NOT_DEFINED){
+                labelIterator->addr = _addr;
+            }
+            //else //<--TODO: ADD_ERROR: Definicao dupla de label
+        }
     }
 
+    //Se nao existe, insere:
+    LabelElement le;
+    le.name = _labelname;
+    le.addr = _addr;
+    
+    labelList.push_back(le);
+    //inserthash(hashstring(_labelname))
+}
+//Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
+int getLabelAddress(string _labelname){
+    //Procura pela label
+    for (labelIterator = labelList.begin(); labelIterator != labelList.end(); labelIterator++){
+        if(labelIterator->name == _labelname)
+            return labelIterator->addr; 
+    }
+
+    //Se nao achar, retorna LABEL_NOT_DEFINED como endereco
+    return LABEL_NOT_DEFINED;
 }
 
+unsigned long hash(unsigned char *str)
+{
+    unsigned long hash = 5381;
+    int c;
 
+    while (c = *str++)
+        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */ //<--- 33 = magic number
+
+    return hash;
+}
 
