@@ -170,7 +170,7 @@ void MemoryMap::add(Element* _elem) {
             memoryIterator = memoryList.end();
         }
         else{
-        	if(memoryList.elem.addr == me.addr){
+        	if(memoryIterator->addr == ME.addr){
 	            //Sobrescreve o elemento da lista
 	            memoryIterator = memoryList.erase(memoryIterator);
 	        }
