@@ -28,6 +28,7 @@ typedef struct {
     Element *elem;
     int addr;
     Side side;
+    link_type labelLink
 } MemoryElement;
 
 class MemoryMap{
@@ -49,8 +50,8 @@ class MemoryMap{
 
 void MemoryMap::add(Element* _elem){
     //Adiciona um MemoryElement na lista do MemoryMap
-    MemoryElement me;
-    me.elem = _elem;
+    MemoryElement ME;
+    ME.elem = _elem;
 
     if((*_elem).type == Instruction){
         switch((*_elem).opcode){
@@ -73,12 +74,11 @@ void MemoryMap::add(Element* _elem){
             case Mul_MX:
             case Div_MX:
             case Stor_M:
-                //Resolve os labels
-                //TODO: chamar a BUSCA de label
-                //--> se existir: "linka"
-                //--> se nao existir: INSERT vazio
+                ME.labelLink = addLabel(_elem->ICC);
                 break;
         }
+        ME.side = (cursor % 2)  // 0 se left, 1 se right
+        ME.addr = cursor++;  // Seta endereço e incrementa
     }
     else{
         //Diretiva
