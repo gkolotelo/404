@@ -18,13 +18,13 @@ typedef struct  {
 
 // Directive Content Container, reune 1 ou 2 dos argumentos de uma diretiva
 typedef struct {
-    int64_t content1;
-    int64_t content2;
+    string content1;
+    string content2;
     int amount;
 }DirectiveContentContainer;
 
 // Instruction Contentn Container, armazena o argumento de uma instrução
-typedef int InstructionContentContainer;
+typedef string InstructionContentContainer; // Must handle labels
 
 // Label Content Container, armazena o argumento de um label
 typedef string LabelContentContainer;
