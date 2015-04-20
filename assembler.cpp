@@ -170,9 +170,11 @@ void MemoryMap::add(Element* _elem) {
             memoryIterator = memoryList.end();
         }
         else{
-            //Sobrescreve os elementos da lista
-            memoryIterator = memoryList.erase(memoryIterator);
-            memoryIterator = memoryList.insert(memoryIterator, ME);
+        	if(memoryList.elem.addr == me.addr){
+	            //Sobrescreve o elemento da lista
+	            memoryIterator = memoryList.erase(memoryIterator);
+	        }
+	        memoryIterator = memoryList.insert(memoryIterator, ME);
         }
     }
 }
