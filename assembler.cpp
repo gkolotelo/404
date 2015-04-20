@@ -59,46 +59,46 @@ typedef struct {
 typedef struct{
     string name;
     int addr;
-}LabelElement;
+}AddressElement;
 
-class LabelMap {
+class AddressMap {
  private:
-    list<LabelElement> labelList;
-    list<LabelElement>::iterator labelIterator;
+    list<AddressElement> addrList;
+    list<AddressElement>::iterator addrIterator;
     //hashstring()
     //inserthash()
  public:
-    void setLabelAddress(string _labelname, int _addr);
-    int getLabelAddress(string _labelname);
+    void setAddress(string _name, int _addr);
+    int getAddress(string _name);
 };
 
-void setLabelAddress(string _labelname, int _addr){
+void setAddress(string _name, int _addr){
     
     //Procura se a label ja existe
-    for (labelIterator = labelList.begin(); labelIterator != labelList.end(); labelIterator++){
-        if(labelIterator->name == _labelname){
+    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
+        if(addrIterator->name == _name){
             //Verifica se a label ainda nao foi definida
-            if(labelIterator->addr == LABEL_NOT_DEFINED){
-                labelIterator->addr = _addr;
+            if(addrIterator->addr == LABEL_NOT_DEFINED){
+                addrIterator->addr = _addr;
             }
             //else //<--TODO: ADD_ERROR: Definicao dupla de label
         }
     }
 
     //Se nao existe, insere:
-    LabelElement le;
-    le.name = _labelname;
-    le.addr = _addr;
+    AddressElement _e;
+    _e.name = _name;
+    _e.addr = _addr;
     
-    labelList.push_back(le);
-    //inserthash(hashstring(_labelname))
+    addrList.push_back(_e);
+    //inserthash(hashstring(_name))
 }
 //Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
-int getLabelAddress(string _labelname){
+int getAddress(string _name){
     //Procura pela label
-    for (labelIterator = labelList.begin(); labelIterator != labelList.end(); labelIterator++){
-        if(labelIterator->name == _labelname)
-            return labelIterator->addr; 
+    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
+        if(addrIterator->name == _name)
+            return addrIterator->addr; 
     }
 
     //Se nao achar, retorna LABEL_NOT_DEFINED como endereco
@@ -111,7 +111,12 @@ class MemoryMap {
  public:
     list<MemoryElement> memoryList;
     list<MemoryElement>::iterator memoryIterator = memoryList.begin();
-    LabelMap *labelMap = new LabelMap();
+
+    //LabelMap *labelMap = new LabelMap();
+    //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
+    AddressMap *labelMap = new AddressMap();
+    AddressMap *nameMap = new AddressMap();
+
     int cursor = 0;  // left se par, right se impar
 
     string generateLine(string add, MemoryElement el1, MemoryElement el2);
@@ -165,7 +170,7 @@ void MemoryMap::add(Element* _elem) {
                 // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
                 // Atencao! Nao há ':' na label em ICC, tratar isso corretamente no LabelMap
                 // Atencao! considerar caso em que content nao é label e sim valor hex
-                ME.labelLink = _elem->GetInstructionContentContainer();//labelMap->updateLabel(_elem->GetInstructionContentContainer());
+                //ME.labelLink = _elem->GetInstructionContentContainer();//labelMap->updateLabel(_elem->GetInstructionContentContainer());
                 break;
         }
     }
