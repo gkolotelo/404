@@ -128,5 +128,8 @@ Element::Element(DirectiveType _dir, DirectiveContentContainer _content) {
 Element::Element(OpCodeType _op, InstructionContentContainer _content) {
     type = Instruction;
     opcode = _op;
-    ICC = _content;
+    if (_content == "")
+        ICC = "000";
+    else
+        ICC = _content;
 }
