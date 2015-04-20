@@ -1,3 +1,11 @@
+// +-------------+
+// |Notas mentais|
+// +-------------+
+// A busca de label e efetuada na etapa de escrita.
+// Caso nao a busca retorne algo diferente de NULL, este e o endereco desejado.
+// Caso contrario, indica um erro, neste ponte de montagem, de referencia a um rotulo nao definido.
+
+
 
 #include <iostream>
 #include <fstream>
@@ -8,36 +16,27 @@
 
 using namespace std;
 
-//Main para testes
-//int main(){
-//	Element lab("ThisIsALabel");
-//	Element op(Sub_MX, "ThisIsAOperation");
-//	Element dir(Wfill,"ThisIsADirective");
-//	
-//	cout 	<< "Label: " << lab.content << " | tipo: " << lab.type << endl 
-//			<< "Operacao: " << op.content << " | tipo: " << op.type << " | " << op.opcode << endl
-//			<< "Diretiva: " << dir.content << " | tipo: " << dir.type << " | " << dir.dir << endl;
-//}
-
 typedef enum{
 	Left,
 	Right
 }Side;
 
-class MemoryMap{
-    Element* elem;
+typedef struct {
+    Element elem;
     int addr;
     Side side;
+} MemoryElement;
 
+class MemoryMap{
+ private:
+    list<MemoryElement> memoryList;
+    int cursor;
+
+ public:
+    void add(Element el);
+    void printMemoryMap();
+    //TODO: mais algum metodo?
 };
-
-
-
-MemoryMap::MemoryMap(Element* _e){
-    elem = _e;
-    addr = 0;
-    //Outras possiveis propriedades
-}
 
 
 int main(int argc, char *argv[])
@@ -74,7 +73,9 @@ int main(int argc, char *argv[])
         if(elem != NULL){
             //Definicao de uma label
             //Insere no container de labels (labellink?)
-            //TODO: chamar a insercao de label
+            //TODO: chamar o INSERT de label
+            //--> se ja existir, so altera o valor do endereco
+            //--> se nao existir, cria e insere o valor
         }
         //else //Nao tem label
 
@@ -113,7 +114,9 @@ int main(int argc, char *argv[])
                 case Div_MX:
                 case Stor_M:
                     //Resolve os labels
-                    //TODO: chamar o "resolvedor de label"
+                    //TODO: chamar a BUSCA de label
+                    //--> se existir: "linka"
+                    //--> se nao existir: INSERT vazio
                     break;
             }
         }
