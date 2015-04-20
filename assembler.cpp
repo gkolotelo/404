@@ -11,6 +11,9 @@ using namespace std;
 #endif
 #define assembler_cpp
 
+#define LABEL_NOT_DEFINED -1
+
+
 typedef enum{
     Left,
     Right
@@ -30,28 +33,79 @@ typedef struct {
     LabelType labelLink;
 } MemoryElement;
 
+//class LabelMap {
+// private:
+//    list<MemoryElement> memoryList;
+//    list<MemoryElement>::iterator memoryIterator;
+// public:
+//    LabelType updateLabel(InstructionContentContainer ICC);
+//    LabelType updateLabel(LabelContentContainer LCC, int addr);
+//    LabelType addLabel(LabelContentContainer LCC, int addr);
+//
+//};
+
+//LabelType LabelMap::updateLabel(InstructionContentContainer ICC) {
+//    // Tratar redefinicoes como erros
+//}
+//
+//LabelType LabelMap::updateLabel(LabelContentContainer LCC, int addr) {
+//
+//}
+//
+//LabelType LabelMap::addLabel(LabelContentContainer LCC, int addr) {
+//
+//}
+
+typedef struct{
+    string name;
+    int addr;
+}LabelElement;
+
 class LabelMap {
  private:
-    list<MemoryElement> memoryList;
-    list<MemoryElement>::iterator memoryIterator;
+    list<LabelElement> labelList;
+    list<LabelElement>::iterator labelIterator;
+    //hashstring()
+    //inserthash()
  public:
-    LabelType updateLabel(InstructionContentContainer ICC);
-    LabelType updateLabel(LabelContentContainer LCC, int addr);
-    LabelType addLabel(LabelContentContainer LCC, int addr);
-
+    void setLabelAddress(string _labelname, int _addr);
+    int getLabelAddress(string _labelname);
 };
 
-LabelType LabelMap::updateLabel(InstructionContentContainer ICC) {
-    // Tratar redefinicoes como erros
+void setLabelAddress(string _labelname, int _addr){
+    
+    //Procura se a label ja existe
+    for (labelIterator = labelList.begin(); labelIterator != labelList.end(); labelIterator++){
+        if(labelIterator->name == _labelname){
+            //Verifica se a label ainda nao foi definida
+            if(labelIterator->addr == LABEL_NOT_DEFINED){
+                labelIterator->addr = _addr;
+            }
+            //else //<--TODO: ADD_ERROR: Definicao dupla de label
+        }
+    }
+
+    //Se nao existe, insere:
+    LabelElement le;
+    le.name = _labelname;
+    le.addr = _addr;
+    
+    labelList.push_back(le);
+    //inserthash(hashstring(_labelname))
+}
+//Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
+int getLabelAddress(string _labelname){
+    //Procura pela label
+    for (labelIterator = labelList.begin(); labelIterator != labelList.end(); labelIterator++){
+        if(labelIterator->name == _labelname)
+            return labelIterator->addr; 
+    }
+
+    //Se nao achar, retorna LABEL_NOT_DEFINED como endereco
+    return LABEL_NOT_DEFINED;
 }
 
-LabelType LabelMap::updateLabel(LabelContentContainer LCC, int addr) {
 
-}
-
-LabelType LabelMap::addLabel(LabelContentContainer LCC, int addr) {
-
-}
 
 class MemoryMap {
  public:
