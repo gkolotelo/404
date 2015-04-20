@@ -35,7 +35,7 @@ class MemoryMap{
  private:
     list<MemoryElement> memoryList;
     list<MemoryElement>::iterator memoryIterator;
-    int cursor = 0;
+    int cursor = 0;  // left se par, right se impar
 
     string computeAddress(int addr);
     string generateLine(string addr, MemoryElement el1, MemoryElement el2);
@@ -77,8 +77,9 @@ void MemoryMap::add(Element* _elem){
                 ME.labelLink = addLabel(_elem->ICC);
                 break;
         }
-        ME.side = (cursor % 2)  // 0 se left, 1 se right
-        ME.addr = cursor++;  // Seta endereço e incrementa
+        ME.side = (cursor % 2)  // 0 se left (par), 1 se right (impar)
+        ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
+        cursor++;
     }
     else{
         //Diretiva
