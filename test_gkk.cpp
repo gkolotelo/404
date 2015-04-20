@@ -52,9 +52,11 @@ void MemoryMap::add(Element* _elem) {
     //Adiciona um MemoryElement na lista do MemoryMap
     MemoryElement ME;
     ME.elem = _elem;
+    bool insert_into_map = FALSE;
 
-    if ((*_elem).type == Instruction) {
-        switch((*_elem).opcode){
+    if ((*_elem).GetElementType() == Instruction) {
+        insert_into_map = TRUE;
+        switch((*_elem).GetOpCodeType()){
             //Instrucoes sem endereco
             case Load_MQ: break;
             case Lsh: break;
@@ -74,18 +76,19 @@ void MemoryMap::add(Element* _elem) {
             case Mul_MX:
             case Div_MX:
             case Stor_M:
-                ME.labelLink = addLabel(_elem->ICC);
+                // Retorna labelLink para uma label com nome em InstructionContentContainer, se a label existir,
+                // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
+                // Atencao! Nao há ':' na label em ICC, tratar isso corretamente no LabelMap
+                // Atencao! considerar caso em que content nao é label e sim valor hex
+                ME.labelLink = updateLabel(_elem->GetInstructionContentContainer());
                 break;
         }
-        ME.side = (cursor % 2)  // 0 se left (par), 1 se right (impar)
-        ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
-        cursor++;
     }
 
-    else if ((*_elem).type == Directive) {
+    else if ((*_elem).GetElementType() == Directive) {
         // TODO: switch-cases
         // Aparentemente diretivas nao causam um incremento em cursor
-        switch((*_elem).DirectiveType){
+        switch((*_elem).GetDirectiveType()){
             // Todos tem que funcionar como label, pois podemos ter algo como:
             // .set ORIGIN 0x00
             // .set STD_ALIGNMENT 1
@@ -95,15 +98,15 @@ void MemoryMap::add(Element* _elem) {
             case Org:
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
-                getNewCursor(_elem->DCC, &cursor);  // Se DCC é numerico, seta novo cursor, senao procura
+                getNewCursor(_elem->GetDirectiveContentContainer(), &cursor);  // Se DCC é numerico, seta novo cursor, senao procura
                                                     // no mapa de labels por um set para setar novo cursor
                 break;
             case Align:
-                align(_elem->DCC, &cursor); // Se DCC é numerico, seta novo cursor, senao procura
+                align(_elem->GetDirectiveContentContainer(), &cursor); // Se DCC é numerico, seta novo cursor, senao procura
                                             // no mapa de labels por um set para setar novo cursor
                 break;
             case Wfill:
-                for (int i = 0; i < convertValue(_elem->DCC.content1); i++) {
+                for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
                     add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
                     add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
@@ -118,29 +121,35 @@ void MemoryMap::add(Element* _elem) {
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
                 // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
-                addLabel(_elem->DCC.content1);
+                updateLabel(_elem->GetDirectiveContentContainer().content1);
                 break;
         }
     }
 
-    else if ((*_elem).type == Label) {
-        addLabel(_elem->LCC);
+    else if ((*_elem).GetElementType()== Label) {
+        // Adiciona nova label se esta ainda nao existe com address = cursor/2, se a label ja existe apenas insere o endereco
+        updateLabel(_elem->GetLabelContentContainer(), (cursor/2));
     }
 
-    //else if ((*_elem).type == Word) // Novo tipo de elemento que deve ser criado
-
-    me.addr = _addr;
-    me.side = _side;
-
-    if(isLast()){
-        //Insere no fim da lista
-        memoryList.push_back(me);
-        memoryIterator = memoryList.end();
+    else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
+        insert_into_map = TRUE;
+        
     }
-    else{
-        //Sobrescreve os elementos da lista
-        memoryIterator = memoryList.erase(memoryIterator);
-        memoryIterator = memoryList.insert(memoryIterator, me);
+
+    if (insert_into_map) {
+        ME.side = (cursor % 2)  // 0 se left (par), 1 se right (impar)
+        ME.addr = (cursor >> 1);  // Seta endereço = cursor/2
+        cursor++;
+        if(isLast()){
+            //Insere no fim da lista
+            memoryList.push_back(ME);
+            memoryIterator = memoryList.end();
+        }
+        else{
+            //Sobrescreve os elementos da lista
+            memoryIterator = memoryList.erase(memoryIterator);
+            memoryIterator = memoryList.insert(memoryIterator, ME);
+        }
     }
 }
 
