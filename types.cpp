@@ -29,11 +29,15 @@ typedef string InstructionContentContainer; // Must handle labels
 // Label Content Container, armazena o argumento de um label
 typedef string LabelContentContainer;
 
+// Word Content Container, armazena o argumento de um half_of_word
+typedef string WordContentContainer;
+
 // Tipos de elementos
 typedef enum {
     Label,
     Instruction,
-    Directive
+    Directive,
+    WordElement
 }ElementType;
 
 
@@ -79,6 +83,7 @@ class Element {
  public:
     // Constructors:
     Element();
+    Element(ElementType _el, WordContentContainer _content);
     Element(LabelContentContainer _content);
     Element(DirectiveType _dir, DirectiveContentContainer _content);
     Element(OpCodeType _op, InstructionContentContainer _content);
@@ -87,6 +92,7 @@ class Element {
     DirectiveContentContainer GetDirectiveContentContainer() const { return DCC; }
     InstructionContentContainer GetInstructionContentContainer() const { return ICC; } 
     LabelContentContainer GetLabelContentContainer() const { return LCC; }
+    WordContentContainer GetWordContentContainer() const { return WCC; }
     DirectiveType GetDirectiveType() const { return dir; }
     OpCodeType GetOpCodeType() const { return opcode; }
 
@@ -97,6 +103,7 @@ class Element {
     DirectiveContentContainer DCC;
     InstructionContentContainer ICC;
     LabelContentContainer LCC;
+    WordContentContainer WCC;
     //}C;
 
     DirectiveType dir;
@@ -105,9 +112,14 @@ class Element {
 
 // Construtor de um elemento nulo
 Element::Element() {
-    type = Instruction;
-    opcode = Null;
-    ICC = "000";
+    type = WordElement;
+    WCC = "00000";
+}
+
+// Construtor de um Word
+Element::Element(ElementType _el, WordContentContainer _content) {
+    type = WordElement;
+    WCC = _content;
 }
 
 // Construtor para elemento do tipo Label
