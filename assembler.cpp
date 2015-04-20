@@ -39,7 +39,7 @@ class LabelMap {
 };
 
 LabelType LabelMap::updateLabel(InstructionContentContainer ICC) {
-
+    // Tratar redefinicoes como erros
 }
 
 LabelType LabelMap::updateLabel(LabelContentContainer LCC, int addr) {
