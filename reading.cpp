@@ -43,24 +43,23 @@ string splitLabel(string *in) {
     return tmp;
 }
 
-int64_t convertValue(char *in) {
-    if (in[1] == 'x') return strtol(in + 2, NULL, 16);
-    else if (in[1] == 'b') return strtol(in + 2, NULL, 2);
-    else if (in[1] == 'o') return strtol(in + 2, NULL, 8);
+int64_t convertValue(string inStr) {
+    // ADD_ERROR deve detectar valores invalidos, como 0xg4 , 0of4 , dec 45g6 , 0b1021
+    char *in = (char *)inStr.c_str();
+    if (in[1] == 'x' || in[2] == 'x') return strtol(in + 2, NULL, 16);
+    else if (in[1] == 'b' || in[2] == 'b') return strtol(in + 2, NULL, 2);
+    else if (in[1] == 'o' || in[2] == 'o') return strtol(in + 2, NULL, 8);
     else return strtol(in, NULL, 10);
 }
 
-DirectiveContentContainer contentParser(string in) {
+DirectiveContentContainer contentParser(string token1, string token2) {
     DirectiveContentContainer CC;
-    char *token;
-    token = strtok((char *)in.c_str(), ", \t");
-    CC.content1 = convertValue(token);
-    token = strtok(NULL, ", \t");
-    if (token == NULL) {
+    CC.content1 = token1;
+    if (token2 == "") {
         CC.amount = 1;
         return CC;
     }
-    CC.content2 = convertValue(token);
+    CC.content2 = token2;
     CC.amount = 2;
     return CC;
 }
@@ -92,12 +91,14 @@ TokenContainer tokenize(string in) {
 
 
 Element* getElement(TokenContainer TC) {
-    if (TC.amount == 0) return NULL;
+    if (TC.amount == 0) return NULL;  // No tokens to get Element from
+
     if (getType(TC.tokens[0]) == Label) {
         Element *_element = new Element((LabelContentContainer)TC.tokens[0]);
-        //cout << "Label: " << _element->content << endl;
+        cout << "Label: " << _element->GetLabelContentContainer() << endl;
         return _element;
     }
+
     if (getType(TC.tokens[0]) == Directive) {
         DirectiveType _dir;
         if (TC.tokens[0] == ".org") _dir = Org;
@@ -107,8 +108,9 @@ Element* getElement(TokenContainer TC) {
         else if (TC.tokens[0] == ".set") _dir = Set;
         else
             return NULL;
-        Element *_element = new Element(_dir, contentParser(TC.tokens[1] + ',' + TC.tokens[2]));
-        //cout << "Directive: " << _element->dir << " Content: " << _element->content << endl;
+        // ADD_ERROR se nenhuma instrucao foi encontrada retornar erro de instrucao invalida
+        Element *_element = new Element(_dir, contentParser(TC.tokens[1], TC.tokens[2]));
+        cout << "Directive: " << _element->GetDirectiveType() << " Content 1: " << _element->GetDirectiveContentContainer().content1 << " Content 2: " << _element->GetDirectiveContentContainer().content2 << endl;
         return _element;
     }
     OpCodeType _op;
@@ -131,8 +133,9 @@ Element* getElement(TokenContainer TC) {
     else if (TC.tokens[0] == "stm") _op = Stor_M;
     else
         return NULL;
-    Element *_element = new Element(_op, (InstructionContentContainer)convertValue((char *)TC.tokens[1].c_str()));
-    //cout << "Instruction: " << _element->opcode << " Content: " << _element->content << endl;
+    // ADD_ERROR se nenhuma instrucao foi encontrada retornar erro de instrucao invalida
+    Element *_element = new Element(_op, (InstructionContentContainer)TC.tokens[1]);
+    cout << "Instruction: " << _element->GetOpCodeType() << " Content: " << _element->GetInstructionContentContainer() << endl;
 
     return NULL;
 }
@@ -218,3 +221,30 @@ Element* getElement(TokenContainer TC) {
 //  }
 //  cout << token << endl;
 //}
+
+// DirectiveContentContainer contentParser(string in) {
+//     DirectiveContentContainer CC;
+//     char *token;
+//     token = strtok((char *)in.c_str(), ", \t");
+//     CC.content1 = convertValue(token);
+//     token = strtok(NULL, ", \t");
+//     if (token == NULL) {
+//         CC.amount = 1;
+//         return CC;
+//     }
+//     CC.content2 = convertValue(token);
+//     CC.amount = 2;
+//     return CC;
+// }
+
+// DirectiveContentContainer contentParser(string token1, string token2) {
+//     DirectiveContentContainer CC;
+//     CC.content1 = convertValue(token1);
+//     if (token2 == "") {
+//         CC.amount = 1;
+//         return CC;
+//     }
+//     CC.content2 = convertValue(token2);
+//     CC.amount = 2;
+//     return CC;
+// }
