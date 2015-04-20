@@ -137,7 +137,7 @@ Element* getElement(TokenContainer TC) {
     Element *_element = new Element(_op, (InstructionContentContainer)TC.tokens[1]);
     cout << "Instruction: " << _element->GetOpCodeType() << " Content: " << _element->GetInstructionContentContainer() << endl;
 
-    return NULL;
+    return _element;
 }
 
 
