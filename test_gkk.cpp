@@ -18,12 +18,6 @@ uint64_t        start_, end_, elapsed_;
 using namespace std;
 
 
-
-
-
-
-
-
 int main(int argc, char *argv[]) {
     if (argc != 2) {
         printf("%s", "File path needed\n");
@@ -41,13 +35,19 @@ int main(int argc, char *argv[]) {
 
     fs.open(argv[1], fstream::in);
 
+    MemoryMap* memMap = new MemoryMap();
+
     while (getline(fs, tempStr, '\n')) {
         // Strip comments out of input line
         tempStr = getLineNoCommentLowercase(tempStr);
-        // Cria Element somente dos tokens correspondentes ao label, se existir
-        getElement(tokenize(splitLabel(&tempStr)));
-        // Cria Element de diretiva ou instrução
-        getElement(tokenize(tempStr));
+        if (tempStr.length() != 0) {
+            // Cria Element somente dos tokens correspondentes ao label, se existir
+            memMap->add(getElement(tokenize(splitLabel(&tempStr))));
+            // Cria Element de diretiva ou instrução
+            memMap->add(getElement(tokenize(tempStr)));
+        }
+        
+
     
         // cout << tempStr << endl;
         // if (tempStr.length() != 0)
@@ -63,7 +63,25 @@ int main(int argc, char *argv[]) {
         // }
     }
 
+    cout << "Reading ////////////////////////////////////////////////////////////////////////////////: " << endl;
 
+    for (memMap->memoryIterator = memMap->memoryList.begin(); memMap->memoryIterator != memMap->memoryList.end(); memMap->memoryIterator++) {  // Iterar pelo numero de elementos
+        cout << "# of elements in list: " << memMap->memoryList.size() << endl;
+        MemoryElement ME = *memMap->memoryIterator;  // pegar elementos do comeco da lista -> FIFO
+        memMap->memoryList.pop_front();  // remover elemento
+        cout << "Address: " << ME.addr << endl;  // imprimir elemento
+        cout << "Side: " << ME.side << endl;  // imprimir elemento
+        cout << "ElementType: " << ME.elem->GetElementType() << endl;  // imprimir elemento
+        if (ME.elem->GetElementType() == Instruction) cout << "    Instruction LabelLink: " << ME.labelLink << " OpCode: " << ME.elem->GetOpCodeType() << endl;
+        else if (ME.elem->GetElementType() == Directive) cout << "    Directive content1: " << ME.elem->GetDirectiveContentContainer().content1 << " content2: " << ME.elem->GetDirectiveContentContainer().content1 << " Amount: " << ME.elem->GetDirectiveContentContainer().amount << endl;
+        else if (ME.elem->GetElementType() == Label) cout << "    Label LabelLink: " << ME.labelLink << endl;
+        else if (ME.elem->GetElementType() == WordElement) cout << "    Word LabelLink: " << ME.labelLink << endl;
+        else
+            cout << "///////////////////////////////////////////////  Unexpected ElementType ///////////////////////////////////////////////" << endl;
+        cout << "-----------------------------------------------" << endl;
+    }
+
+    cout << "# of elements in list: " << memMap->memoryList.size() << endl;
 
 
 
