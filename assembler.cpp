@@ -1,7 +1,3 @@
-// assembler.cpp
-// 
-
-
 #include <string>
 #include <list>
 #include  <iomanip>
@@ -17,28 +13,11 @@ using namespace std;
 #define MAX_MEMORY_LINES 2048
 
 
-
-
-class AddressMap {
- public:
-    std::list<AddressElement> addrList;
-    std::list<AddressElement>::iterator addrIterator;
-    // hashstring()
-    //  inserthash()
- public:
-    AddressElement* setAddress(string _name, int _addr);
-    void set2();
-    int getAddress(string _name);
-    AddressMap() {
-        addrIterator = addrList.begin();
-    }
-};
-
+/* ------ Metodos de AddressMap ------ */
 
 AddressElement* AddressMap::setAddress(string _name, int _addr) {
-    // Procura se a label ja existe
     
-
+    // Procura se a label ja existe
     for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++) {
         if (addrIterator->name == _name) {
             // Verifica se a label ainda nao foi definida
@@ -49,7 +28,7 @@ AddressElement* AddressMap::setAddress(string _name, int _addr) {
             // Instrucao tentando setar label como LABEL_NOT_DEFINED sendo que ela ja foi setada por um label
             else if (_addr == LABEL_NOT_DEFINED)
                 return &(*addrIterator);
-            // else //<--TODO: ADD_ERROR: Definicao dupla de label
+            else callError(Label_Set_Duplicate);
         }
     }
 
@@ -59,10 +38,13 @@ AddressElement* AddressMap::setAddress(string _name, int _addr) {
     _e->addr = _addr;
     addrList.push_back(*_e);
     return _e;
-    // inserthash(hashstring(_name))
 }
-// Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
+
+
+
 int AddressMap::getAddress(string _name) {
+    // Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
+
     // Procura pela label
     for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++) {
         if (addrIterator->name == _name)
@@ -75,37 +57,7 @@ int AddressMap::getAddress(string _name) {
 
 
 
-class MemoryMap {
- public:
-    list<MemoryElement> memoryList;
-    list<MemoryElement>::iterator memoryIterator;
-
-    //LabelMap *labelMap = new LabelMap();
-    //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
-    //AddressMap *labelMap = new AddressMap();
-    //AddressMap *nameMap = new AddressMap();
-    AddressMap *addrMap;
-
-    int cursor;  // left se par, right se impar
-
-    MemoryMap();
-    string generateLine(int addr, MemoryElement el1, MemoryElement el2);
-    bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
-    void align(DirectiveContentContainer DCC, int *cursor);
-    string getWordHexStr(string addr);
-    string getInstContentHexStr(string addr);
-    bool isLast();
-    bool isDigit(string in);
-    void splitWord(string word, Element *half_1, Element *half_2);
-    string GetOpCodeString(MemoryElement ME);
-    string GetContentString(MemoryElement ME);
-
- public:
-    void add(Element *el);
-    void finishUp();
-    void printMemoryMap();
-    //TODO: mais algum metodo?
-};
+/* ------ Metodos de MemoryMap ------ */
 
 MemoryMap::MemoryMap(){
     addrMap = new AddressMap();
@@ -130,9 +82,10 @@ void MemoryMap::add(Element* _elem) {
         switch((*_elem).GetOpCodeType()){
             // Instrucoes sem endereco
             // Fully defined
-            case Load_MQ: break;
-            case Lshift: break;
-            case Rshift: break;
+            case Load_MQ: 	break;
+            case Lshift: 	break;
+            case Rshift: 	break;
+
             // Instrucoes com endereco
             case Load_MQ_MX:
             case Stor_MX:
@@ -148,8 +101,8 @@ void MemoryMap::add(Element* _elem) {
             case Mul_MX:
             case Div_MX:
             case Stor_M:
-                // Retorna labelLink para uma label com nome em InstructionContentContainer, se a label existir,
-                // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
+                // Retorna addrLink para uma label com nome em InstructionContentContainer, se a label existir,
+                // somente retorna o addrLink, se nao, cria uma nova label nao inicializada e retorna addrLink
                 // Check if ICC contains a valid address (starts with a number!) if so, addrLink = NULL, and rewrite ICC stripping 'm()' from it and converting to hex, will use ICC
                 // value on final print. If ICC has a label or setValue, we must setAddress and get addrLink, in this case, addrLink->addr will be used on final print
                 if (isDigit((string)_elem->GetInstructionContentContainer())) {
@@ -163,21 +116,9 @@ void MemoryMap::add(Element* _elem) {
     }
 
     else if ((*_elem).GetElementType() == Directive) {
-        // TODO: switch-cases
-        // Aparentemente diretivas nao causam um incremento em cursor
+        // Diretivas nao causam um incremento em cursor
         switch((*_elem).GetDirectiveType()){
-            // Todos tem que funcionar como label, pois podemos ter algo como:
-            // .set ORIGIN 0x00
-            // .set STD_ALIGNMENT 1
-            // .org ORIGIN
-            // .org align STD_ALIGNMENT
-            // etc...
             case Org:
-                // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
-                // portanto o "Label" correspondente de um set ja teria sido adicionado
-                //if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
-                //    // Se cursor novo é menor que cursor atual
-                //}
                 if (memoryList.empty()){
                     getNewCursor(_elem->GetDirectiveContentContainer(), &cursor);
                     break;
