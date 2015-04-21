@@ -14,11 +14,25 @@ typedef enum {
 
 class Error {
  public:
-    error(ErrorType _error, );
+ 	//startErrorCheck(int* line)
+    callError(ErrorType _error, int in_line);
  private:
-    ErrorType _err;
+ 	ErrorType _err;
+ 	int* in_line
 };
 
-Error::error(ErrorType _error, int in_line) {
+//Error::startErrorCheck(int* line){
+//	in_line = line;
+//}
+
+
+Error::callError(ErrorType _error, int in_line) {
+	string errorMessage;
+	errorMessage = "Error: "
+	strcat(errorMessage)
+	switch(_error){
+		default:
+	}
+
 
 }
