@@ -3,6 +3,7 @@
 
 
 #include <string>
+#include <list>
 
 using namespace std;
 
@@ -19,11 +20,6 @@ typedef enum{
     Right
 } Side;
 
-//typedef struct {
-//    
-//} LabelType;
-
-// Temporary!
 typedef string LabelType;
 
 
@@ -41,48 +37,57 @@ typedef struct {
 } MemoryElement;
 
 class AddressMap {
- private:
-    list<AddressElement> addrList;
-    list<AddressElement>::iterator addrIterator;
-    //hashstring()
-    //inserthash()
+ public:
+    std::list<AddressElement> addrList;
+    std::list<AddressElement>::iterator addrIterator;
+    // hashstring()
+    //  inserthash()
  public:
     AddressElement* setAddress(string _name, int _addr);
+    void set2();
     int getAddress(string _name);
+    AddressMap() {
+        addrIterator = addrList.begin();
+    }
 };
 
-AddressElement* AddressMap::setAddress(string _name, int _addr){
+
+AddressElement* AddressMap::setAddress(string _name, int _addr) {
+    // Procura se a label ja existe
     
-    //Procura se a label ja existe
-    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
-        if(addrIterator->name == _name){
-            //Verifica se a label ainda nao foi definida
-            if(addrIterator->addr == LABEL_NOT_DEFINED){
+
+    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++) {
+        if (addrIterator->name == _name) {
+            // Verifica se a label ainda nao foi definida
+            if (addrIterator->addr == LABEL_NOT_DEFINED) {
                 addrIterator->addr = _addr;
                 return &(*addrIterator);
             }
-            //else //<--TODO: ADD_ERROR: Definicao dupla de label
+            // Instrucao tentando setar label como LABEL_NOT_DEFINED sendo que ela ja foi setada por um label
+            else if (_addr == LABEL_NOT_DEFINED)
+                return &(*addrIterator);
+            // else //<--TODO: ADD_ERROR: Definicao dupla de label
         }
     }
 
-    //Se nao existe, insere:
+    // Se nao existe, insere:
     AddressElement* _e = new AddressElement();
     _e->name = _name;
     _e->addr = _addr;
     addrList.push_back(*_e);
 
     return _e;
-    //inserthash(hashstring(_name))
+    // inserthash(hashstring(_name))
 }
-//Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
-int AddressMap::getAddress(string _name){
-    //Procura pela label
-    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
-        if(addrIterator->name == _name)
-            return addrIterator->addr; 
+// Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
+int AddressMap::getAddress(string _name) {
+    // Procura pela label
+    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++) {
+        if (addrIterator->name == _name)
+            return addrIterator->addr;
     }
 
-    //Se nao achar, retorna LABEL_NOT_DEFINED como endereco
+    // Se nao achar, retorna LABEL_NOT_DEFINED como endereco
     return LABEL_NOT_DEFINED;
 }
 
@@ -97,7 +102,7 @@ class MemoryMap {
     //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
     //AddressMap *labelMap = new AddressMap();
     //AddressMap *nameMap = new AddressMap();
-    AddressMap *addrMap;
+    AddressMap *addrMap = new AddressMap();
 
     int cursor;  // left se par, right se impar
 
@@ -112,18 +117,18 @@ class MemoryMap {
 
  public:
     void add(Element *el);
-
-    void printMemoryMap(fstream outputFS);
+    void finishUp();
+    void printMemoryMap();
     //TODO: mais algum metodo?
 };
 
 MemoryMap::MemoryMap(){
 	memoryIterator = memoryList.begin();
-	AddressMap *addrMap = new AddressMap();
 	int cursor = 0;
 }
 
 void MemoryMap::add(Element* _elem) {
+
     //Adiciona um MemoryElement na lista do MemoryMap
     if (_elem == NULL) return;
     //if (cursor > MAX_MEMORY_LINES * 2)  // ADD_ERROR maximo numero de addresses usados
@@ -256,7 +261,7 @@ void MemoryMap::add(Element* _elem) {
     }
 }
 
-void MemoryMap::printMemoryMap(fstream outputFS) {
+void MemoryMap::printMemoryMap() {
     MemoryElement e1, e2;
     string line;
     //outputFS.open();
@@ -267,9 +272,10 @@ void MemoryMap::printMemoryMap(fstream outputFS) {
 
         line = generateLine(getAddressHexStr(e1.addr), e1, e2);
 
-        outputFS << line << '\n';
+        cout << line;
+        //outputFS << line << '\n';
     }
-    outputFS.close();
+    //outputFS.close();
 }
 
 bool MemoryMap::isLast(){
@@ -290,7 +296,7 @@ string MemoryMap::generateLine(string add, MemoryElement el1, MemoryElement el2)
 }
 
 bool MemoryMap::getNewCursor(DirectiveContentContainer DCC, int *cursor) {
-    int new_cursor = 2*convertValue(DCC.content1);  // DCC.content1 é o argumento de .align
+    int new_cursor = 2*convertValue(DCC.content1);  // DCC.content1 é o argumento de .org ou .align
     if (new_cursor < *cursor) {
         *cursor = new_cursor;
         return TRUE;
@@ -318,7 +324,13 @@ bool MemoryMap::isDigit(string in) {
     return FALSE;
 }
 
+void MemoryMap::finishUp() {
+    if((Side)(cursor % 2) == Right) {
+        // Tem um elmento a esquerda, mas nada a direita, preencher com zeros:
+        add(new Element());
+    }
 
+}
 
 
 
