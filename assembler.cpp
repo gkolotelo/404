@@ -194,40 +194,44 @@ void MemoryMap::add(Element* _elem) {
             case Org:
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
-                if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
-                    // Se cursor novo é menor que cursor atual
-                }
-            	//if (memoryList.empty()) break;
                 //if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
                 //    // Se cursor novo é menor que cursor atual
-                //	memoryIterator = memoryList.begin();
-                //	if(memoryIterator->addr < cursor) break;
-                //	if(memoryList.size() == 1) {
-            	//		memoryList.begin();
-            	//		break;
-            	//	}
-                //	for (; memoryIterator != memoryList.end(); memoryIterator++){
-                //		if(memoryIterator->addr == cursor) break;
-                //		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
-                //	}
                 //}
-                //else{
-                //	// Cursor novo e maior ou igual que o cursor atual
-                //	if(memoryList.size() == 1) {
-            	//		memoryList.end();
-            	//		break;
-            	//	}
-                //	for (; memoryIterator != memoryList.end(); memoryIterator++){
-                //		if(memoryIterator->addr == cursor) break;
-                //		if(next(memoryIterator) == memoryList.end()){
-                //			if(next(memoryIterator)->addr < cursor){
-                //				memoryIterator = memoryList.end();
-                //				break;
-                //			}
-                //		}
-                //		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
-                //	}
-                //}
+            	//if (memoryList.empty()) break;
+            	if (memoryList.empty()){
+				    getNewCursor(_elem->GetDirectiveContentContainer(), &cursor)
+				    break;
+				}
+                if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
+                    // Se cursor novo é menor que cursor atual
+                	memoryIterator = memoryList.begin();
+                	if(memoryIterator->addr < cursor) break;
+                	if(memoryList.size() == 1) {
+            			memoryList.begin();
+            			break;
+            		}
+                	for (; memoryIterator != memoryList.end(); memoryIterator++){
+                		if(memoryIterator->addr == cursor) break;
+                		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
+                	}
+                }
+                else{
+                	// Cursor novo e maior ou igual que o cursor atual
+                	if(memoryList.size() == 1) {
+            			memoryList.end();
+            			break;
+            		}
+                	for (; memoryIterator != memoryList.end(); memoryIterator++){
+                		if(memoryIterator->addr == cursor) break;
+                		if(next(memoryIterator) == memoryList.end()){
+                			if(next(memoryIterator)->addr < cursor){
+                				memoryIterator = memoryList.end();
+                				break;
+                			}
+                		}
+                		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
+                	}
+                }
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
                 break;

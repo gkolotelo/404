@@ -6,6 +6,62 @@
 
 #define types_cpp
 
+
+#define LD_MQ 			"LDMQ"
+#define LD_MQ_CODE		"0A"
+
+#define LD_MQ_M 		"LDMQM"
+#define LD_MQ_M_CODE 	"09"
+
+#define ST_M			"STR"
+#define ST_M_CODE		"21"
+
+#define LD_M			"LOAD"
+#define LD_M_CODE		"01"
+
+#define LD_M_NEG		"LDN"
+#define LD_M_NEG_CODE	"02"
+
+#define LD_M_ABS		"LDABS"
+#define LD_M_ABS_CODE	"03"
+
+#define JMP_M 			"JMP"
+#define JMP_M_L_CODE 	"0D"
+#define JMP_M_R_CODE 	"0E"
+
+#define JMP_M_P 		"JGEZ"
+#define JMP_M_P_L_CODE 	"0F"
+#define JMP_M_P_L_CODE 	"10"
+
+#define ADD_M 			"ADD"
+#define ADD_M_CODE		"05"
+
+#define ADD_M_ABS 		"ADDABS"
+#define ADD_M_ABS_CODE	"07"
+
+#define SUB_M 			"SUB"
+#define SUB_M_CODE		"06"
+
+#define SUB_M_ABS 		"SUBABS"
+#define SUB_M_ABS_CODE	"08"
+
+#define MUL_M 			"MUL"
+#define MUL_M_CODE		"0B"
+
+#define DIV_M 			"DIV"
+#define DIV_M_CODE		"0C"
+
+#define LSH 			"LSH"
+#define LSH_CODE 		"14"
+
+#define RSH 			"RSH"
+#define RSH_CODE 		"15"
+
+#define ST_M 			"STM"
+#define ST_M_L_CODE		"12"
+#define ST_M_R_CODE		"13"
+
+
 #include <string>
 
 using namespace std;
@@ -61,8 +117,8 @@ typedef enum {
     Sub_MX_abs,  // Sub_MX_mod
     Mul_MX,
     Div_MX,
-    Lsh,
-    Rsh,
+    Lshift,
+    Rshift,
     Stor_M,
     // Stor_M_L,
     // Stor_M_R
