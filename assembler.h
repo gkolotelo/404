@@ -1,10 +1,11 @@
 // assembler.cpp
 // 
 
-
+#include <iomanip>
+#include <fstream>
+#include <sstream>
 #include <string>
 #include <list>
-#include  <iomanip>
 
 using namespace std;
 
@@ -14,10 +15,16 @@ using namespace std;
 #ifndef ERRORS_H
     #include "errors.h"
 #endif
+#ifndef READING_H
+    #include "reading.h"
+#endif
 #define ASSEMBLER_H
 
 #define LABEL_NOT_DEFINED -1
 #define MAX_MEMORY_LINES 2048
+
+#define FALSE 0
+#define TRUE 1
 
 
 /* Classe para mapa de enderecos de labels e nomes definidos pela diretiva .set */
