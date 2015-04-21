@@ -17,25 +17,7 @@ using namespace std;
 #define MAX_MEMORY_LINES 2048
 
 
-typedef enum{
-    Left,
-    Right
-} Side;
 
-typedef string LabelType;
-
-
-typedef struct{
-    string name;
-    int addr;
-}AddressElement;
-
-typedef struct {
-    Element *elem;
-    int addr;
-    Side side;
-    AddressElement* addrLink;
-} MemoryElement;
 
 class AddressMap {
  public:
@@ -127,8 +109,8 @@ class MemoryMap {
 
 MemoryMap::MemoryMap(){
     addrMap = new AddressMap();
-	memoryIterator = memoryList.begin();
-	cursor = 0;
+    memoryIterator = memoryList.begin();
+    cursor = 0;
 }
 
 void MemoryMap::add(Element* _elem) {
@@ -151,7 +133,6 @@ void MemoryMap::add(Element* _elem) {
             case Load_MQ: break;
             case Lshift: break;
             case Rshift: break;
-            case Null: break;
             // Instrucoes com endereco
             case Load_MQ_MX:
             case Stor_MX:
@@ -194,44 +175,41 @@ void MemoryMap::add(Element* _elem) {
             case Org:
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
-                if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
-                    // Se cursor novo é menor que cursor atual
-                }
-            	//if (memoryList.empty()) break;
-            	//if (memoryList.empty()){
-				//    getNewCursor(_elem->GetDirectiveContentContainer(), &cursor)
-				//    break;
-				//}
                 //if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
                 //    // Se cursor novo é menor que cursor atual
-                //	memoryIterator = memoryList.begin();
-                //	if(memoryIterator->addr < cursor) break;
-                //	if(memoryList.size() == 1) {
-            	//		memoryList.begin();
-            	//		break;
-            	//	}
-                //	for (; memoryIterator != memoryList.end(); memoryIterator++){
-                //		if(memoryIterator->addr == cursor) break;
-                //		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
-                //	}
                 //}
-                //else{
-                //	// Cursor novo e maior ou igual que o cursor atual
-                //	if(memoryList.size() == 1) {
-            	//		memoryList.end();
-            	//		break;
-            	//	}
-                //	for (; memoryIterator != memoryList.end(); memoryIterator++){
-                //		if(memoryIterator->addr == cursor) break;
-                //		if(next(memoryIterator) == memoryList.end()){
-                //			if(next(memoryIterator)->addr < cursor){
-                //				memoryIterator = memoryList.end();
-                //				break;
-                //			}
-                //		}
-                //		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
-                //	}
-                //}
+                if (memoryList.empty()){
+                    getNewCursor(_elem->GetDirectiveContentContainer(), &cursor);
+                    break;
+                }
+                if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
+                    // Se cursor novo é menor que cursor atual
+                    cout << "ORG SMALLER!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+                    memoryIterator = memoryList.begin();
+                    if (memoryIterator->addr > cursor)
+                        return;
+                    if (memoryList.size() == 1)
+                        return;
+                    for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++) {
+                        if (memoryIterator->addr == cursor) return;
+                        if (((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) return;
+                    }                    
+                }
+                else {
+                    // Cursor novo e maior ou igual que o cursor atual
+                    if (memoryList.size() == 1)
+                        return;
+                    for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++) {
+                        if (memoryIterator->addr == cursor) return;
+                        if (next(memoryIterator) == memoryList.end()) {
+                            if (next(memoryIterator)->addr < cursor) {
+                                memoryIterator = memoryList.end();
+                                return;
+                            }
+                        }
+                        if (((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) return;
+                    }
+                }
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
                 break;
@@ -291,13 +269,15 @@ void MemoryMap::add(Element* _elem) {
             //Insere no fim da lista
             memoryList.push_back(ME);
             memoryIterator = memoryList.end();
+            cout << "I'm Last!!!" << endl;
         }
         else{
-        	if(memoryIterator->addr == ME.addr){
-	           //Sobrescreve o elemento da lista
-	           memoryIterator = memoryList.erase(memoryIterator);
-	       }
-	       memoryIterator = memoryList.insert(memoryIterator, ME);
+            cout << "Im not last!!!" << endl;
+            if(memoryIterator->addr == ME.addr){
+               //Sobrescreve o elemento da lista
+               memoryIterator = memoryList.erase(memoryIterator);
+           }
+           memoryIterator = memoryList.insert(memoryIterator, ME);
         }
     }
 }
@@ -306,8 +286,7 @@ void MemoryMap::printMemoryMap() {
     MemoryElement e1, e2;
     string line;
     //outputFS.open();
-    memoryIterator = memoryList.begin();
-    for (int i = 0; memoryIterator != memoryList.end()  && i < 20; memoryIterator++, i++)
+    for (memoryIterator = memoryList.begin();memoryIterator != memoryList.end(); memoryIterator++)
     {
         e1 = *memoryIterator;
         memoryIterator++;
@@ -322,11 +301,16 @@ void MemoryMap::printMemoryMap() {
 
 }
 
-bool MemoryMap::isLast(){
-    if((memoryIterator != memoryList.end()) && (next(memoryIterator) == memoryList.end()))
-        return true;
-    else 
-        return false;
+//bool MemoryMap::isLast(){
+//    if((memoryIterator != memoryList.end()) && (next(memoryIterator) == memoryList.end()))
+//        return true;
+//    else 
+//        return false;
+//}
+bool MemoryMap::isLast() {
+    if(memoryIterator == memoryList.end())
+        return TRUE;
+    return FALSE;
 }
 
 string MemoryMap::getWordHexStr(string addr) {
@@ -355,7 +339,7 @@ string MemoryMap::generateLine(int addr, MemoryElement ME1, MemoryElement ME2) {
     else
         ME2string = getWordHexStr(GetContentString(ME2));
     
-    string output = getInstContentHexStr(to_string(addr)) + " " + ME1string + " " + ME2string;
+    string output = (to_string(addr)) + " " + ME1string + " " + ME2string;
     
     return output;
 }
@@ -398,7 +382,7 @@ void MemoryMap::finishUp() {
 }
 
 string MemoryMap::GetOpCodeString(MemoryElement ME) {
-    return ME.elem->GetOpCodeString();
+    return ME.elem->GetOpCodeString(ME.side);
 }
 
 string MemoryMap::GetContentString(MemoryElement ME) {
