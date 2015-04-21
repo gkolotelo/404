@@ -263,7 +263,9 @@ bool MemoryMap::isLast(){
 }
 
 string MemoryMap::getAddressHexStr(int addr) {
-
+    stringstream str;
+    str << std::hex << addr;
+    return str.str();
 }
 
 string MemoryMap::generateLine(string add, MemoryElement el1, MemoryElement el2) {
