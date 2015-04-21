@@ -63,40 +63,42 @@ int main(int argc, char *argv[]) {
         // }
     }
 
-    cout << "Reading MemoryMap ////////////////////////////////////////////////////////////////////////////////: " << endl;
-
-    for (memMap->memoryIterator = memMap->memoryList.begin(); memMap->memoryIterator != memMap->memoryList.end(); memMap->memoryIterator++) {  // Iterar pelo numero de elementos
-        cout << "# of elements in list: " << memMap->memoryList.size() << endl;
-        MemoryElement ME = *memMap->memoryIterator;  // pegar elementos do comeco da lista -> FIFO
-        //memMap->memoryList.pop_front();  // remover elemento
-        cout << "Address: " << ME.addr << endl;  // imprimir elemento
-        cout << "Side: " << ME.side << endl;  // imprimir elemento
-        cout << "ElementType: " << ME.elem->GetElementType() << endl;  // imprimir elemento
-        if (ME.elem->GetElementType() == Instruction) cout << "    Instruction LabelLink: " << ME.labelLink << " OpCode: " << ME.elem->GetOpCodeType() << endl;
-        else if (ME.elem->GetElementType() == Directive) cout << "    Directive content1: " << ME.elem->GetDirectiveContentContainer().content1 << " content2: " << ME.elem->GetDirectiveContentContainer().content1 << " Amount: " << ME.elem->GetDirectiveContentContainer().amount << endl;
-        else if (ME.elem->GetElementType() == Label) cout << "    Label LabelLink: " << ME.labelLink << endl;
-        else if (ME.elem->GetElementType() == WordElement) cout << "    Word LabelLink: " << ME.labelLink << endl;
-        else
-            cout << "///////////////////////////////////////////////  Unexpected ElementType ///////////////////////////////////////////////" << endl;
-        cout << "-----------------------------------------------" << endl;
-    }
-
-    cout << "# of elements in list: " << memMap->memoryList.size() << endl;
 
 
-
-    cout << "Reading AddrMap////////////////////////////////////////////////////////////////////////////////: " << endl;
-
-    for (memMap->addrMap->addrIterator = memMap->addrMap->addrList.begin(); memMap->addrMap->addrIterator != memMap->addrMap->addrList.end(); memMap->addrMap->addrIterator++) {  // Iterar pelo numero de elementos
-        cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
-        AddressElement ME = *memMap->addrMap->addrIterator;  // pegar elementos do comeco da lista -> FIFO
-        //memMap->addrMap->addrList.pop_front();  // remover elemento
-        cout << "    Name: " << ME.name << endl;  // imprimir elemento
-        cout << "    Addr: " << ME.addr << endl;  // imprimir elemento
-        cout << "-----------------------------------------------" << endl;
-    }
-
-    cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
+    //cout << "Reading MemoryMap ////////////////////////////////////////////////////////////////////////////////: " << endl;
+//
+    //for (memMap->memoryIterator = memMap->memoryList.begin(); memMap->memoryIterator != memMap->memoryList.end(); memMap->memoryIterator++) {  // Iterar pelo numero de elementos
+    //    cout << "# of elements in list: " << memMap->memoryList.size() << endl;
+    //    MemoryElement ME = *memMap->memoryIterator;  // pegar elementos do comeco da lista -> FIFO
+    //    //memMap->memoryList.pop_front();  // remover elemento
+    //    cout << "Address: " << ME.addr << endl;  // imprimir elemento
+    //    cout << "Side: " << ME.side << endl;  // imprimir elemento
+    //    cout << "ElementType: " << ME.elem->GetElementType() << endl;  // imprimir elemento
+    //    if (ME.elem->GetElementType() == Instruction) cout << "    Instruction addrLink->name: " << ME.elem->GetInstructionContentContainer() << " OpCode: " << ME.elem->GetOpCodeType() << endl;
+    //    else if (ME.elem->GetElementType() == Directive) cout << "    Directive content1: " << ME.elem->GetDirectiveContentContainer().content1 << " content2: " << ME.elem->GetDirectiveContentContainer().content1 << " Amount: " << ME.elem->GetDirectiveContentContainer().amount << endl;
+    //    else if (ME.elem->GetElementType() == Label) cout << "    Label addrLink->name: " << ME.elem->GetLabelContentContainer() << endl;
+    //    else if (ME.elem->GetElementType() == WordElement) cout << "    Word " << endl;
+    //    else
+    //        cout << "///////////////////////////////////////////////  Unexpected ElementType ///////////////////////////////////////////////" << endl;
+    //    cout << "-----------------------------------------------" << endl;
+    //}
+//
+    //cout << "# of elements in list: " << memMap->memoryList.size() << endl;
+//
+//
+//
+    //cout << "Reading AddrMap////////////////////////////////////////////////////////////////////////////////: " << endl;
+//
+    //for (memMap->addrMap->addrIterator = memMap->addrMap->addrList.begin(); memMap->addrMap->addrIterator != memMap->addrMap->addrList.end(); memMap->addrMap->addrIterator++) {  // Iterar pelo numero de elementos
+    //    cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
+    //    AddressElement ME = *memMap->addrMap->addrIterator;  // pegar elementos do comeco da lista -> FIFO
+    //    //memMap->addrMap->addrList.pop_front();  // remover elemento
+    //    cout << "    Name: " << ME.name << endl;  // imprimir elemento
+    //    cout << "    Addr: " << ME.addr << endl;  // imprimir elemento
+    //    cout << "-----------------------------------------------" << endl;
+    //}
+//
+    //cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
 
     memMap->finishUp();
 
