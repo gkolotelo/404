@@ -123,23 +123,23 @@ Element* getElement(TokenContainer TC) {
         return _element;
     }
     OpCodeType _op;
-    if (TC.tokens[0] == "ldmq") _op = Load_MQ;
-    else if (TC.tokens[0] == "ldmqm") _op = Load_MQ_MX;
-    else if (TC.tokens[0] == "str") _op = Stor_MX;
-    else if (TC.tokens[0] == "load") _op = Load_MX;
-    else if (TC.tokens[0] == "ldn") _op = Load_MX_neg;
-    else if (TC.tokens[0] == "ldabs") _op = Load_MX_abs;
-    else if (TC.tokens[0] == "jmp") _op = Jump_M;
-    else if (TC.tokens[0] == "jgez") _op = Jump_M_P;
-    else if (TC.tokens[0] == "add") _op = Add_MX;
-    else if (TC.tokens[0] == "addabs") _op = Add_MX_abs;
-    else if (TC.tokens[0] == "sub") _op = Sub_MX;
-    else if (TC.tokens[0] == "subabs") _op = Sub_MX_abs;
-    else if (TC.tokens[0] == "mul") _op = Mul_MX;
-    else if (TC.tokens[0] == "div") _op = Div_MX;
-    else if (TC.tokens[0] == "lsh") _op = Lsh;
-    else if (TC.tokens[0] == "rsh") _op = Rsh;
-    else if (TC.tokens[0] == "stm") _op = Stor_M;
+    if (TC.tokens[0] == LD_MQ) _op = Load_MQ;
+    else if (TC.tokens[0] == LD_MQ_M) _op = Load_MQ_MX;
+    else if (TC.tokens[0] == ST_R) _op = Stor_MX;
+    else if (TC.tokens[0] == LD_M) _op = Load_MX;
+    else if (TC.tokens[0] == LD_M_NEG) _op = Load_MX_neg;
+    else if (TC.tokens[0] == LD_M_ABS) _op = Load_MX_abs;
+    else if (TC.tokens[0] == JMP_M) _op = Jump_M;
+    else if (TC.tokens[0] == JMP_M_P) _op = Jump_M_P;
+    else if (TC.tokens[0] == ADD_M) _op = Add_MX;
+    else if (TC.tokens[0] == ADD_M_ABS) _op = Add_MX_abs;
+    else if (TC.tokens[0] == SUB_M) _op = Sub_MX;
+    else if (TC.tokens[0] == SUB_M_ABS) _op = Sub_MX_abs;
+    else if (TC.tokens[0] == MUL_M) _op = Mul_MX;
+    else if (TC.tokens[0] == DIV_M) _op = Div_MX;
+    else if (TC.tokens[0] == LSH) _op = Lshift;
+    else if (TC.tokens[0] == RSH) _op = Rshift;
+    else if (TC.tokens[0] == ST_M) _op = Stor_M;
     else
         return NULL;
     // ADD_ERROR se nenhuma instrucao foi encontrada retornar erro de instrucao invalida
