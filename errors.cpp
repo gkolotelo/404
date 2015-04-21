@@ -37,21 +37,21 @@ void Error::callError(ErrorType _error, int in_line) {
 
 	switch(_error){
 		case Invalid_Label_Error:
-			strcat(errorMessage, "");
+			errorMessage << "";
 			break;
 		case Invalid_Direcive_Error:
-			strcat(errorMessage, "");
+			errorMessage << "";
 			break;
 		case Invalid_Instruction_Error:
-			strcat(errorMessage, "");
+			errorMessage << "";
 			break;
 		case Label_Set_Not_Defined:
-			strcat(errorMessage, "Label or set name not defined.");
+			errorMessage << "Label or set name not defined.";
 			break;
 		case Label_Set_Duplicate:
-			strcat(errorMessage, "Label or set name duplicate.");
+			errorMessage << "Label or set name duplicate.";
 			break;
 	}
-	printf("%s\n", errorMessage); //printf ou fprintf ?
+	printf("%s\n", errorMessage.str()); //printf ou fprintf ?
 	exit(EXIT_FAILURE);
 }
