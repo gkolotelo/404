@@ -5,7 +5,7 @@
 void callError(ErrorType _error) {
 	std::stringstream errorMessage;
 	
-	errorMessage << "Error : "
+	errorMessage << "Error : ";
 
 	switch(_error){
 		case Invalid_Label_Error:
@@ -24,6 +24,6 @@ void callError(ErrorType _error) {
 			errorMessage << "Label or set name duplicate.";
 			break;
 	}
-	printf("%s\n", errorMessage.str()o);
+	printf("%s\n", errorMessage.str().c_str());
 	exit(EXIT_FAILURE);
 }

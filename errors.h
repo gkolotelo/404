@@ -11,7 +11,7 @@
  *	Alunos: 135964 Guilherme Kairalla Kolotelo
  *			137943 Alexandre Seidy Ioshisaqui
  */
-
+#define ERRORS_H
 
 /* Tipos de erros */
 typedef enum {
