@@ -1,5 +1,4 @@
-#define types_cpp
-
+#define types_h
 
 #define LD_MQ 			"ldmq"
 #define LD_MQ_CODE		"0A"
@@ -146,13 +145,11 @@ class Element {
  private:
     ElementType type;
     
-    //union content {
     DirectiveContentContainer DCC;
     InstructionContentContainer ICC;
     LabelContentContainer LCC;
     WordContentContainer WCC;
-    //}C;
-
+    
     DirectiveType dir;
     OpCodeType opcode;
 };

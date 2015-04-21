@@ -1,11 +1,4 @@
-// types.cpp
-//
-//
-//
-//
-
-#define types_cpp
-
+#include "types.h"
 
 #define LD_MQ 			"ldmq"
 #define LD_MQ_CODE		"0A"
