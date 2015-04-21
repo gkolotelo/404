@@ -1,11 +1,11 @@
 #include "errors.h"
 
+
+/* Funcao para encerrar o processo e informar o tipo de erro. */
 void callError(ErrorType _error) {
 	std::stringstream errorMessage;
 	
 	errorMessage << "Error : "
-	//if(in_line != -1)
-	//	errorMessage << "Line " << in_line << ": ";
 
 	switch(_error){
 		case Invalid_Label_Error:
@@ -24,6 +24,6 @@ void callError(ErrorType _error) {
 			errorMessage << "Label or set name duplicate.";
 			break;
 	}
-	printf("%s\n", errorMessage.str()o); //printf ou fprintf ?
+	printf("%s\n", errorMessage.str()o);
 	exit(EXIT_FAILURE);
 }

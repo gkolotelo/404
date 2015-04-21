@@ -23,11 +23,5 @@ typedef enum {
     
 }ErrorType;
 
-class Error {
- public:
- 	void callError(ErrorType _error, int in_line);
- private:
- 	ErrorType _err;
- 	int* in_line;
-};
-
+/* Funcao para encerrar o processo e informar o tipo de erro. */
+void callError(ErrorType _error);
