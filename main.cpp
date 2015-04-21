@@ -9,9 +9,9 @@
 #include <string>
 #include <list>
 
-#include "types.cpp"
-#include "reading.cpp"
-#include "assembler.cpp"
+#include "types.h"
+#include "reading.h"
+#include "assembler.h"
 
 using namespace std;
 
