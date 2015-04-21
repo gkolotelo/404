@@ -10,20 +10,20 @@
 #define LD_MQ 			"LDMQ"
 #define LD_MQ_CODE		"0A"
 
-#define LD_MQ_MX 		"LDMQM"
-#define LD_MQ_MX_CODE 	"09"
+#define LD_MQ_M 		"LDMQM"
+#define LD_MQ_M_CODE 	"09"
 
-#define ST_MX			"STR"
-#define ST_MX_CODE		"21"
+#define ST_M			"STR"
+#define ST_M_CODE		"21"
 
-#define LD_MX			"LOAD"
-#define LD_MX_CODE		"01"
+#define LD_M			"LOAD"
+#define LD_M_CODE		"01"
 
-#define LD_MX_NEG		"LDN"
-#define LD_MX_NEG_CODE	"02"
+#define LD_M_NEG		"LDN"
+#define LD_M_NEG_CODE	"02"
 
-#define LD_MX_ABS		"LDABS"
-#define LD_MX_ABS_CODE	"03"
+#define LD_M_ABS		"LDABS"
+#define LD_M_ABS_CODE	"03"
 
 #define JMP_M 			"JMP"
 #define JMP_M_L_CODE 	"0D"
@@ -33,23 +33,23 @@
 #define JMP_M_P_L_CODE 	"0F"
 #define JMP_M_P_L_CODE 	"10"
 
-#define ADD_MX 			"ADD"
-#define ADD_MX_CODE		"05"
+#define ADD_M 			"ADD"
+#define ADD_M_CODE		"05"
 
-#define ADD_MX_ABS 		"ADDABS"
-#define ADD_MX_ABS_CODE	"07"
+#define ADD_M_ABS 		"ADDABS"
+#define ADD_M_ABS_CODE	"07"
 
-#define SUB_MX 			"SUB"
-#define SUB_MX_CODE		"06"
+#define SUB_M 			"SUB"
+#define SUB_M_CODE		"06"
 
-#define SUB_MX_ABS 		"SUBABS"
-#define SUB_MX_ABS_CODE	"08"
+#define SUB_M_ABS 		"SUBABS"
+#define SUB_M_ABS_CODE	"08"
 
-#define MUL_MX 			"MUL"
-#define MUL_MX_CODE		"0B"
+#define MUL_M 			"MUL"
+#define MUL_M_CODE		"0B"
 
-#define DIV_MX 			"DIV"
-#define DIV_MX_CODE		"0C"
+#define DIV_M 			"DIV"
+#define DIV_M_CODE		"0C"
 
 #define LSH 			"LSH"
 #define LSH_CODE 		"14"
@@ -117,8 +117,8 @@ typedef enum {
     Sub_MX_abs,  // Sub_MX_mod
     Mul_MX,
     Div_MX,
-    Lsh,
-    Rsh,
+    Lshift,
+    Rshift,
     Stor_M,
     // Stor_M_L,
     // Stor_M_R
