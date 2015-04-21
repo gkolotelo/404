@@ -83,7 +83,6 @@ class Element {
  public:
     // Constructors:
     Element();
-    Element(ElementType _el, WordContentContainer _content);
     Element(LabelContentContainer _content);
     Element(DirectiveType _dir, DirectiveContentContainer _content);
     Element(OpCodeType _op, InstructionContentContainer _content);
@@ -114,12 +113,6 @@ class Element {
 Element::Element() {
     type = WordElement;
     WCC = "00000";
-}
-
-// Construtor de um Word
-Element::Element(ElementType _el, WordContentContainer _content) {
-    type = WordElement;
-    WCC = _content;
 }
 
 // Construtor para elemento do tipo Label
