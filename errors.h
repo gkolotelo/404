@@ -13,6 +13,12 @@
  */
 #define ERRORS_H
 
+#define EXIT_FAILURE 1
+
+#include <string>
+#include <iostream>
+#include <sstream>
+
 /* Tipos de erros */
 typedef enum {
     Invalid_Label_Error,
