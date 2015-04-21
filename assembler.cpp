@@ -304,7 +304,6 @@ void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
     *cursor = *cursor + correction;
 }
 
-}
 
 void MemoryMap::splitWord(Element word, Element half_1, Element half_2) {
 
