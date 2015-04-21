@@ -26,6 +26,12 @@ typedef enum{
 // Temporary!
 typedef string LabelType;
 
+
+typedef struct{
+    string name;
+    int addr;
+}AddressElement;
+
 typedef struct {
     Element *elem;
     int addr;
@@ -33,34 +39,6 @@ typedef struct {
     LabelType labelLink;
     AddressElement* addrLink;
 } MemoryElement;
-
-//class LabelMap {
-// private:
-//    list<MemoryElement> memoryList;
-//    list<MemoryElement>::iterator memoryIterator;
-// public:
-//    LabelType updateLabel(InstructionContentContainer ICC);
-//    LabelType updateLabel(LabelContentContainer LCC, int addr);
-//    LabelType addLabel(LabelContentContainer LCC, int addr);
-//
-//};
-
-//LabelType LabelMap::updateLabel(InstructionContentContainer ICC) {
-//    // Tratar redefinicoes como erros
-//}
-//
-//LabelType LabelMap::updateLabel(LabelContentContainer LCC, int addr) {
-//
-//}
-//
-//LabelType LabelMap::addLabel(LabelContentContainer LCC, int addr) {
-//
-//}
-
-typedef struct{
-    string name;
-    int addr;
-}AddressElement;
 
 class AddressMap {
  private:
@@ -73,7 +51,7 @@ class AddressMap {
     int getAddress(string _name);
 };
 
-AddressElement* setAddress(string _name, int _addr){
+AddressElement* AddressMap::setAddress(string _name, int _addr){
     
     //Procura se a label ja existe
     for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
@@ -97,7 +75,7 @@ AddressElement* setAddress(string _name, int _addr){
     //inserthash(hashstring(_name))
 }
 //Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
-int getAddress(string _name){
+int AddressMap::getAddress(string _name){
     //Procura pela label
     for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
         if(addrIterator->name == _name)
@@ -127,6 +105,7 @@ class MemoryMap {
     void align(DirectiveContentContainer DCC, int *cursor);
     string getAddressHexStr(int addr);
     bool isLast();
+    void splitWord(Element *word, Element *half_1, Element *half_2);
 
  public:
     void add(Element *el);
@@ -204,13 +183,13 @@ void MemoryMap::add(Element* _elem) {
                 // Se DCC é numerico, seta novo cursor, senao procura no mapa de labels por um set para setar novo cursor
                 break;
             case Wfill:
-                Element *half_1 = new Element();
-                Element *half_2 = new Element();
-                splitWord(_elem, half_1, half_2);
+                //Element *half_1 = new Element();
+                //Element *half_2 = new Element();
+                //splitWord(_elem, half_1, half_2);
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
-                    add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
-                    add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
+                    //add(new Element(half_1));  // Tem que criar um novo contructor para suportar half_of_words
+                    //add(new Element(half_2));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
                 }
                 break;
             case Word:
@@ -223,14 +202,14 @@ void MemoryMap::add(Element* _elem) {
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
                 // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
-                labelMap->updateLabel(_elem->GetDirectiveContentContainer().content1);
+                nameMap->setAddress(_elem->GetDirectiveContentContainer().content1, convertValue(_elem->GetDirectiveContentContainer().content2));
                 break;
         }
     }
     
     else if ((*_elem).GetElementType() == Label) {
         // Adiciona nova label se esta ainda nao existe com address = cursor/2, se a label ja existe apenas insere o endereco
-        labelMap->updateLabel(_elem->GetLabelContentContainer(), (cursor/2));
+        labelMap->setAddress(_elem->GetLabelContentContainer(), (cursor/2));
     }
     
     else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
@@ -305,7 +284,7 @@ void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
 }
 
 
-void MemoryMap::splitWord(Element word, Element half_1, Element half_2) {
+void MemoryMap::splitWord(Element *word, Element *half_1, Element *half_2) {
 
 }
 
