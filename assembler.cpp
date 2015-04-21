@@ -174,7 +174,7 @@ void MemoryMap::add(Element* _elem) {
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
                 if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
-
+                    // Se cursor novo é menor que cursor atual
                 }
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
