@@ -1,6 +1,6 @@
 // reading.cpp
 // Methods for input reading and processing
-
+#include "reading.h"
 using namespace std;
 
 
