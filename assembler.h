@@ -1,3 +1,7 @@
+// assembler.cpp
+// 
+
+
 #include <string>
 #include <list>
 #include  <iomanip>
@@ -13,40 +17,24 @@ using namespace std;
 #define MAX_MEMORY_LINES 2048
 
 
-typedef enum{
-    Left,
-    Right
-} Side;
-
-typedef string LabelType;
-
-
-typedef struct{
-    string name;
-    int addr;
-}AddressElement;
-
-typedef struct {
-    Element *elem;
-    int addr;
-    Side side;
-    AddressElement* addrLink;
-} MemoryElement;
-
+/* Classe para mapa de enderecos de labels e nomes definidos pela diretiva .set */
 class AddressMap {
  public:
     std::list<AddressElement> addrList;
     std::list<AddressElement>::iterator addrIterator;
-    
  public:
     AddressElement* setAddress(string _name, int _addr);
-    //void set2();
+    void set2();
     int getAddress(string _name);
     AddressMap() {
         addrIterator = addrList.begin();
     }
 };
 
+/*  Classe para o mapa de memoria.
+    Organiza metadados sobre cada elemento (Element) lido da entrada 
+    em elementos do mapa de memoria (MemoryElement).
+*/
 class MemoryMap {
  public:
     list<MemoryElement> memoryList;
@@ -54,7 +42,7 @@ class MemoryMap {
 
     AddressMap *addrMap;
 
-    int cursor;  // left se par, right se impar
+    int cursor;  //Par=esquerda, Impar=Direita
 
     MemoryMap();
     string generateLine(int addr, MemoryElement el1, MemoryElement el2);
@@ -71,5 +59,5 @@ class MemoryMap {
  public:
     void add(Element *el);
     void finishUp();
-    void printMemoryMap();
+    void printMemoryMap(fstream outputFS);
 };
