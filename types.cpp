@@ -86,6 +86,8 @@ class Element {
     Element(LabelContentContainer _content);
     Element(DirectiveType _dir, DirectiveContentContainer _content);
     Element(OpCodeType _op, InstructionContentContainer _content);
+    // Methods
+    string GetOpCodeString();
     // Get, Set Methods:
     ElementType GetElementType() const { return type; }
     DirectiveContentContainer GetDirectiveContentContainer() const { return DCC; }
@@ -138,4 +140,9 @@ Element::Element(OpCodeType _op, InstructionContentContainer _content) {
         ICC = "000";
     else
         ICC = _content;
+}
+
+string Element::GetOpCodeString() {
+    // Temporary:
+    return "FF";
 }
