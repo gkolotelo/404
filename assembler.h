@@ -37,11 +37,10 @@ class AddressMap {
  public:
     std::list<AddressElement> addrList;
     std::list<AddressElement>::iterator addrIterator;
-    // hashstring()
-    //  inserthash()
+    
  public:
     AddressElement* setAddress(string _name, int _addr);
-    void set2();
+    //void set2();
     int getAddress(string _name);
     AddressMap() {
         addrIterator = addrList.begin();
@@ -53,10 +52,6 @@ class MemoryMap {
     list<MemoryElement> memoryList;
     list<MemoryElement>::iterator memoryIterator;
 
-    //LabelMap *labelMap = new LabelMap();
-    //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
-    //AddressMap *labelMap = new AddressMap();
-    //AddressMap *nameMap = new AddressMap();
     AddressMap *addrMap;
 
     int cursor;  // left se par, right se impar
@@ -77,5 +72,4 @@ class MemoryMap {
     void add(Element *el);
     void finishUp();
     void printMemoryMap();
-    //TODO: mais algum metodo?
 };
