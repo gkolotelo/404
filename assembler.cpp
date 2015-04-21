@@ -184,39 +184,49 @@ void MemoryMap::add(Element* _elem) {
                 }
                 if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
                     // Se cursor novo é menor que cursor atual
-                    cout << "ORG SMALLER!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+                    //cout << "ORG SMALLER!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
                     memoryIterator = memoryList.begin();
-                    if (memoryIterator->addr > cursor)
+                    if (memoryIterator->addr > cursor/2)
                         return;
                     if (memoryList.size() == 1)
                         return;
                     for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++) {
-                        if (memoryIterator->addr == cursor) return;
-                        if (((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) return;
+                        //cout << "value: " << memoryIterator->addr << endl;
+                        if (memoryIterator->addr == cursor/2) return;
+                        if (((memoryIterator->addr < cursor/2) && (cursor/2 < next(memoryIterator)->addr))) return;
                     }                    
                 }
                 else {
                     // Cursor novo e maior ou igual que o cursor atual
+                    //cout << "ORG HIGHER!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
                     if (memoryList.size() == 1)
                         return;
                     for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++) {
-                        if (memoryIterator->addr == cursor) return;
+                        //cout << "value: " << memoryIterator->addr << endl;
+                        if (memoryIterator->addr == cursor/2) return;
                         if (next(memoryIterator) == memoryList.end()) {
-                            if (next(memoryIterator)->addr < cursor) {
-                                memoryIterator = memoryList.end();
-                                return;
-                            }
+                            //cout << "im in" << endl;
+                            memoryIterator = memoryList.end();
+                            return;
                         }
-                        if (((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) return;
+                        //cout << "cursor: " << cursor << endl;
+                        //cout << "memoryIterator->addr: " << memoryIterator->addr << endl;
+                        //cout << "next(memoryIterator)->addr: " << next(memoryIterator)->addr << endl;
+                        //cout << "isEnd: " << (next(memoryIterator) == memoryList.end()) << endl;
+                        if (((memoryIterator->addr < cursor/2) && (cursor/2 < next(memoryIterator)->addr))) return;
+                        //cout << "reached"<<endl;
                     }
                 }
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
                 break;
             case Align: {
+                //cout << "---------------------------------------------------->Align Address: " << ME.addr << " Side: " << ME.side << endl;
+                //cout << "---------------------------------------------------->Align pre insert Cursor: " << cursor << endl;
                 if (ME.side == Right)  // Devemos completar Right com zeros (Element())
                     add(new Element());
                 align(_elem->GetDirectiveContentContainer(), &cursor);
+                //cout << "---------------------------------------------------->Align New Cursor: " << cursor << endl;
                 // Se DCC é numerico, seta novo cursor, senao procura no mapa de labels por um set para setar novo cursor
                 break;
             }
@@ -240,6 +250,7 @@ void MemoryMap::add(Element* _elem) {
                 //cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 add(half_1);
                 add(half_2);
+                //cout << "---------------------------------------------------->Word Directive Address: " << ME.addr << " Side: " << ME.side << endl;
                 break;
             }
             case Set:
@@ -258,7 +269,7 @@ void MemoryMap::add(Element* _elem) {
     
     else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
         insert_into_map = TRUE;
-        
+        //cout << "---------------------------------------------------->Word Element Address: " << ME.addr << " Side: " << ME.side << endl;
     }
     
     if (insert_into_map) {
@@ -269,15 +280,19 @@ void MemoryMap::add(Element* _elem) {
             //Insere no fim da lista
             memoryList.push_back(ME);
             memoryIterator = memoryList.end();
-            cout << "I'm Last!!!" << endl;
+            //cout << "I'm Last!!!" << endl;
+            //cout << "Inserting addr: " << ME.addr << " Content: " << getWordHexStr(ME.elem->GetWordContentContainer()) << endl;
         }
         else{
-            cout << "Im not last!!!" << endl;
+            //cout << "Im not last!!!" << endl;
             if(memoryIterator->addr == ME.addr){
                //Sobrescreve o elemento da lista
+                //cout << "Removing addr: " << memoryIterator->addr << " Side: " << memoryIterator->side << " Content: " << getWordHexStr(memoryIterator->elem->GetWordContentContainer()) << endl;
                memoryIterator = memoryList.erase(memoryIterator);
            }
+           //cout << "Inserting addr: " << ME.addr << " Content: " << getWordHexStr(ME.elem->GetWordContentContainer()) << endl;
            memoryIterator = memoryList.insert(memoryIterator, ME);
+           memoryIterator++;
         }
     }
 }
@@ -356,8 +371,9 @@ bool MemoryMap::getNewCursor(DirectiveContentContainer DCC, int *cursor) {
 
 void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
     int align_arg = convertValue(DCC.content1); 
-    int correction = (align_arg - (*cursor % align_arg));
-    *cursor = *cursor + correction;
+    if (align_arg == 1) return;
+    int correction = (align_arg - (((*cursor)/2) % align_arg));
+    *cursor = *cursor + 2*correction;
 }
 
 
