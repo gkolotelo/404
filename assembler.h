@@ -11,6 +11,9 @@ using namespace std;
 #ifndef TYPES_H
     #include "types.h"
 #endif
+#ifndef ERRORS_H
+    #include "errors.h"
+#endif
 #define ASSEMBLER_H
 
 #define LABEL_NOT_DEFINED -1
