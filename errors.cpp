@@ -1,24 +1,29 @@
-//
-// errors.cpp
-//
-//
+#include "errors.h"
 
+void Error::callError(ErrorType _error, int in_line) {
+	std::stringstream errorMessage;
+	
+	errorMessage << "Error : "
+	if(in_line != -1)
+		errorMessage << "Line " << in_line << ": ";
 
-typedef enum {
-    Invalid_Label_Error,
-    Invalid_Direcive_Error,
-    Invalid_Instruction_Error
-    //Labels and sets must not start with nubers
-    //more than one label per line
-}ErrorType;
-
-class Error {
- public:
-    error(ErrorType _error, );
- private:
-    ErrorType _err;
-};
-
-Error::error(ErrorType _error, int in_line) {
-
+	switch(_error){
+		case Invalid_Label_Error:
+			errorMessage << "";
+			break;
+		case Invalid_Direcive_Error:
+			errorMessage << "";
+			break;
+		case Invalid_Instruction_Error:
+			errorMessage << "";
+			break;
+		case Label_Set_Not_Defined:
+			errorMessage << "Label or set name not defined.";
+			break;
+		case Label_Set_Duplicate:
+			errorMessage << "Label or set name duplicate.";
+			break;
+	}
+	printf("%s\n", errorMessage.str()o); //printf ou fprintf ?
+	exit(EXIT_FAILURE);
 }
