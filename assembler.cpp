@@ -59,7 +59,7 @@ AddressElement* AddressMap::setAddress(string _name, int _addr){
             //Verifica se a label ainda nao foi definida
             if(addrIterator->addr == LABEL_NOT_DEFINED){
                 addrIterator->addr = _addr;
-                return addrIterator;
+                return &(*addrIterator);
             }
             //else //<--TODO: ADD_ERROR: Definicao dupla de label
         }
@@ -176,15 +176,16 @@ void MemoryMap::add(Element* _elem) {
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
                 break;
-            case Align:
+            case Align: {
                 if (ME.side == Right)  // Devemos completar Right com zeros (Element())
                     add(new Element());
                 align(_elem->GetDirectiveContentContainer(), &cursor);
                 // Se DCC é numerico, seta novo cursor, senao procura no mapa de labels por um set para setar novo cursor
                 break;
-            case Wfill:
-                //Element *half_1 = new Element();
-                //Element *half_2 = new Element();
+            }
+            case Wfill: {
+                Element half_1 = Element();
+                Element half_2 = Element();
                 //splitWord(_elem, half_1, half_2);
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
@@ -192,6 +193,7 @@ void MemoryMap::add(Element* _elem) {
                     //add(new Element(half_2));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
                 }
                 break;
+            }
             case Word:
                 // quebrar _elem->DCC.content1 em 1st e 2nd half_of_words
                 // Fazer funcao splitWord()
