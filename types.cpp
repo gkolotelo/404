@@ -61,6 +61,7 @@ using namespace std;
 
 
 
+
 // Construtor de um elemento nulo
 Element::Element() {
     type = WordElement;
