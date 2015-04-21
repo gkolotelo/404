@@ -104,7 +104,7 @@ class MemoryMap {
     string generateLine(string add, MemoryElement el1, MemoryElement el2);
     bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
     void align(DirectiveContentContainer DCC, int *cursor);
-    string getessHexStr(int addr);
+    string getAddressHexStr(int addr);
     bool isLast();
     bool isDigit(string in);
     void splitWord(string word, Element *half_1, Element *half_2);
@@ -219,7 +219,7 @@ void MemoryMap::add(Element* _elem) {
     
     else if ((*_elem).GetElementType() == Label) {
         // Adiciona nova label se esta ainda nao existe com address = cursor/2, se a label ja existe apenas insere o endereco
-        labelMap->setAddress(_elem->GetLabelContentContainer(), (cursor/2));
+        addrMap->setAddress(_elem->GetLabelContentContainer(), (cursor/2));
     }
     
     else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
