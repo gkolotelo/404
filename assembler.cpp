@@ -31,6 +31,7 @@ typedef struct {
     int addr;
     Side side;
     LabelType labelLink;
+    AddressElement* addrLink;
 } MemoryElement;
 
 //class LabelMap {
@@ -68,11 +69,11 @@ class AddressMap {
     //hashstring()
     //inserthash()
  public:
-    void setAddress(string _name, int _addr);
+    AddressElement* setAddress(string _name, int _addr);
     int getAddress(string _name);
 };
 
-void setAddress(string _name, int _addr){
+AddressElement* setAddress(string _name, int _addr){
     
     //Procura se a label ja existe
     for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++){
@@ -80,17 +81,19 @@ void setAddress(string _name, int _addr){
             //Verifica se a label ainda nao foi definida
             if(addrIterator->addr == LABEL_NOT_DEFINED){
                 addrIterator->addr = _addr;
+                return addrIterator;
             }
             //else //<--TODO: ADD_ERROR: Definicao dupla de label
         }
     }
 
     //Se nao existe, insere:
-    AddressElement _e;
-    _e.name = _name;
-    _e.addr = _addr;
-    
-    addrList.push_back(_e);
+    AddressElement* _e = new AddressElement();
+    _e->name = _name;
+    _e->addr = _addr;
+    addrList.push_back(*_e);
+
+    return _e;
     //inserthash(hashstring(_name))
 }
 //Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
