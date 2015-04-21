@@ -4,6 +4,7 @@
 
 #include <string>
 #include <list>
+#include  <iomanip>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ using namespace std;
 #define assembler_cpp
 
 #define LABEL_NOT_DEFINED -1
+#define MAX_MEMORY_LINES 2048
 
 
 typedef enum{
@@ -32,7 +34,6 @@ typedef struct {
     Element *elem;
     int addr;
     Side side;
-    LabelType labelLink;
     AddressElement* addrLink;
 } MemoryElement;
 
@@ -71,11 +72,10 @@ AddressElement* AddressMap::setAddress(string _name, int _addr) {
     }
 
     // Se nao existe, insere:
-    AddressElement* _e = new AddressElement();
+    AddressElement *_e = new AddressElement();
     _e->name = _name;
     _e->addr = _addr;
     addrList.push_back(*_e);
-
     return _e;
     // inserthash(hashstring(_name))
 }
@@ -102,7 +102,7 @@ class MemoryMap {
     //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
     //AddressMap *labelMap = new AddressMap();
     //AddressMap *nameMap = new AddressMap();
-    AddressMap *addrMap = new AddressMap();
+    AddressMap *addrMap;
 
     int cursor;  // left se par, right se impar
 
@@ -110,7 +110,8 @@ class MemoryMap {
     string generateLine(int addr, MemoryElement el1, MemoryElement el2);
     bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
     void align(DirectiveContentContainer DCC, int *cursor);
-    string getAddressHexStr(string addr);
+    string getWordHexStr(string addr);
+    string getInstContentHexStr(string addr);
     bool isLast();
     bool isDigit(string in);
     void splitWord(string word, Element *half_1, Element *half_2);
@@ -125,15 +126,17 @@ class MemoryMap {
 };
 
 MemoryMap::MemoryMap(){
+    addrMap = new AddressMap();
 	memoryIterator = memoryList.begin();
-	int cursor = 0;
+	cursor = 0;
 }
 
 void MemoryMap::add(Element* _elem) {
 
     //Adiciona um MemoryElement na lista do MemoryMap
     if (_elem == NULL) return;
-    //if (cursor > MAX_MEMORY_LINES * 2)  // ADD_ERROR maximo numero de addresses usados
+    if (cursor > MAX_MEMORY_LINES * 2)
+        ;  // ADD_ERROR maximo numero de addresses usados
     MemoryElement ME;
     ME.elem = _elem;
     ME.side = (Side)(cursor % 2);  // 0 se left (par), 1 se right (impar)
@@ -169,10 +172,11 @@ void MemoryMap::add(Element* _elem) {
                 // Check if ICC contains a valid address (starts with a number!) if so, addrLink = NULL, and rewrite ICC stripping 'm()' from it and converting to hex, will use ICC
                 // value on final print. If ICC has a label or setValue, we must setAddress and get addrLink, in this case, addrLink->addr will be used on final print
                 if (isDigit((string)_elem->GetInstructionContentContainer())) {
-                    ME.addrLink = NULL;
+                   _elem->SetInstructionContentContainer(to_string(convertValue(_elem->GetInstructionContentContainer())));
                 }
-                else
+                else {
                     ME.addrLink = addrMap->setAddress((string)_elem->GetInstructionContentContainer(), LABEL_NOT_DEFINED);  // addr = -1 porque nao sabemos ainda
+                }
                 break;
         }
     }
@@ -238,7 +242,7 @@ void MemoryMap::add(Element* _elem) {
                 Element *half_1 = new Element();
                 Element *half_2 = new Element();
                 splitWord(_elem->GetDirectiveContentContainer().content2, half_1, half_2);  // Content2 porque o valor a ser inserido é o segundo argumento
-                cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
+                //cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
                     add(half_1);  // Tem que criar um novo contructor para suportar half_of_words
@@ -251,7 +255,7 @@ void MemoryMap::add(Element* _elem) {
                 Element *half_1 = new Element();
                 Element *half_2 = new Element();
                 splitWord(_elem->GetDirectiveContentContainer().content1, half_1, half_2);
-                cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
+                //cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 add(half_1);
                 add(half_2);
                 break;
@@ -276,7 +280,7 @@ void MemoryMap::add(Element* _elem) {
     }
     
     if (insert_into_map) {
-        cout << "Cursor: " << cursor << endl;
+        //cout << "Cursor: " << cursor << endl << endl;
         cursor++;
         //memoryList.push_back(ME);
         if(isLast()){
@@ -321,19 +325,34 @@ bool MemoryMap::isLast(){
         return false;
 }
 
-string MemoryMap::getAddressHexStr(string addr) {
+string MemoryMap::getWordHexStr(string addr) {
     stringstream str;
-    str << std::hex << addr;
+    str << setfill('0') << setw(5) << std::hex << convertValue(addr);
+    return str.str();
+}
+
+string MemoryMap::getInstContentHexStr(string addr) {
+    stringstream str;
+    str << setfill('0') << setw(3) << std::hex << convertValue(addr);
     return str.str();
 }
 
 string MemoryMap::generateLine(int addr, MemoryElement ME1, MemoryElement ME2) {
-    string output = (to_string(addr)) + " " +
-                    (GetOpCodeString(ME1)) + " " +
-                    (GetContentString(ME1)) + " " +
-                    (GetOpCodeString(ME2)) + " " +
-                    (GetContentString(ME2))
-                    ;
+    string ME1string, ME2string;
+    if (ME1.elem->GetElementType() == Instruction) {
+        ME1string = GetOpCodeString(ME1) + " " + getInstContentHexStr(GetContentString(ME1));
+    }
+    else
+        ME1string = getWordHexStr(GetContentString(ME1));
+
+    if (ME2.elem->GetElementType() == Instruction) {
+        ME2string = GetOpCodeString(ME2) + " " + getInstContentHexStr(GetContentString(ME2));
+    }
+    else
+        ME2string = getWordHexStr(GetContentString(ME2));
+    
+    string output = getInstContentHexStr(to_string(addr)) + " " + ME1string + " " + ME2string;
+    
     return output;
 }
 
@@ -356,7 +375,7 @@ void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
 
 void MemoryMap::splitWord(string word, Element *half_1, Element *half_2) {
     uint64_t converted_value = convertValue(word);
-    half_1->SetWordContentContainer(to_string((converted_value&0xFFFFF00000)));
+    half_1->SetWordContentContainer(to_string(((converted_value&0xFFFFF00000) >> 20)));
     half_2->SetWordContentContainer(to_string((converted_value&0xFFFFF)));
 }
 
@@ -379,11 +398,23 @@ string MemoryMap::GetOpCodeString(MemoryElement ME) {
 }
 
 string MemoryMap::GetContentString(MemoryElement ME) {
-    if(ME.addrLink == NULL)
-        return ME.elem->GetInstructionContentContainer();
-    else if(ME.addrLink->addr == LABEL_NOT_DEFINED);
+    int addr;
+    if (ME.elem->GetElementType() == Instruction) {
+        if(isDigit((string)ME.elem->GetInstructionContentContainer()))
+            return ME.elem->GetInstructionContentContainer();
+        addr = (addrMap->getAddress(ME.elem->GetInstructionContentContainer()));
+    }
+    else {  // (ME.elem->GetElementType() == WordElement) 
+        if(isDigit((string)ME.elem->GetWordContentContainer()))
+            return ME.elem->GetWordContentContainer();
+        addr = (addrMap->getAddress(ME.elem->GetWordContentContainer()));
+    }
+    if (addr == LABEL_NOT_DEFINED) {
+        //cout << "Label not defined" << endl;
         //ADD_ERROR nao hora de imprimir nao ha label ou set definido
-    return to_string(ME.addrLink->addr);
+    }
+    return to_string(addr);
+    
 }
 
 
