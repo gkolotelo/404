@@ -40,8 +40,9 @@ Element::Element(OpCodeType _op, InstructionContentContainer _content) {
         ICC = _content;
 }
 
+// 	Metodo de Element que retorna a representacao em string
+//	do codigo de operacao, a ser imprimida no mapa de memoria
 string Element::GetOpCodeString(Side side) {
-    // Temporary:
     switch (opcode) {
         case Load_MQ: return LD_MQ_CODE;
         case Load_MQ_MX: return LD_MQ_M_CODE;
