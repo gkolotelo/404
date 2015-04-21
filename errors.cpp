@@ -1,32 +1,8 @@
-//
-// errors.cpp
-//
-//
-
-
-typedef enum {
-    Invalid_Label_Error,
-    Invalid_Direcive_Error,
-    Invalid_Instruction_Error,
-    Label_Set_Not_Defined,
-    Label_Set_Duplicate
-    //Labels and sets must not start with nubers
-    //more than one label per line
-}ErrorType;
-
-class Error {
- public:
- 	//startErrorCheck(int* line)
-    void callError(ErrorType _error, int in_line);
- private:
- 	ErrorType _err;
- 	int* in_line
-};
+#include "errors.h"
 
 //Error::startErrorCheck(int* line){
 //	in_line = line;
 //}
-
 
 void Error::callError(ErrorType _error, int in_line) {
 	std::stringstream errorMessage;
@@ -52,6 +28,6 @@ void Error::callError(ErrorType _error, int in_line) {
 			errorMessage << "Label or set name duplicate.";
 			break;
 	}
-	printf("%s\n", errorMessage.str()); //printf ou fprintf ?
+	printf("%s\n", errorMessage.str()o); //printf ou fprintf ?
 	exit(EXIT_FAILURE);
 }
