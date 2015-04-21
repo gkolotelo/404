@@ -44,6 +44,7 @@ string splitLabel(string *in) {
 }
 
 void stripM(string *in) {
+    if (in->length() == 0) return;
     if (in->front() != 'm');  // ADD_ERROR must have M() identifier
     in->pop_back();
     in->erase(0,2);
@@ -141,6 +142,7 @@ Element* getElement(TokenContainer TC) {
     else
         return NULL;
     // ADD_ERROR se nenhuma instrucao foi encontrada retornar erro de instrucao invalida
+    stripM(&TC.tokens[1]);
     Element *_element = new Element(_op, (InstructionContentContainer)TC.tokens[1]);
     cout << "Instruction: " << _element->GetOpCodeType() << " Content: " << _element->GetInstructionContentContainer() << endl;
 
