@@ -1,11 +1,11 @@
 #include "errors.h"
 
-void Error::callError(ErrorType _error, int in_line) {
+void callError(ErrorType _error) {
 	std::stringstream errorMessage;
 	
 	errorMessage << "Error : "
-	if(in_line != -1)
-		errorMessage << "Line " << in_line << ": ";
+	//if(in_line != -1)
+	//	errorMessage << "Line " << in_line << ": ";
 
 	switch(_error){
 		case Invalid_Label_Error:
