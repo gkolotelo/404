@@ -12,6 +12,7 @@
 #include "types.h"
 #include "reading.h"
 #include "assembler.h"
+#include "errors.h"
 
 using namespace std;
 
