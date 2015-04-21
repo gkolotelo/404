@@ -201,10 +201,13 @@ void MemoryMap::add(Element* _elem) {
                 // Se DCC é numerico, seta novo cursor, senao procura no mapa de labels por um set para setar novo cursor
                 break;
             case Wfill:
+                Element *half_1 = new Element();
+                Element *half_2 = new Element();
+                splitWord(_elem, half_1, half_2);
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
-                    //add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
-                    //add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
+                    add(new Element(1st_half_of_word));  // Tem que criar um novo contructor para suportar half_of_words
+                    add(new Element(2nd_half_of_word));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
                 }
                 break;
             case Word:
@@ -297,3 +300,27 @@ void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
     int correction = (align_arg - (*cursor % align_arg));
     *cursor = *cursor + correction;
 }
+
+}
+
+void MemoryMap::splitWord(Element word, Element half_1, Element half_2) {
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
