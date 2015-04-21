@@ -94,6 +94,7 @@ class Element {
     WordContentContainer GetWordContentContainer() const { return WCC; }
     DirectiveType GetDirectiveType() const { return dir; }
     OpCodeType GetOpCodeType() const { return opcode; }
+    WordContentContainer SetWordContentContainer(WordContentContainer _wcc) { WCC = _wcc; }
 
  private:
     ElementType type;
