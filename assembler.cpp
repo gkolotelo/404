@@ -105,7 +105,7 @@ class MemoryMap {
     void align(DirectiveContentContainer DCC, int *cursor);
     string getAddressHexStr(int addr);
     bool isLast();
-    void splitWord(Element *word, Element *half_1, Element *half_2);
+    void splitWord(string word, Element *half_1, Element *half_2);
 
  public:
     void add(Element *el);
@@ -184,13 +184,14 @@ void MemoryMap::add(Element* _elem) {
                 break;
             }
             case Wfill: {
-                Element half_1 = Element();
-                Element half_2 = Element();
-                //splitWord(_elem, half_1, half_2);
+                Element *half_1 = new Element();
+                Element *half_2 = new Element();
+                splitWord(_elem->GetDirectiveContentContainer().content2, half_1, half_2);  // Content2 porque o valor a ser inserido é o segundo argumento
+                cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
-                    //add(new Element(half_1));  // Tem que criar um novo contructor para suportar half_of_words
-                    //add(new Element(half_2));  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
+                    //add(half_1);  // Tem que criar um novo contructor para suportar half_of_words
+                    //add(half_2);  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
                 }
                 break;
             }
@@ -286,8 +287,10 @@ void MemoryMap::align(DirectiveContentContainer DCC, int *cursor) {
 }
 
 
-void MemoryMap::splitWord(Element *word, Element *half_1, Element *half_2) {
-
+void MemoryMap::splitWord(string word, Element *half_1, Element *half_2) {
+    uint64_t converted_value = convertValue(word);
+    half_1->SetWordContentContainer(to_string((converted_value&0xFFFFF00000)));
+    half_2->SetWordContentContainer(to_string((converted_value&0xFFFFF)));
 }
 
 
