@@ -1,5 +1,6 @@
 #define TYPES_H
 
+/* ------ Lista de mnemonicos ------ */
 #define LD_MQ           "ldmq"
 #define LD_MQ_CODE      "0A"
 
