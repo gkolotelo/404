@@ -91,15 +91,15 @@ int AddressMap::getAddress(string _name){
 class MemoryMap {
  public:
     list<MemoryElement> memoryList;
-    list<MemoryElement>::iterator memoryIterator = memoryList.begin();
+    list<MemoryElement>::iterator memoryIterator;
 
     //LabelMap *labelMap = new LabelMap();
     //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
     //AddressMap *labelMap = new AddressMap();
     //AddressMap *nameMap = new AddressMap();
-    AddressMap *addrMap = new AddressMap();
+    AddressMap *addrMap;
 
-    int cursor = 0;  // left se par, right se impar
+    int cursor;  // left se par, right se impar
 
     string generateLine(string add, MemoryElement el1, MemoryElement el2);
     bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
@@ -115,6 +115,12 @@ class MemoryMap {
     void printMemoryMap(fstream outputFS);
     //TODO: mais algum metodo?
 };
+
+MemoryMap::MemoryMap(){
+	memoryIterator = memoryList.begin();
+	AddressMap *addrMap = new AddressMap();
+	int cursor = 0;
+}
 
 void MemoryMap::add(Element* _elem) {
     //Adiciona um MemoryElement na lista do MemoryMap
