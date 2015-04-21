@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
     for (memMap->memoryIterator = memMap->memoryList.begin(); memMap->memoryIterator != memMap->memoryList.end(); memMap->memoryIterator++) {  // Iterar pelo numero de elementos
         cout << "# of elements in list: " << memMap->memoryList.size() << endl;
         MemoryElement ME = *memMap->memoryIterator;  // pegar elementos do comeco da lista -> FIFO
-        memMap->memoryList.pop_front();  // remover elemento
+        //memMap->memoryList.pop_front();  // remover elemento
         cout << "Address: " << ME.addr << endl;  // imprimir elemento
         cout << "Side: " << ME.side << endl;  // imprimir elemento
         cout << "ElementType: " << ME.elem->GetElementType() << endl;  // imprimir elemento
@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
     for (memMap->addrMap->addrIterator = memMap->addrMap->addrList.begin(); memMap->addrMap->addrIterator != memMap->addrMap->addrList.end(); memMap->addrMap->addrIterator++) {  // Iterar pelo numero de elementos
         cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
         AddressElement ME = *memMap->addrMap->addrIterator;  // pegar elementos do comeco da lista -> FIFO
-        memMap->addrMap->addrList.pop_front();  // remover elemento
+        //memMap->addrMap->addrList.pop_front();  // remover elemento
         cout << "    Name: " << ME.name << endl;  // imprimir elemento
         cout << "    Addr: " << ME.addr << endl;  // imprimir elemento
         cout << "-----------------------------------------------" << endl;
