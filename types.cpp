@@ -96,7 +96,8 @@ class Element {
     WordContentContainer GetWordContentContainer() const { return WCC; }
     DirectiveType GetDirectiveType() const { return dir; }
     OpCodeType GetOpCodeType() const { return opcode; }
-    WordContentContainer SetWordContentContainer(WordContentContainer _wcc) { WCC = _wcc; }
+    void SetWordContentContainer(WordContentContainer _wcc) { WCC = _wcc; }
+    void SetInstructionContentContainer(InstructionContentContainer _icc) { ICC = _icc; }
 
  private:
     ElementType type;
@@ -115,7 +116,7 @@ class Element {
 // Construtor de um elemento nulo
 Element::Element() {
     type = WordElement;
-    WCC = "00000";
+    WCC = "00 000";
 }
 
 // Construtor para elemento do tipo Label
