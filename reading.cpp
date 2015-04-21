@@ -43,6 +43,12 @@ string splitLabel(string *in) {
     return tmp;
 }
 
+void stripM(string *in) {
+    if (in->front() != 'm');  // ADD_ERROR must have M() identifier
+    in->pop_back();
+    in->erase(0,2);
+}
+
 int64_t convertValue(string inStr) {
     // ADD_ERROR deve detectar valores invalidos, como 0xg4 , 0of4 , dec 45g6 , 0b1021
     char *in = (char *)inStr.c_str();
@@ -94,6 +100,7 @@ Element* getElement(TokenContainer TC) {
     if (TC.amount == 0) return NULL;  // No tokens to get Element from
 
     if (getType(TC.tokens[0]) == Label) {
+        TC.tokens[0].pop_back();
         Element *_element = new Element((LabelContentContainer)TC.tokens[0]);
         cout << "Label: " << _element->GetLabelContentContainer() << endl;
         return _element;
