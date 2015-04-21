@@ -236,19 +236,19 @@ void MemoryMap::add(Element* _elem) {
     if (insert_into_map) {
         cout << "Cursor: " << cursor << endl;
         cursor++;
-        memoryList.push_back(ME);
-        //if(isLast()){
-        //    //Insere no fim da lista
-        //    memoryList.push_back(ME);
-        //    memoryIterator = memoryList.end();
-        //}
-        //else{
-        //	if(memoryIterator->addr == ME.addr){
-	    //       //Sobrescreve o elemento da lista
-	    //       memoryIterator = memoryList.erase(memoryIterator);
-	    //   }
-	    //   memoryIterator = memoryList.insert(memoryIterator, ME);
-        //}
+        //memoryList.push_back(ME);
+        if(isLast()){
+            //Insere no fim da lista
+            memoryList.push_back(ME);
+            memoryIterator = memoryList.end();
+        }
+        else{
+        	if(memoryIterator->addr == ME.addr){
+	           //Sobrescreve o elemento da lista
+	           memoryIterator = memoryList.erase(memoryIterator);
+	       }
+	       memoryIterator = memoryList.insert(memoryIterator, ME);
+        }
     }
 }
 
