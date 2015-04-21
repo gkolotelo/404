@@ -6,6 +6,62 @@
 
 #define types_cpp
 
+
+#define LD_MQ 			"LDMQ"
+#define LD_MQ_CODE		"0A"
+
+#define LD_MQ_MX 		"LDMQM"
+#define LD_MQ_MX_CODE 	"09"
+
+#define ST_MX			"STR"
+#define ST_MX_CODE		"21"
+
+#define LD_MX			"LOAD"
+#define LD_MX_CODE		"01"
+
+#define LD_MX_NEG		"LDN"
+#define LD_MX_NEG_CODE	"02"
+
+#define LD_MX_ABS		"LDABS"
+#define LD_MX_ABS_CODE	"03"
+
+#define JMP_M 			"JMP"
+#define JMP_M_L_CODE 	"0D"
+#define JMP_M_R_CODE 	"0E"
+
+#define JMP_M_P 		"JGEZ"
+#define JMP_M_P_L_CODE 	"0F"
+#define JMP_M_P_L_CODE 	"10"
+
+#define ADD_MX 			"ADD"
+#define ADD_MX_CODE		"05"
+
+#define ADD_MX_ABS 		"ADDABS"
+#define ADD_MX_ABS_CODE	"07"
+
+#define SUB_MX 			"SUB"
+#define SUB_MX_CODE		"06"
+
+#define SUB_MX_ABS 		"SUBABS"
+#define SUB_MX_ABS_CODE	"08"
+
+#define MUL_MX 			"MUL"
+#define MUL_MX_CODE		"0B"
+
+#define DIV_MX 			"DIV"
+#define DIV_MX_CODE		"0C"
+
+#define LSH 			"LSH"
+#define LSH_CODE 		"14"
+
+#define RSH 			"RSH"
+#define RSH_CODE 		"15"
+
+#define ST_M 			"STM"
+#define ST_M_L_CODE		"12"
+#define ST_M_R_CODE		"13"
+
+
 #include <string>
 
 using namespace std;
