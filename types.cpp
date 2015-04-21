@@ -122,7 +122,6 @@ typedef enum {
     Stor_M,
     // Stor_M_L,
     // Stor_M_R
-    Null
 }OpCodeType;
 
 // Tipos de diretivas
@@ -134,6 +133,17 @@ typedef enum {
     Set
 }DirectiveType;
 
+
+typedef enum{
+    Left,
+    Right
+} Side;
+
+typedef struct{
+    string name;
+    int addr;
+}AddressElement;
+
 // Elemento
 class Element {
  public:
@@ -143,7 +153,7 @@ class Element {
     Element(DirectiveType _dir, DirectiveContentContainer _content);
     Element(OpCodeType _op, InstructionContentContainer _content);
     // Methods
-    string GetOpCodeString();
+    string GetOpCodeString(Side side);
     // Get, Set Methods:
     ElementType GetElementType() const { return type; }
     DirectiveContentContainer GetDirectiveContentContainer() const { return DCC; }
@@ -168,6 +178,14 @@ class Element {
     DirectiveType dir;
     OpCodeType opcode;
 };
+
+
+typedef struct {
+    Element *elem;
+    int addr;
+    Side side;
+    AddressElement* addrLink;
+} MemoryElement;
 
 // Construtor de um elemento nulo
 Element::Element() {
@@ -199,7 +217,34 @@ Element::Element(OpCodeType _op, InstructionContentContainer _content) {
         ICC = _content;
 }
 
-string Element::GetOpCodeString() {
+string Element::GetOpCodeString(Side side) {
     // Temporary:
-    return "FF";
+    switch (opcode) {
+        case Load_MQ: return LD_MQ_CODE;
+        case Load_MQ_MX: return LD_MQ_M_CODE;
+        case Stor_MX: return ST_R_CODE;
+        case Load_MX: return LD_M_CODE;
+        case Load_MX_neg: return LD_M_NEG_CODE;
+        case Load_MX_abs: return LD_M_ABS_CODE;
+        case Jump_M: {
+            if (side == Right) return JMP_M_R_CODE;
+            return JMP_M_L_CODE;
+        }
+        case Jump_M_P: {
+            if (side == Right) return JMP_M_P_R_CODE;
+            return JMP_M_P_L_CODE;
+        }
+        case Add_MX: return ADD_M_CODE;
+        case Add_MX_abs: return ADD_M_ABS_CODE;
+        case Sub_MX: return SUB_M_CODE;
+        case Sub_MX_abs: return SUB_M_ABS_CODE;
+        case Mul_MX: return MUL_M_CODE;
+        case Div_MX: return DIV_M_CODE;
+        case Lshift: return LSH_CODE;
+        case Rshift: return RSH_CODE;
+        case Stor_M: {
+            if (side == Right) return ST_M_R_CODE;
+            return ST_M_L_CODE;
+        }
+    }
 }
