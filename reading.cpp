@@ -45,7 +45,8 @@ string splitLabel(string *in) {
 
 void stripM(string *in) {
     if (in->length() == 0) return;
-    if (in->front() != 'm');  // ADD_ERROR must have M() identifier
+    if (in->front() != 'm')
+        ;  // ADD_ERROR must have M() identifier
     in->pop_back();
     in->erase(0,2);
 }
@@ -103,7 +104,7 @@ Element* getElement(TokenContainer TC) {
     if (getType(TC.tokens[0]) == Label) {
         TC.tokens[0].pop_back();
         Element *_element = new Element((LabelContentContainer)TC.tokens[0]);
-        cout << "Label: " << _element->GetLabelContentContainer() << endl;
+        //cout << "Label: " << _element->GetLabelContentContainer() << endl;
         return _element;
     }
 
@@ -118,7 +119,7 @@ Element* getElement(TokenContainer TC) {
             return NULL;
         // ADD_ERROR se nenhuma instrucao foi encontrada retornar erro de instrucao invalida
         Element *_element = new Element(_dir, contentParser(TC.tokens[1], TC.tokens[2]));
-        cout << "Directive: " << _element->GetDirectiveType() << " Content 1: " << _element->GetDirectiveContentContainer().content1 << " Content 2: " << _element->GetDirectiveContentContainer().content2 << endl;
+        //cout << "Directive: " << _element->GetDirectiveType() << " Content 1: " << _element->GetDirectiveContentContainer().content1 << " Content 2: " << _element->GetDirectiveContentContainer().content2 << endl;
         return _element;
     }
     OpCodeType _op;
@@ -144,7 +145,7 @@ Element* getElement(TokenContainer TC) {
     // ADD_ERROR se nenhuma instrucao foi encontrada retornar erro de instrucao invalida
     stripM(&TC.tokens[1]);
     Element *_element = new Element(_op, (InstructionContentContainer)TC.tokens[1]);
-    cout << "Instruction: " << _element->GetOpCodeType() << " Content: " << _element->GetInstructionContentContainer() << endl;
+    //cout << "Instruction: " << _element->GetOpCodeType() << " Content: " << _element->GetInstructionContentContainer() << endl;
 
     return _element;
 }
