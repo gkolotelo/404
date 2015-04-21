@@ -14,7 +14,7 @@ laco1:		LOAD M(var_x)
 fim_laco_1:	ADD M(var_x)
 
 # Dados
-
+.align 1
 var_x:		.word 0x1234567890
 incremento:	.word 1
 referencia:	.word 9
