@@ -101,6 +101,7 @@ class MemoryMap {
 
     int cursor;  // left se par, right se impar
 
+    MemoryMap();
     string generateLine(string add, MemoryElement el1, MemoryElement el2);
     bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
     void align(DirectiveContentContainer DCC, int *cursor);
