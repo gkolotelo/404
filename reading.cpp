@@ -98,7 +98,7 @@ Element* getElement(TokenContainer TC) {
     }
 
     if (getType(TC.tokens[0]) == Directive) {
-        DirectiveType _dir;
+        DirectiveType _dir = Org;
         if (TC.tokens[0] == ".org") _dir = Org;
         else if (TC.tokens[0] == ".align") _dir = Align;
         else if (TC.tokens[0] == ".wfill") _dir = Wfill;
@@ -111,7 +111,7 @@ Element* getElement(TokenContainer TC) {
         
         return _element;
     }
-    OpCodeType _op;
+    OpCodeType _op = Load_MQ;
     if (TC.tokens[0] == LD_MQ) _op = Load_MQ;
     else if (TC.tokens[0] == LD_MQ_M) _op = Load_MQ_MX;
     else if (TC.tokens[0] == ST_R) _op = Stor_MX;
