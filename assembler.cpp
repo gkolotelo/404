@@ -107,13 +107,15 @@ class MemoryMap {
     int cursor;  // left se par, right se impar
 
     MemoryMap();
-    string generateLine(string add, MemoryElement el1, MemoryElement el2);
+    string generateLine(int addr, MemoryElement el1, MemoryElement el2);
     bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
     void align(DirectiveContentContainer DCC, int *cursor);
-    string getAddressHexStr(int addr);
+    string getAddressHexStr(string addr);
     bool isLast();
     bool isDigit(string in);
     void splitWord(string word, Element *half_1, Element *half_2);
+    string GetOpCodeString(MemoryElement ME);
+    string GetContentString(MemoryElement ME);
 
  public:
     void add(Element *el);
@@ -188,37 +190,40 @@ void MemoryMap::add(Element* _elem) {
             case Org:
                 // Por enquanto vamos assumir que .set só se encontra no começo no arquivo,
                 // portanto o "Label" correspondente de um set ja teria sido adicionado
-            	if (memoryList.empty()) break;
                 if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
                     // Se cursor novo é menor que cursor atual
-                	memoryIterator = memoryList.begin();
-                	if(memoryIterator->addr < cursor) break;
-                	if(memoryList.size() == 1) {
-            			memoryList.begin();
-            			break;
-            		}
-                	for (; memoryIterator != memoryList.end(); memoryIterator++){
-                		if(memoryIterator->addr == cursor) break;
-                		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
-                	}
                 }
-                else{
-                	// Cursor novo e maior ou igual que o cursor atual
-                	if(memoryList.size() == 1) {
-            			memoryList.end();
-            			break;
-            		}
-                	for (; memoryIterator != memoryList.end(); memoryIterator++){
-                		if(memoryIterator->addr == cursor) break;
-                		if(next(memoryIterator) == memoryList.end()){
-                			if(next(memoryIterator)->addr < cursor){
-                				memoryIterator = memoryList.end();
-                				break;
-                			}
-                		}
-                		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
-                	}
-                }
+            	//if (memoryList.empty()) break;
+                //if (getNewCursor(_elem->GetDirectiveContentContainer(), &cursor) == TRUE) {  // Goes to an earlier address
+                //    // Se cursor novo é menor que cursor atual
+                //	memoryIterator = memoryList.begin();
+                //	if(memoryIterator->addr < cursor) break;
+                //	if(memoryList.size() == 1) {
+            	//		memoryList.begin();
+            	//		break;
+            	//	}
+                //	for (; memoryIterator != memoryList.end(); memoryIterator++){
+                //		if(memoryIterator->addr == cursor) break;
+                //		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
+                //	}
+                //}
+                //else{
+                //	// Cursor novo e maior ou igual que o cursor atual
+                //	if(memoryList.size() == 1) {
+            	//		memoryList.end();
+            	//		break;
+            	//	}
+                //	for (; memoryIterator != memoryList.end(); memoryIterator++){
+                //		if(memoryIterator->addr == cursor) break;
+                //		if(next(memoryIterator) == memoryList.end()){
+                //			if(next(memoryIterator)->addr < cursor){
+                //				memoryIterator = memoryList.end();
+                //				break;
+                //			}
+                //		}
+                //		if(((memoryIterator->addr < cursor) && (cursor < next(memoryIterator)->addr))) break;
+                //	}
+                //}
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
                 break;
@@ -293,17 +298,20 @@ void MemoryMap::printMemoryMap() {
     MemoryElement e1, e2;
     string line;
     //outputFS.open();
-    for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++)
+    memoryIterator = memoryList.begin();
+    for (int i = 0; memoryIterator != memoryList.end()  && i < 20; memoryIterator++, i++)
     {
-        e1 = *memoryIterator++;
-        e2 = *memoryIterator++;  // Don't need to check if it's past end, because elements must always come in pairs
+        e1 = *memoryIterator;
+        memoryIterator++;
+        e2 = *memoryIterator;  // Don't need to check if it's past end, because elements must always come in pairs
 
-        line = generateLine(getAddressHexStr(e1.addr), e1, e2);
+        line = generateLine(e1.addr, e1, e2);
 
-        cout << line;
+        cout << line << endl;
         //outputFS << line << '\n';
     }
     //outputFS.close();
+
 }
 
 bool MemoryMap::isLast(){
@@ -313,14 +321,20 @@ bool MemoryMap::isLast(){
         return false;
 }
 
-string MemoryMap::getAddressHexStr(int addr) {
+string MemoryMap::getAddressHexStr(string addr) {
     stringstream str;
     str << std::hex << addr;
     return str.str();
 }
 
-string MemoryMap::generateLine(string add, MemoryElement el1, MemoryElement el2) {
-
+string MemoryMap::generateLine(int addr, MemoryElement ME1, MemoryElement ME2) {
+    string output = (to_string(addr)) + " " +
+                    (GetOpCodeString(ME1)) + " " +
+                    (GetContentString(ME1)) + " " +
+                    (GetOpCodeString(ME2)) + " " +
+                    (GetContentString(ME2))
+                    ;
+    return output;
 }
 
 bool MemoryMap::getNewCursor(DirectiveContentContainer DCC, int *cursor) {
@@ -360,6 +374,17 @@ void MemoryMap::finishUp() {
 
 }
 
+string MemoryMap::GetOpCodeString(MemoryElement ME) {
+    return ME.elem->GetOpCodeString();
+}
+
+string MemoryMap::GetContentString(MemoryElement ME) {
+    if(ME.addrLink == NULL)
+        return ME.elem->GetInstructionContentContainer();
+    else if(ME.addrLink->addr == LABEL_NOT_DEFINED);
+        //ADD_ERROR nao hora de imprimir nao ha label ou set definido
+    return to_string(ME.addrLink->addr);
+}
 
 
 
