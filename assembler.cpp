@@ -103,7 +103,7 @@ class MemoryMap {
  public:
     void add(Element *el);
     void finishUp();
-    void printMemoryMap();
+    void printMemoryMap(fstream *outputFS);
     //TODO: mais algum metodo?
 };
 
@@ -297,7 +297,7 @@ void MemoryMap::add(Element* _elem) {
     }
 }
 
-void MemoryMap::printMemoryMap() {
+void MemoryMap::printMemoryMap(fstream *outputFS) {
     MemoryElement e1, e2;
     string line;
     //outputFS.open();
@@ -309,10 +309,8 @@ void MemoryMap::printMemoryMap() {
 
         line = generateLine(e1.addr, e1, e2);
 
-        cout << line << endl;
-        //outputFS << line << '\n';
+        (*outputFS) << line << '\n';
     }
-    //outputFS.close();
 
 }
 
