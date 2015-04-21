@@ -7,10 +7,10 @@
 
 using namespace std;
 
-#ifndef types_cpp
-    #include "types.cpp"
+#ifndef TYPES_H
+    #include "types.h"
 #endif
-#define reading_cpp
+#define READING_H
 
 
 string getLineNoCommentLowercase(string in);

@@ -1,16 +1,6 @@
-#include <string>
-#include <list>
-#include  <iomanip>
 
 using namespace std;
 
-#ifndef types_cpp
-    #include "types.cpp"
-#endif
-#define assembler_cpp
-
-#define LABEL_NOT_DEFINED -1
-#define MAX_MEMORY_LINES 2048
 
 
 /* ------ Metodos de AddressMap ------ */

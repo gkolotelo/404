@@ -1,4 +1,4 @@
-#define types_h
+#define TYPES_H
 
 #define LD_MQ           "ldmq"
 #define LD_MQ_CODE      "0A"
@@ -120,6 +120,11 @@ typedef enum {
     Set
 }DirectiveType;
 
+typedef enum{
+    Left,
+    Right
+} Side;
+
 // Elemento
 class Element {
  public:
@@ -152,11 +157,6 @@ class Element {
     DirectiveType dir;
     OpCodeType opcode;
 };
-
-typedef enum{
-    Left,
-    Right
-} Side;
 
 typedef struct{
     string name;

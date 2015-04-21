@@ -8,10 +8,10 @@
 
 using namespace std;
 
-#ifndef types_cpp
-    #include "types.cpp"
+#ifndef TYPES_H
+    #include "types.h"
 #endif
-#define assembler_cpp
+#define ASSEMBLER_H
 
 #define LABEL_NOT_DEFINED -1
 #define MAX_MEMORY_LINES 2048
@@ -59,5 +59,5 @@ class MemoryMap {
  public:
     void add(Element *el);
     void finishUp();
-    void printMemoryMap(fstream outputFS);
+    void printMemoryMap(fstream *outputFS);
 };

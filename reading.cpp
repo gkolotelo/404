@@ -1,16 +1,7 @@
 // reading.cpp
 // Methods for input reading and processing
 
-
-#include <string>
-#include <algorithm>
-
 using namespace std;
-
-#ifndef types_cpp
-    #include "types.cpp"
-#endif
-#define reading_cpp
 
 
 // Returns string up to comment (delimited by '#')
