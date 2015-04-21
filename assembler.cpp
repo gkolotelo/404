@@ -354,7 +354,7 @@ string MemoryMap::generateLine(int addr, MemoryElement ME1, MemoryElement ME2) {
     else
         ME2string = getWordHexStr(GetContentString(ME2));
     
-    string output = (to_string(addr)) + " " + ME1string + " " + ME2string;
+    string output = getInstContentHexStr(to_string(addr)) + " " + ME1string + " " + ME2string;
     
     return output;
 }
