@@ -29,11 +29,11 @@ class Error {
 
 
 void Error::callError(ErrorType _error, int in_line) {
-	char errorMessage[255];
+	std::stringstream errorMessage;
+	
+	errorMessage << "Error : "
 	if(in_line != -1)
-		sprintf(errorMessage, "Error: Line %d: ", in_line)
-	else
-		sprintf(errorMessage, "Error: ")
+		errorMessage << "Line " << in_line << ": ";
 
 	switch(_error){
 		case Invalid_Label_Error:
@@ -52,6 +52,6 @@ void Error::callError(ErrorType _error, int in_line) {
 			strcat(errorMessage, "Label or set name duplicate.");
 			break;
 	}
-	printf("%s\n", errorMessage);
+	printf("%s\n", errorMessage); //printf ou fprintf ?
 	exit(EXIT_FAILURE);
 }
