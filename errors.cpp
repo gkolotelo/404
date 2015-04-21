@@ -1,9 +1,5 @@
 #include "errors.h"
 
-//Error::startErrorCheck(int* line){
-//	in_line = line;
-//}
-
 void Error::callError(ErrorType _error, int in_line) {
 	std::stringstream errorMessage;
 	
