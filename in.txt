@@ -19,7 +19,7 @@ var_x:		.word 0x1234567890
 incremento:	.word 1
 referencia:	.word 9
 .word 100
-.wfill 2, 3
+.wfill 2, 0x0000110000
 .wfill 1,2
 preencher: .wfill 1,2
 
