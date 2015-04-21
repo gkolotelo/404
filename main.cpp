@@ -3,16 +3,15 @@
 //
 #include <mach/mach_time.h>
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <list>
 
+#include <fstream>
+#include <string>
+
+
+#include "errors.h"
 #include "types.h"
 #include "reading.h"
 #include "assembler.h"
-#include "errors.h"
 
 using namespace std;
 
