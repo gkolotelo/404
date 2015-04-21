@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
         // }
     }
 
-    cout << "Reading ////////////////////////////////////////////////////////////////////////////////: " << endl;
+    cout << "Reading MemoryMap ////////////////////////////////////////////////////////////////////////////////: " << endl;
 
     for (memMap->memoryIterator = memMap->memoryList.begin(); memMap->memoryIterator != memMap->memoryList.end(); memMap->memoryIterator++) {  // Iterar pelo numero de elementos
         cout << "# of elements in list: " << memMap->memoryList.size() << endl;
@@ -85,7 +85,22 @@ int main(int argc, char *argv[]) {
 
 
 
+    cout << "Reading AddrMap////////////////////////////////////////////////////////////////////////////////: " << endl;
 
+    for (memMap->addrMap->addrIterator = memMap->addrMap->addrList.begin(); memMap->addrMap->addrIterator != memMap->addrMap->addrList.end(); memMap->addrMap->addrIterator++) {  // Iterar pelo numero de elementos
+        cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
+        AddressElement ME = *memMap->addrMap->addrIterator;  // pegar elementos do comeco da lista -> FIFO
+        memMap->addrMap->addrList.pop_front();  // remover elemento
+        cout << "    Name: " << ME.name << endl;  // imprimir elemento
+        cout << "    Addr: " << ME.addr << endl;  // imprimir elemento
+        cout << "-----------------------------------------------" << endl;
+    }
+
+    cout << "# of elements in list: " << memMap->addrMap->addrList.size() << endl;
+
+    memMap->finishUp();
+
+    memMap->printMemoryMap();
 
     // DirectiveContentContainer CC;
     // string input = "-0x1010";
