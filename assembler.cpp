@@ -95,16 +95,18 @@ class MemoryMap {
 
     //LabelMap *labelMap = new LabelMap();
     //Para evitar conflito caso haja um nome de SET identico a um nome de LABEL, criam-se dois mapas separados
-    AddressMap *labelMap = new AddressMap();
-    AddressMap *nameMap = new AddressMap();
+    //AddressMap *labelMap = new AddressMap();
+    //AddressMap *nameMap = new AddressMap();
+    AddressMap *addrMap = new AddressMap();
 
     int cursor = 0;  // left se par, right se impar
 
     string generateLine(string add, MemoryElement el1, MemoryElement el2);
     bool getNewCursor(DirectiveContentContainer DCC, int *cursor);
     void align(DirectiveContentContainer DCC, int *cursor);
-    string getAddressHexStr(int addr);
+    string getessHexStr(int addr);
     bool isLast();
+    bool isDigit(string in);
     void splitWord(string word, Element *half_1, Element *half_2);
 
  public:
@@ -150,9 +152,10 @@ void MemoryMap::add(Element* _elem) {
             case Stor_M:
                 // Retorna labelLink para uma label com nome em InstructionContentContainer, se a label existir,
                 // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
-                // Atencao! Nao há ':' na label em ICC, tratar isso corretamente no LabelMap
-                // Atencao! considerar caso em que content nao é label e sim valor hex
-                //ME.labelLink = _elem->GetInstructionContentContainer();//labelMap->updateLabel(_elem->GetInstructionContentContainer());
+                // Check if ICC contains a valid address (starts with a number!) if so, addrLink = NULL, and rewrite ICC stripping 'm()' from it and converting to hex, will use ICC
+                // value on final print. If ICC has a label or setValue, we must setAddress and get addrLink, in this case, addrLink->addr will be used on final print
+
+                ME.addrLink = addrMap->setAddress((string)_elem->GetInstructionContentContainer(), LABEL_NOT_DEFINED);  // addr = -1 porque nao sabemos ainda
                 break;
         }
     }
@@ -190,22 +193,26 @@ void MemoryMap::add(Element* _elem) {
                 cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
-                    //add(half_1);  // Tem que criar um novo contructor para suportar half_of_words
-                    //add(half_2);  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
+                    add(half_1);  // Tem que criar um novo contructor para suportar half_of_words
+                    add(half_2);  // Tem que criar funcao p/ quebrar DCC.content2 em 1st e 2nd half_of_words
                 }
                 break;
             }
-            case Word:
+            case Word: {
                 // quebrar _elem->DCC.content1 em 1st e 2nd half_of_words
-                // Fazer funcao splitWord()
-                //add(new Element(1st_half_of_word));
-                //add(new Element(2nd_half_of_word));
+                Element *half_1 = new Element();
+                Element *half_2 = new Element();
+                splitWord(_elem->GetDirectiveContentContainer().content1, half_1, half_2);
+                cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
+                add(half_1);
+                add(half_2);
                 break;
+            }
             case Set:
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
                 // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
-                nameMap->setAddress(_elem->GetDirectiveContentContainer().content1, convertValue(_elem->GetDirectiveContentContainer().content2));
+                addrMap->setAddress(_elem->GetDirectiveContentContainer().content1, convertValue(_elem->GetDirectiveContentContainer().content2));
                 break;
         }
     }
@@ -293,6 +300,11 @@ void MemoryMap::splitWord(string word, Element *half_1, Element *half_2) {
     half_2->SetWordContentContainer(to_string((converted_value&0xFFFFF)));
 }
 
+bool isDigit(string in) {
+    if ('0' <= in.front() && in.front() <= '9')
+        return TRUE;
+    return FALSE;
+}
 
 
 
