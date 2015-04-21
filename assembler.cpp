@@ -312,7 +312,7 @@ void MemoryMap::splitWord(string word, Element *half_1, Element *half_2) {
     half_2->SetWordContentContainer(to_string((converted_value&0xFFFFF)));
 }
 
-bool isDigit(string in) {
+bool MemoryMap::isDigit(string in) {
     if ('0' <= in.front() && in.front() <= '9')
         return TRUE;
     return FALSE;
