@@ -160,8 +160,11 @@ void MemoryMap::add(Element* _elem) {
                 // somente retorna o labelLink, se nao, cria uma nova label nao inicializada e retorna labelLink
                 // Check if ICC contains a valid address (starts with a number!) if so, addrLink = NULL, and rewrite ICC stripping 'm()' from it and converting to hex, will use ICC
                 // value on final print. If ICC has a label or setValue, we must setAddress and get addrLink, in this case, addrLink->addr will be used on final print
-
-                ME.addrLink = addrMap->setAddress((string)_elem->GetInstructionContentContainer(), LABEL_NOT_DEFINED);  // addr = -1 porque nao sabemos ainda
+                if (isDigit((string)_elem->GetInstructionContentContainer())) {
+                    ME.addrLink = NULL;
+                }
+                else
+                    ME.addrLink = addrMap->setAddress((string)_elem->GetInstructionContentContainer(), LABEL_NOT_DEFINED);  // addr = -1 porque nao sabemos ainda
                 break;
         }
     }
