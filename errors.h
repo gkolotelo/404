@@ -14,5 +14,5 @@ class Error {
  	void callError(ErrorType _error, int in_line);
  private:
  	ErrorType _err;
- 	int* in_line
+ 	int* in_line;
 };
