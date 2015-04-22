@@ -1,6 +1,6 @@
 # IAS_assembler Makefile
 # Default name:
-NAME = IAS_assembler
+NAME = ra135964_ra137943
 # Default compiler:
 DC = g++
 # Default flags for compile process:

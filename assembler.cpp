@@ -5,7 +5,7 @@ using namespace std;
 
 /* ------ Metodos de AddressMap ------ */
 
-AddressElement* AddressMap::setAddress(string _name, int _addr) {
+AddressElement* AddressMap::setAddress(string _name, int _addr, Side _side) {
     
     // Procura se a label ja existe
     for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++) {
@@ -13,6 +13,7 @@ AddressElement* AddressMap::setAddress(string _name, int _addr) {
             // Verifica se a label ainda nao foi definida
             if (addrIterator->addr == LABEL_NOT_DEFINED) {
                 addrIterator->addr = _addr;
+                addrIterator->side = _side;
                 return &(*addrIterator);
             }
             // Instrucao tentando setar label como LABEL_NOT_DEFINED sendo que ela ja foi setada por um label
@@ -26,6 +27,7 @@ AddressElement* AddressMap::setAddress(string _name, int _addr) {
     AddressElement *_e = new AddressElement();
     _e->name = _name;
     _e->addr = _addr;
+    _e->side = _side;
     addrList.push_back(*_e);
     return _e;
 }
@@ -45,10 +47,22 @@ int AddressMap::getAddress(string _name) {
     return LABEL_NOT_DEFINED;
 }
 
+Side AddressMap::getSide(string _name) {
+    // Se nao achar, adiciona e atribui LABEL_NOT_DEFINED como endereco
+
+    // Procura pela label
+    for (addrIterator = addrList.begin(); addrIterator != addrList.end(); addrIterator++) {
+        if (addrIterator->name == _name)
+            return addrIterator->side;
+    }
+
+    // Se nao achar, retorna LABEL_NOT_DEFINED como endereco
+    return Left;
+}
 
 /* ------ Metodos de MemoryMap ------ */
 
-
+// Construtor da classe MemoryMap
 MemoryMap::MemoryMap(){
     addrMap = new AddressMap();
     memoryIterator = memoryList.begin();
@@ -60,7 +74,7 @@ void MemoryMap::add(Element* _elem) {
     //Adiciona um MemoryElement na lista do MemoryMap
     if (_elem == NULL) return;
     if (cursor > MAX_MEMORY_LINES * 2)
-        ;  // ADD_ERROR maximo numero de addresses usados
+        callError(Max_Memory_Lines);
     MemoryElement ME;
     ME.elem = _elem;
     ME.side = (Side)(cursor % 2);  // 0 se left (par), 1 se right (impar)
@@ -99,7 +113,7 @@ void MemoryMap::add(Element* _elem) {
                    _elem->SetInstructionContentContainer(to_string(convertValue(_elem->GetInstructionContentContainer())));
                 }
                 else {
-                    ME.addrLink = addrMap->setAddress((string)_elem->GetInstructionContentContainer(), LABEL_NOT_DEFINED);  // addr = -1 porque nao sabemos ainda
+                    ME.addrLink = addrMap->setAddress((string)_elem->GetInstructionContentContainer(), LABEL_NOT_DEFINED, Left);  // addr = -1 porque nao sabemos ainda, side nao importa
                 }
                 break;
         }
@@ -122,42 +136,30 @@ void MemoryMap::add(Element* _elem) {
                     if (memoryList.size() == 1)
                         return;
                     for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++) {
-                        //cout << "value: " << memoryIterator->addr << endl;
                         if (memoryIterator->addr == cursor/2) return;
                         if (((memoryIterator->addr < cursor/2) && (cursor/2 < next(memoryIterator)->addr))) return;
                     }                    
                 }
                 else {
                     // Cursor novo e maior ou igual que o cursor atual
-                    //cout << "ORG HIGHER!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
                     if (memoryList.size() == 1)
                         return;
                     for (memoryIterator = memoryList.begin(); memoryIterator != memoryList.end(); memoryIterator++) {
-                        //cout << "value: " << memoryIterator->addr << endl;
                         if (memoryIterator->addr == cursor/2) return;
                         if (next(memoryIterator) == memoryList.end()) {
-                            //cout << "im in" << endl;
                             memoryIterator = memoryList.end();
                             return;
                         }
-                        //cout << "cursor: " << cursor << endl;
-                        //cout << "memoryIterator->addr: " << memoryIterator->addr << endl;
-                        //cout << "next(memoryIterator)->addr: " << next(memoryIterator)->addr << endl;
-                        //cout << "isEnd: " << (next(memoryIterator) == memoryList.end()) << endl;
                         if (((memoryIterator->addr < cursor/2) && (cursor/2 < next(memoryIterator)->addr))) return;
-                        //cout << "reached"<<endl;
                     }
                 }
                 // Se DCC é numerico, seta novo cursor, senao procura
                  // no mapa de labels por um set para setar novo cursor
                 break;
             case Align: {
-                //cout << "---------------------------------------------------->Align Address: " << ME.addr << " Side: " << ME.side << endl;
-                //cout << "---------------------------------------------------->Align pre insert Cursor: " << cursor << endl;
                 if (ME.side == Right)  // Devemos completar Right com zeros (Element())
                     add(new Element());
                 align(_elem->GetDirectiveContentContainer(), &cursor);
-                //cout << "---------------------------------------------------->Align New Cursor: " << cursor << endl;
                 // Se DCC é numerico, seta novo cursor, senao procura no mapa de labels por um set para setar novo cursor
                 break;
             }
@@ -165,7 +167,6 @@ void MemoryMap::add(Element* _elem) {
                 Element *half_1 = new Element();
                 Element *half_2 = new Element();
                 splitWord(_elem->GetDirectiveContentContainer().content2, half_1, half_2);  // Content2 porque o valor a ser inserido é o segundo argumento
-                //cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 for (int i = 0; i < convertValue(_elem->GetDirectiveContentContainer().content1); i++) {
                     // Itera sobre o numero de elementos (content1) que Wfill deve criar e adiciona os Elements
                     add(half_1);  // Tem que criar um novo contructor para suportar half_of_words
@@ -178,29 +179,26 @@ void MemoryMap::add(Element* _elem) {
                 Element *half_1 = new Element();
                 Element *half_2 = new Element();
                 splitWord(_elem->GetDirectiveContentContainer().content1, half_1, half_2);
-                //cout << "                                                   splitWord: " << half_1->GetWordContentContainer() << " " << half_2->GetWordContentContainer() << endl;
                 add(half_1);
                 add(half_2);
-                //cout << "---------------------------------------------------->Word Directive Address: " << ME.addr << " Side: " << ME.side << endl;
                 break;
             }
             case Set:
                 //Parecido com label para uma word??
                 //TODO: verificar a semelhanca e possivel juncao
                 // O content de labels possui ":" portanto nao há problema de haver o mesmo nome com sets e labels
-                addrMap->setAddress(_elem->GetDirectiveContentContainer().content1, convertValue(_elem->GetDirectiveContentContainer().content2));
+                addrMap->setAddress(_elem->GetDirectiveContentContainer().content1, convertValue(_elem->GetDirectiveContentContainer().content2), Left);
                 break;
         }
     }
     
     else if ((*_elem).GetElementType() == Label) {
         // Adiciona nova label se esta ainda nao existe com address = cursor/2, se a label ja existe apenas insere o endereco
-        addrMap->setAddress(_elem->GetLabelContentContainer(), (cursor/2));
+        addrMap->setAddress(_elem->GetLabelContentContainer(), (cursor/2), (Side)(cursor % 2));
     }
     
     else if ((*_elem).GetElementType() == Word) { // Novo tipo de elemento que deve ser criado
         insert_into_map = TRUE;
-        //cout << "---------------------------------------------------->Word Element Address: " << ME.addr << " Side: " << ME.side << endl;
     }
     
     if (insert_into_map) {
@@ -211,24 +209,19 @@ void MemoryMap::add(Element* _elem) {
             //Insere no fim da lista
             memoryList.push_back(ME);
             memoryIterator = memoryList.end();
-            //cout << "I'm Last!!!" << endl;
-            //cout << "Inserting addr: " << ME.addr << " Content: " << getWordHexStr(ME.elem->GetWordContentContainer()) << endl;
         }
         else{
-            //cout << "Im not last!!!" << endl;
             if(memoryIterator->addr == ME.addr){
                //Sobrescreve o elemento da lista
-                //cout << "Removing addr: " << memoryIterator->addr << " Side: " << memoryIterator->side << " Content: " << getWordHexStr(memoryIterator->elem->GetWordContentContainer()) << endl;
                memoryIterator = memoryList.erase(memoryIterator);
            }
-           //cout << "Inserting addr: " << ME.addr << " Content: " << getWordHexStr(ME.elem->GetWordContentContainer()) << endl;
            memoryIterator = memoryList.insert(memoryIterator, ME);
            memoryIterator++;
         }
     }
 }
 
-void MemoryMap::printMemoryMap(fstream *outputFS) {
+void MemoryMap::printMemoryMap(stringstream *outputFS) {
     MemoryElement e1, e2;
     string line;
     //outputFS.open();
@@ -245,12 +238,6 @@ void MemoryMap::printMemoryMap(fstream *outputFS) {
 
 }
 
-//bool MemoryMap::isLast(){
-//    if((memoryIterator != memoryList.end()) && (next(memoryIterator) == memoryList.end()))
-//        return true;
-//    else 
-//        return false;
-//}
 bool MemoryMap::isLast() {
     if(memoryIterator == memoryList.end())
         return TRUE;
@@ -327,7 +314,9 @@ void MemoryMap::finishUp() {
 }
 
 string MemoryMap::GetOpCodeString(MemoryElement ME) {
-    return ME.elem->GetOpCodeString(ME.side);
+    if (ME.elem->GetOpCodeType() == Stor_M || ME.elem->GetOpCodeType() == Jump_M_P || ME.elem->GetOpCodeType() == Jump_M)
+        return ME.elem->GetOpCodeString(addrMap->getSide(ME.elem->GetWordContentContainer()));
+    return ME.elem->GetOpCodeString(Left);
 }
 
 string MemoryMap::GetContentString(MemoryElement ME) {
@@ -343,8 +332,7 @@ string MemoryMap::GetContentString(MemoryElement ME) {
         addr = (addrMap->getAddress(ME.elem->GetWordContentContainer()));
     }
     if (addr == LABEL_NOT_DEFINED) {
-        //cout << "Label not defined" << endl;
-        //ADD_ERROR nao hora de imprimir nao ha label ou set definido
+        callError(Label_Set_Not_Defined);
     }
     return to_string(addr);
     

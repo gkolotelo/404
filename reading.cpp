@@ -38,14 +38,13 @@ string splitLabel(string *in) {
 void stripM(string *in) {
     if (in->length() == 0) return;
     if (in->front() != 'm')
-        ;  // ADD_ERROR must have M() identifier
+        callError(Must_Have_M_Identifier);
     in->pop_back();
     in->erase(0,2);
 }
 
 // Conversao de valores das bases hexadecimal, binaria e octal para decimal
 int64_t convertValue(string inStr) {
-    // ADD_ERROR deve detectar valores invalidos, como 0xg4 , 0of4 , dec 45g6 , 0b1021
     char *in = (char *)inStr.c_str();
     if (in[1] == 'x' || in[2] == 'x') return strtol(in + 2, NULL, 16);
     else if (in[1] == 'b' || in[2] == 'b') return strtol(in + 2, NULL, 2);

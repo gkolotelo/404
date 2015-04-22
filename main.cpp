@@ -1,6 +1,17 @@
-//
-// tesk_gkk.cpp
-//
+/*
+ *  MC404 - Organizacao de Computadores e Linguagem de Montagem 
+ *
+ *  Trabalho prático 1 - O trabalho consiste em implementar em 
+ *  C/C++ um metodo de traducao de uma linguagem de montagem 
+ *  simples para uma representacao intermediaria adequada para 
+ *  simulacao em uma arquitetura moderna.
+ *  
+ *  Turma E / 1s2015
+ *
+ *  Alunos: 135964 Guilherme Kairalla Kolotelo
+ *          137943 Alexandre Seidy Ioshisaqui
+ */
+
 #include <mach/mach_time.h>
 
 
@@ -17,15 +28,19 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 
-    if (argc < 2) {
-        cout << "Input file path needed." <<  endl;
-        return 1;
+    if (string(argv[1]).compare("--help") == 0) {
+        cout << "ra135964_ra137943 IAS Assembler, Authors: " << endl;
+        cout << "   Alexandre Seidy Ioshisaqui and Guilherme Kairalla Kolotelo" << endl << endl;
+        cout << "Usage: " << endl;
+        cout << "   ra135964_ra137943 [options] <input_text_file>" << endl << endl;
+        cout << "Options:" << endl;
+        cout << "   --help              Help file." << endl;
+        cout << endl;
+        return 0;
     }
-
-    string outputFile = "a.out";
-
-    if (argc == 4 && string(argv[2]).compare("-o") == 0) {
-        outputFile = string(argv[3]);
+    else if (argc != 2) {
+        cout << "Input file path not specified. Try '--help' for more information." << endl;
+        return 1;
     }
 
     fstream inputFS;
@@ -34,13 +49,13 @@ int main(int argc, char *argv[]) {
     inputFS.open(argv[1], fstream::in);
 
     if(!inputFS.is_open()) {
-        cout << "Could not open file." << endl;
+        cout << "Could not open file. Try '--help' for more information." << endl;
     }
 
     MemoryMap* memMap = new MemoryMap();
 
     while (getline(inputFS, tempStr, '\n')) {
-        // Strip comments out of input line
+        // Remove comentarios da linha de entrada, e converte para minúsculo
         tempStr = getLineNoCommentLowercase(tempStr);
         if (tempStr.length() != 0) {
             // Cria Element somente dos tokens correspondentes ao label, se existir
@@ -52,14 +67,16 @@ int main(int argc, char *argv[]) {
 
     inputFS.close();
 
+    // Preparação para imprimir
     memMap->finishUp();
 
-    fstream outputFS;
-    outputFS.open(outputFile.c_str(), fstream::out);
+    stringstream outputSS;
 
-    memMap->printMemoryMap(&outputFS);
+    // Imprime em stream
+    memMap->printMemoryMap(&outputSS);
 
-    outputFS.close();
+    // Envia para stdout
+    cout << outputSS.rdbuf();
 
     return 0;
 }

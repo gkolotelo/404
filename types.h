@@ -2,7 +2,7 @@
 
 /* ------ Lista de mnemonicos ------ */
 #define LD_MQ           "ldmq"
-#define LD_MQ_CODE      "0A"
+#define LD_MQ_CODE      "0a"
 
 #define LD_MQ_M         "ldmqm"
 #define LD_MQ_M_CODE    "09"
@@ -20,11 +20,11 @@
 #define LD_M_ABS_CODE   "03"
 
 #define JMP_M           "jmp"
-#define JMP_M_L_CODE    "0D"
-#define JMP_M_R_CODE    "0E"
+#define JMP_M_L_CODE    "0d"
+#define JMP_M_R_CODE    "0e"
 
 #define JMP_M_P         "jgez"
-#define JMP_M_P_L_CODE  "0F"
+#define JMP_M_P_L_CODE  "0f"
 #define JMP_M_P_R_CODE  "10"
 
 #define ADD_M           "add"
@@ -40,10 +40,10 @@
 #define SUB_M_ABS_CODE  "08"
 
 #define MUL_M           "mul"
-#define MUL_M_CODE      "0B"
+#define MUL_M_CODE      "0b"
 
 #define DIV_M           "div"
-#define DIV_M_CODE      "0C"
+#define DIV_M_CODE      "0c"
 
 #define LSH             "lsh"
 #define LSH_CODE        "14"
@@ -61,25 +61,30 @@
 using namespace std;
 
 // Token Container
+// Armazena informações sobre a string de entrada, quebrada em tokens
 typedef struct  {
     string tokens[5];
     int amount;
 }TokenContainer;
 
 // Directive Content Container, reune 1 ou 2 dos argumentos de uma diretiva
+// Armazena informações sobre uma diretiva
 typedef struct {
     string content1;
     string content2;
     int amount;
 }DirectiveContentContainer;
 
-// Instruction Contentn Container, armazena o argumento de uma instrução
+// Instruction Content Container
+// Armazena argumento de uma instrução
 typedef string InstructionContentContainer;
 
-// Label Content Container, armazena o argumento de um label
+// Label Content Container
+// Armazena nome de uma label
 typedef string LabelContentContainer;
 
-// Word Content Container, armazena o argumento de um half_of_word
+// Word Content Container
+// Armazena o argumento de um half_of_word (20bits)
 typedef string WordContentContainer;
 
 // Tipos de elementos
@@ -121,12 +126,15 @@ typedef enum {
     Set
 }DirectiveType;
 
+// Lado do mapa de memória
 typedef enum{
     Left,
     Right
 } Side;
 
 // Elemento
+// Armazena informações sobre uma diretiva, instrução, Word ou label que
+// será usado para processamento do mapa de memória e inserção no mesmo
 class Element {
  public:
     // Constructors:
@@ -162,6 +170,7 @@ class Element {
 typedef struct{
     string name;
     int addr;
+    Side side;
 }AddressElement;
 
 typedef struct {

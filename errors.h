@@ -1,16 +1,3 @@
-/*
- *	MC404 - Organizacao de Computadores e Linguagem de Montagem 
- *
- *	Trabalho pretico 1 - O trabalho consiste em implementar em 
- *	C/C++ um metodo de traducao de uma linguagem de montagem 
- *	simples para uma representacao intermediaria adequada para 
- *	simulacao em uma arquitetura moderna.
- *	
- *	Turma E / 1s2015
- *
- *	Alunos: 135964 Guilherme Kairalla Kolotelo
- *			137943 Alexandre Seidy Ioshisaqui
- */
 #define ERRORS_H
 
 #define EXIT_FAILURE 1
@@ -25,7 +12,10 @@ typedef enum {
     Invalid_Direcive_Error,
     Invalid_Instruction_Error,
     Label_Set_Not_Defined,
-    Label_Set_Duplicate
+    Label_Set_Duplicate,
+    Max_Memory_Lines,
+    Must_Have_M_Identifier,
+    NaN
     
 }ErrorType;
 
