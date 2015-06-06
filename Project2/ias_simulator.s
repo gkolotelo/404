@@ -79,7 +79,7 @@ main:
     @ preallocate 80 bytes for 20 characters + 2*4*1024 bytes for IAS memory (1024 bytes @ 64bit each)
     @ fp will point to char array
     @ fp + 80 to fp + 80 + 8192 will point to IAS memory
-    push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+    push {r4,r5,r6,r7,r8,r9,r10,sp,fp,lr}
     _ac .req r8
     _mq .req r9
     _pc .req r10
@@ -94,11 +94,11 @@ main:
     sub fp, fp, #4
 
     sub sp, sp, #80
-    sub sp, sp, #81928
+    sub sp, sp, #8192
 
     bl read_line
 
-    pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+    pop {r4,r5,r6,r7,r8,r9,r10,sp,fp,lr}
 
     mov r0, #0
     mov r7, #1
@@ -109,6 +109,7 @@ main:
 
 
 read_line:
+@ check if no lines were read to exit loop
     push {lr}
 
     ldr r0, =temp_sf_mask
