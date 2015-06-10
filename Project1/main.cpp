@@ -12,9 +12,6 @@
  *          137943 Alexandre Seidy Ioshisaqui
  */
 
-#include <mach/mach_time.h>
-
-
 #include <fstream>
 #include <string>
 
