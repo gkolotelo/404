@@ -1,0 +1,4 @@
+add <cstring> include reading.cpp
+add c++11 extension
+WordElement correction assembler.cpp
+remove unused mach_time include
