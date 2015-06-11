@@ -7,6 +7,7 @@
 
 .extern printf
 .extern scanf
+.extern strtol
 
 @ Reference:
 @ OP_LOAD #0x01
@@ -69,7 +70,8 @@
     text_OP_jump:               .asciz "@ Salto realizado\n"
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
-    text_scanf_mask:            .asciz "%X %X %X %X %X" @ args: addr, op1, op1_addr, op2, op2_addr
+    text_scanf_mask:            .asciz "%s"
+    deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" @ args: addr, op1, op1_addr, op2, op2_addr
     temp_sf_mask: .asciz "%s"
     temp_pf_mask:.asciz "read: %s\n"
 
@@ -79,26 +81,36 @@ main:
     @ preallocate 80 bytes for 20 characters + 2*4*1024 bytes for IAS memory (1024 bytes @ 64bit each)
     @ fp will point to char array
     @ fp + 80 to fp + 80 + 8192 will point to IAS memory
-    push {r4,r5,r6,r7,r8,r9,r10,sp,fp,lr}
+    push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+    @ Cannot writeback to SP! Do we even need to care for SP?
+    @ Define register names:
     _ac .req r8
     _mq .req r9
     _pc .req r10
-
     _addr       .req r3
     _op1        .req r4
     _op1_addr   .req r5
     _op2        .req r6
     _op2_addr   .req r7
-
+    @ Set FP
     mov fp, sp
     sub fp, fp, #4
-
+    @ Allocate memory on stack
     sub sp, sp, #80
     sub sp, sp, #8192
 
+
+
+
     bl read_line
 
-    pop {r4,r5,r6,r7,r8,r9,r10,sp,fp,lr}
+
+
+
+    pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+    @ If SP needs to be back to original location, add:
+    add sp, sp, #80
+    add sp, sp, #8192
 
     mov r0, #0
     mov r7, #1
@@ -109,10 +121,9 @@ main:
 
 
 read_line:
-@ check if no lines were read to exit loop
     push {lr}
 
-    ldr r0, =temp_sf_mask
+    ldr r0, =text_scanf_mask
     mov r1, fp
 
     bl scanf
@@ -125,6 +136,17 @@ read_line:
     pop {lr}
     bx lr
 
+read_hex_input:
+    @ r0 has address on stack where input string is located
+    @ strtol will be run 5 times 
+    @ addr, op1, op1_addr, op2, op2_addr will be set 
+
+
+    push {lr}
+
+    mov r0, fp
+    mov r1, #0
+    @mov 
 
 
 
@@ -132,7 +154,7 @@ read_line:
 test_addr:
     push {lr}
 
-    cmp r0, #1023
+    ldr r0, =1023
     blt test_addr_exit
     mov r1, r0
     ldr r0, =text_invalid_addr
