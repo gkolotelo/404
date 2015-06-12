@@ -71,7 +71,7 @@
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
     text_scanf_mask:            .asciz "%s"
-    deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" @ args: addr, op1, op1_addr, op2, op2_addr
+    deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" @ args: addr, op1, op1_addr, op2, op2_addr -> AAA DD DDD DD DDD
     temp_sf_mask: .asciz "%s"
     temp_pf_mask:.asciz "read: %s\n"
 
@@ -102,7 +102,7 @@ main:
 
 
 
-    bl read_line
+    bl build_memory_map
 
 
 
@@ -139,14 +139,46 @@ read_line:
 read_hex_input:
     @ r0 has address on stack where input string is located
     @ strtol will be run 5 times 
-    @ addr, op1, op1_addr, op2, op2_addr will be set 
-
+    @ addr, op1, op1_addr, op2, op2_addr will be set respectively 
 
     push {lr}
-
+    @ _addr
     mov r0, fp
-    mov r1, #0
-    @mov 
+    mov r1, fp
+    mov r2, #16
+    bl strtol
+    mov _addr, r0
+    @ _op1
+    mov r0, fp
+    mov r1, fp
+    mov r2, #16
+    bl strtol
+    mov _op1 r0
+    @ _op1_addr
+    mov r0, fp
+    mov r1, fp
+    mov r2, #16
+    bl strtol
+    mov _op1_addr, r0
+    @ _op2
+    mov r0, fp
+    mov r1, fp
+    mov r2, #16
+    bl strtol
+    mov _op2, r0
+    @ _op2_addr
+    mov r0, fp
+    mov r1, fp
+    mov r2, #16
+    bl strtol
+    mov _op2_addr, r0
+    @ Finished
+
+build_memory_map:
+    for:
+    bl read_line
+    bl read_hex_input
+    bl add_to_memory @ uses _addr, _op1, _op1_add, _op2, _op2_addr 
 
 
 
