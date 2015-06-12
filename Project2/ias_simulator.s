@@ -175,6 +175,7 @@ read_hex_input:
     @ Finished
 
 build_memory_map:
+    @hello from guilherme
     for:
     bl read_line
     bl read_hex_input
