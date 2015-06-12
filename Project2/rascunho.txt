@@ -1,0 +1,23 @@
+
++ ------------------------- +
+| Rascunho ARM_IASSimulator |
++ ------------------------- +
+
+ARMazenamento do mapa de memoria do IAS
+	<Subetapas do armazenamento>:
+
+	(Matriz/Vetor):memory
+
+
+Executacao do mapa de memoria
+	<Definir registros ARM para simular os registros IAS>
+	<Executa + imprime a instrucao>
+	<Rotina de impressao do estado de execucao>:(ac, mq, pc)
+	[?] Como encerra?
+
+
+Tratamento de erros
+	(Variavel de erros):error
+	<Rotina de teste de endereco>:test_addr
+
+Leitura/Escrita na memoria durante a execucao
