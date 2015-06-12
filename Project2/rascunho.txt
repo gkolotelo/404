@@ -11,7 +11,7 @@ ARMazenamento do mapa de memoria do IAS
 
 Executacao do mapa de memoria
 	<Definir registros ARM para simular os registros IAS>
-	<Executa >
+	<Executa + imprime a instrucao>
 	<Rotina de impressao do estado de execucao>:(ac, mq, pc)
 	[?] Como encerra?
 
@@ -19,3 +19,5 @@ Executacao do mapa de memoria
 Tratamento de erros
 	(Variavel de erros):error
 	<Rotina de teste de endereco>:test_addr
+
+Leitura/Escrita na memoria durante a execucao
