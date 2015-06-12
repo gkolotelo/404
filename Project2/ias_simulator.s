@@ -175,10 +175,8 @@ read_hex_input:
     @ Finished
 
 build_memory_map:
-    @hello from guilherme
     for:
     bl read_line
-    @ Hello!
     bl read_hex_input
     bl add_to_memory @ uses _addr, _op1, _op1_add, _op2, _op2_addr 
 
