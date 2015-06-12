@@ -70,15 +70,18 @@
     text_OP_jump:               .asciz "@ Salto realizado\n"
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
-    text_scanf_mask:            .asciz "%s"
+    text_scanf_mask:            .asciz "%[^\n]s"
     deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" @ args: addr, op1, op1_addr, op2, op2_addr -> AAA DD DDD DD DDD
     temp_sf_mask: .asciz "%s"
     temp_pf_mask:.asciz "read: %s\n"
+    temphex_pf_mask:.asciz "read: %X\n"
+
+strtol_end_addr: .word 0x0
 
 .text
 
 main:
-    @ preallocate 80 bytes for 20 characters + 2*4*1024 bytes for IAS memory (1024 bytes @ 64bit each)
+    @ preallocate 20 bytes for 20 characters + 2*4*1024 bytes for IAS memory (1024 bytes @ 64bit each)
     @ fp will point to char array
     @ fp + 80 to fp + 80 + 8192 will point to IAS memory
     push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
@@ -96,20 +99,21 @@ main:
     mov fp, sp
     sub fp, fp, #4
     @ Allocate memory on stack
-    sub sp, sp, #80
+    sub sp, sp, #20
     sub sp, sp, #8192
 
 
 
 
-    bl build_memory_map
+    bl read_line
+    bl read_hex_input
 
 
 
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ If SP needs to be back to original location, add:
-    add sp, sp, #80
+    add sp, sp, #20 @ fp-19 points to last position (where 1st char will end up)
     add sp, sp, #8192
 
     mov r0, #0
@@ -124,12 +128,15 @@ read_line:
     push {lr}
 
     ldr r0, =text_scanf_mask
+    @ set starting addr on lower stack addresses, since scanf goes up the stack
     mov r1, fp
+    sub r1, r1, #19
 
     bl scanf
 
     ldr r0, =temp_pf_mask
     mov r1, fp
+    sub r1, r1, #19
 
     bl printf
 
@@ -143,36 +150,55 @@ read_hex_input:
 
     push {lr}
     @ _addr
-    mov r0, fp
-    mov r1, fp
-    mov r2, #16
-    bl strtol
-    mov _addr, r0
+    mov r0, fp      
+    sub r0, r0, #19             @ (strtol arg) str: fp-19, points to 1st char read by scanf
+    ldr r1, =strtol_end_addr    @ (strtol arg) endPptr: will be stored in 'strtol_end_addr'
+    mov r2, #16                 @ (strtol arg) base: base 16 (hex)
+    bl strtol                   @ Call strtol
+    mov r1, r0                  @ Move result to corresponding register (addr, op1, op1_addr, op2, op2_addr)
+    ldr r0, =temphex_pf_mask    @ 
+    bl printf                   @ 
     @ _op1
-    mov r0, fp
-    mov r1, fp
+    ldr r0, =strtol_end_addr    @ (strtol arg) str: Now strtol gets addr from 'strtol_end_addr' returned last iteration
+    ldr r0, [r0]
+    ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op1 r0
+    mov r1, r0
+    ldr r0, =temphex_pf_mask
+    bl printf
     @ _op1_addr
-    mov r0, fp
-    mov r1, fp
+    ldr r0, =strtol_end_addr
+    ldr r0, [r0]
+    ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op1_addr, r0
+    mov r1, r0
+    ldr r0, =temphex_pf_mask
+    bl printf
     @ _op2
-    mov r0, fp
-    mov r1, fp
+    ldr r0, =strtol_end_addr
+    ldr r0, [r0]
+    ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op2, r0
+    mov r1, r0
+    ldr r0, =temphex_pf_mask
+    bl printf
     @ _op2_addr
-    mov r0, fp
-    mov r1, fp
+    ldr r0, =strtol_end_addr
+    ldr r0, [r0]
+    ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op2_addr, r0
+    mov r1, r0
+    ldr r0, =temphex_pf_mask
+    bl printf
     @ Finished
+
+    pop {lr}
+    bx lr
+
 
 build_memory_map:
     for:
@@ -180,7 +206,7 @@ build_memory_map:
     bl read_hex_input
     bl add_to_memory @ uses _addr, _op1, _op1_add, _op2, _op2_addr 
 
-
+add_to_memory:
 
 
 test_addr:
