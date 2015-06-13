@@ -197,7 +197,7 @@ void MemoryMap::add(Element* _elem) {
         addrMap->setAddress(_elem->GetLabelContentContainer(), (cursor/2), (Side)(cursor % 2));
     }
     
-    else if ((*_elem).GetElementType() == WordElement) { // Novo tipo de elemento que deve ser criado
+    else if ((*_elem).GetElementType() == WordElement) {
         insert_into_map = TRUE;
     }
     

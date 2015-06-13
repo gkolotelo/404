@@ -4,7 +4,7 @@ NAME = ra135964_ra137943
 # Default compiler:
 DC = g++
 # Default flags for compile process:
-CFLAGS = -c
+CFLAGS = -c -std=c++11
 # Default echo text:
 COMPILING = "Creating object files:"
 LINKING = "Linking object files:"
