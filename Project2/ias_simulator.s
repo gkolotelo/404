@@ -258,7 +258,7 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push{lr}
+    push {lr}
     @ Inicia variaveis
     @ ac, mq, pc, jump, side, error, inst
 
@@ -337,11 +337,12 @@ exec_loop:
     @ default:error
 
 op_case_end:
-
+    
 
 
 exec_mem_map_end:
-    b op_case_end
+    pop {lr}
+    bx lr
 
 op_load:
     b op_case_end
