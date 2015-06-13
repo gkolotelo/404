@@ -71,7 +71,9 @@
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
     text_scanf_mask:            .asciz "%[^\n]s"
-    deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" @ args: addr, op1, op1_addr, op2, op2_addr -> AAA DD DDD DD DDD
+    @ args: addr, op1, op1_addr, op2, op2_addr -> AAA DD DDD DD DDD
+    @ input cal also be data, however it'll have the same format above
+    deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" 
     temp_sf_mask: .asciz "%s"
     temp_pf_mask:.asciz "read: %s\n"
     temphex_pf_mask:.asciz "read: %X\n"
@@ -155,45 +157,35 @@ read_hex_input:
     ldr r1, =strtol_end_addr    @ (strtol arg) endPptr: will be stored in 'strtol_end_addr'
     mov r2, #16                 @ (strtol arg) base: base 16 (hex)
     bl strtol                   @ Call strtol
-    mov r1, r0                  @ Move result to corresponding register (addr, op1, op1_addr, op2, op2_addr)
-    ldr r0, =temphex_pf_mask    @ 
-    bl printf                   @ 
+    mov _addr, r0               @ Move result to corresponding register (addr, op1, op1_addr, op2, op2_addr)
     @ _op1
     ldr r0, =strtol_end_addr    @ (strtol arg) str: Now strtol gets addr from 'strtol_end_addr' returned last iteration
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov r1, r0
-    ldr r0, =temphex_pf_mask
-    bl printf
+    mov _op1, r0
     @ _op1_addr
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov r1, r0
-    ldr r0, =temphex_pf_mask
-    bl printf
+    mov _op1_addr, r0
     @ _op2
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov r1, r0
-    ldr r0, =temphex_pf_mask
-    bl printf
+    mov _op2, r0
     @ _op2_addr
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov r1, r0
-    ldr r0, =temphex_pf_mask
-    bl printf
+    mov _op2_addr, r0
     @ Finished
 
     pop {lr}
@@ -201,18 +193,44 @@ read_hex_input:
 
 
 build_memory_map:
+    @ MemoryMap definition:
+    @ addr ponts to pair of consecutive stack addresses:
+    @   addr 0 -> [32][32]
+    @   addr 1 -> [32][32]
+    @
+    @ View on stack:
+    @   addr 0 -> [32] -> stack addr 0x105 (fp + 20)
+    @   addr 0 -> [32] -> stack addr 0x104
+    @   addr 1 -> [32] -> stack addr 0x103
+    @   addr 1 -> [32] -> stack addr 0x102 ... (until sp)
+    @
+    @   [32][32] -> [000 DD DDD][DD DDD 000]
+    @   ...
     for:
     bl read_line
     bl read_hex_input
     bl add_to_memory @ uses _addr, _op1, _op1_add, _op2, _op2_addr 
 
 add_to_memory:
-
+    @ uses _addr, _op1, _op1_add, _op2, _op2_addr from 'read_hex_input'
+    @ uses strd 
+    @ lsl _addr, _addr, #20 addr unused
+    @
+    @ Converts 40 bits read from input into 2 registers, as defined above, then
+    @ inserts into stack at fp+20+2*_addr
+    lsl _op1, _op1, #12
+    lsl _op2, _op2, #24
+    lsl _op2_addr, _op2_addr, #12
+    orr r0, _op1, _op1_addr
+    orr r1, _op2, _op2_addr
+    strd r1, r0, 
+    
 
 test_addr:
     push {lr}
 
     ldr r0, =1023
+    cmp
     blt test_addr_exit
     mov r1, r0
     ldr r0, =text_invalid_addr
