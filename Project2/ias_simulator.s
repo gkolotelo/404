@@ -82,6 +82,7 @@
     temphex_pf_mask:.asciz "read: %X\n"
 
 strtol_end_addr: .word 0x0
+multiuse_temp_addr: .word 0x0
 
 .text
 
@@ -114,6 +115,7 @@ main:
     @ Bloco de leitura
     bl read_line
     bl read_hex_input
+    bl add_to_memory
 
     @ Bloco de execucao
     @ printf("A simulacao ta comecando.")
@@ -140,13 +142,15 @@ read_line:
     ldr r0, =text_scanf_mask
     @ set starting addr on lower stack addresses, since scanf goes up the stack
     mov r1, fp
-    sub r1, r1, #19
+    sub r1, r1, #8192
+    add r1, r1, #1
 
     bl scanf
 
     ldr r0, =temp_pf_mask
     mov r1, fp
-    sub r1, r1, #19
+    sub r1, r1, #8192
+    add r1, r1, #1
 
     bl printf
 
@@ -167,6 +171,7 @@ read_hex_input:
     mov r2, #16                 @ (strtol arg) base: base 16 (hex)
     bl strtol                   @ Call strtol
     mov addr, r0                @ Move result to corresponding register (addr, op1, op1addr, op2, op2_addr)
+    push {addr}                 @ save addr, since r3 can be messed with
     @ op1 
     ldr r0, =strtol_end_addr    @ (strtol arg) str: Now strtol gets addr from 'strtol_end_addr' returned last iteration
     ldr r0, [r0]
@@ -196,7 +201,7 @@ read_hex_input:
     bl strtol
     mov op2_addr, r0
     @ Finished
-
+    pop {addr}                  @ Restore addr
     pop {lr}
     bx lr
 
@@ -228,28 +233,33 @@ add_to_memory:
     @ Converts 40 bits read from input into 2 registers, as defined above, then
     @ inserts into stack at fp+20+2*_addr
 
-    b test_addr
+    mov r0, addr                @ Move addr for validation
+
+    bl test_addr
 
     lsl op1, op1, #12
     lsl op2, op2, #24
     lsl op2_addr, op2_addr, #12
-    orr r1, op1, op1_addr
-    orr r0, op2, op2_addr
-    add addr, addr, #20        @ addr = addr + 20, will be used below to compensate
-    strd r0, r1, [fp, -addr]   @ Store [r0][r1] to [fp-20-_addr][fp-20-addr - 4]
+    orr r0, op1, op1_addr
+    orr r1, op2, op2_addr
+    add addr, addr, #24         @ addr = addr + 24, will be used below to compensate
+    strd r0, r1, [fp, -addr]    @ Store [r0][r1] to [fp-20-_addr - 4][fp-20-addr]
     
 
 test_addr:
     @ Tests if address at r0 is less then 1023 (0x3FF)
     push {lr}
     @ r0 contains address to be tested
-    ldr r1, =1023
-    cmp r0, r1  @ if r0-1023 < 0 the address is valid
+    ldr r1, =0x3FF  @(1023)
+    cmp r0, r1      @ if r0-1023 < 0 the address is valid
     blt test_addr_exit
-    mov r1, r0
+    ldr r1, =multiuse_temp_addr
+    str r0, [r1]
     ldr r0, =text_invalid_addr
     bl printf
-
+    mov r0, #1  @ Exit with return code 1
+    mov r7, #1
+    svc 0x00
 
 test_addr_exit:
     pop {lr}
