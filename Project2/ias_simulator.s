@@ -114,6 +114,7 @@ main:
     @ Bloco de leitura
     bl read_line
     bl read_hex_input
+    bl add_to_memory
 
     @ Bloco de execucao
     @ printf("A simulacao ta comecando.")
@@ -249,7 +250,9 @@ test_addr:
     mov r1, r0
     ldr r0, =text_invalid_addr
     bl printf
-
+    mov r0, #1  @ Exit with return code 1
+    mov r7, #1
+    svc 0x00
 
 test_addr_exit:
     pop {lr}
