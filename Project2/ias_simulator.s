@@ -1,7 +1,10 @@
-@ Trabalho 2
-@
-@ 2015
-@ Guilherme Kairalla Kolotelo
+@ +----------------------------------------+
+@ | MC404 Turma E - 2015 semestre 1        |
+@ | Trabalho 2 - Simulador de IAS para ARM |
+@ +----------------------------------------+
+@ | Guilherme Kairalla Kolotelo            |
+@ | 137943 Alexandre Seidy Ioshisaqui      |
+@ +----------------------------------------+
 
 .globl main
 
@@ -88,6 +91,7 @@ main:
     @ fp + 80 to fp + 80 + 8192 will point to IAS memory
     push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ Cannot writeback to SP! Do we even need to care for SP?
+
     @ Define register names:
     _ac .req r8
     _mq .req r9
@@ -97,20 +101,23 @@ main:
     _op1_addr   .req r5
     _op2        .req r6
     _op2_addr   .req r7
+
     @ Set FP
     mov fp, sp
     sub fp, fp, #4
+
     @ Allocate memory on stack
     sub sp, sp, #20
     sub sp, sp, #8192
 
-
-
-
+    @ Bloco de leitura
     bl read_line
     bl read_hex_input
 
-
+    @ Bloco de execucao
+    @ printf("A simulacao ta comecando.")
+    bl exec_mem_map_begin
+    @ printf("A simulacao terminou.")
 
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
@@ -235,17 +242,117 @@ test_addr:
     mov r1, r0
     ldr r0, =text_invalid_addr
     bl printf
+
+
 test_addr_exit:
     pop {lr}
     bx lr
 
 
+@ Bloco de execucao do mapa de memoria
+exec_mem_map_begin:
+    push{lr}
+    @ Inicia variaveis
+    @ ac, mq, pc, jump, side, error, inst
+
+    @   printf("Estado inicial")
+    @   printf("AC:, MQ:, PC:")
+    @   printf("-----------")
+
+    @   while(true):
+    @       for(j=left, (conditions), j++):
+    @       (conditions) := side:(left,right) && jump:false && error:false
+    @           switch(OP_CODE):
+exec_loop:
+
+    @ switch(OP_CODE)
+    cmp addr, 0x01          @ LOAD
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x09          @ LOADMQM
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x0A          @ LOADMQ
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x03          @ LOADABS
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x02          @ LOADN
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x21          @ STOR
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x12          @ STORL
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x13          @ STORR
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x05          @ ADD
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x07          @ ADDABS
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x06          @ SUB
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x08          @ SUBABS
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x0B          @ MUL
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x0C          @ DIV
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x15          @ RSH
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x14          @ LSH
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x0D          @ JUMPL
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x0E          @ JUMPR
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x0F          @ JUMPPL
+    bl op_
+    b op_case_end
+
+    cmp addr, 0x10          @ JUMPPR
+    bl op_
+    b op_case_end
+
+op_case_end:
 
 
 
-
-
-
+exec_mem_map_end:
+    pop{lr}
+    bx lr
 
 
 
