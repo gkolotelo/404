@@ -2,7 +2,7 @@
 @ | MC404 Turma E - 2015 semestre 1        |
 @ | Trabalho 2 - Simulador de IAS para ARM |
 @ +----------------------------------------+
-@ | Guilherme Kairalla Kolotelo            |
+@ | 135964 Guilherme Kairalla Kolotelo            |
 @ | 137943 Alexandre Seidy Ioshisaqui      |
 @ +----------------------------------------+
 
@@ -74,7 +74,7 @@
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
     text_scanf_mask:            .asciz "%[^\n]s"
-    @ args: addr, op1, op1_addr, op2, op2_addr -> AAA DD DDD DD DDD
+    @ args: addr, op1, op1addr, op2, op2addr -> AAA DD DDD DD DDD
     @ input cal also be data, however it'll have the same format above
     deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" 
     temp_sf_mask: .asciz "%s"
@@ -93,14 +93,14 @@ main:
     @ Cannot writeback to SP! Do we even need to care for SP?
 
     @ Define register names:
-    _ac .req r8
-    _mq .req r9
-    _pc .req r10
-    _addr       .req r3
-    _op1        .req r4
-    _op1_addr   .req r5
-    _op2        .req r6
-    _op2_addr   .req r7
+    ac         .req r8
+    mq         .req r9
+    pc_ias         .req r10
+    addr       .req r3
+    op1         .req r4
+    op1_addr   .req r5
+    op2         .req r6
+    op2_addr   .req r7
 
     @ Set FP
     mov fp, sp
@@ -156,44 +156,45 @@ read_line:
 read_hex_input:
     @ r0 has address on stack where input string is located
     @ strtol will be run 5 times 
-    @ addr, op1, op1_addr, op2, op2_addr will be set respectively 
+    @ addr, op1, op1addr, op2, op2addr will be set respectively 
 
     push {lr}
     @ _addr
     mov r0, fp      
-    sub r0, r0, #8191           @ (strtol arg) str: fp-8191, points to 1st char read by scanf
+    sub r0, r0, #8192           @ (strtol arg) str: fp-8191, points to 1st char read by scanf
+    add r0, r0, #1              @ must add 1, since immediate is higher than 12bits (-8192+1)
     ldr r1, =strtol_end_addr    @ (strtol arg) endPptr: will be stored in 'strtol_end_addr'
     mov r2, #16                 @ (strtol arg) base: base 16 (hex)
     bl strtol                   @ Call strtol
-    mov _addr, r0               @ Move result to corresponding register (addr, op1, op1_addr, op2, op2_addr)
-    @ _op1
+    mov addr, r0                @ Move result to corresponding register (addr, op1, op1addr, op2, op2_addr)
+    @ op1 
     ldr r0, =strtol_end_addr    @ (strtol arg) str: Now strtol gets addr from 'strtol_end_addr' returned last iteration
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op1, r0
-    @ _op1_addr
+    mov op1 , r0
+    @ op1 _addr
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op1_addr, r0
-    @ _op2
+    mov op1_addr, r0
+    @ op2 
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op2, r0
-    @ _op2_addr
+    mov op2 , r0
+    @ op2 _addr
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov _op2_addr, r0
+    mov op2_addr, r0
     @ Finished
 
     pop {lr}
@@ -217,34 +218,33 @@ build_memory_map:
     for:
     bl read_line
     bl read_hex_input
-    bl add_to_memory @ uses _addr, _op1, _op1_add, _op2, _op2_addr 
+    bl add_to_memory @ uses addr, op1 , op1 _add, op2 , op2 addr 
 
 add_to_memory:
-    @ uses _addr, _op1, _op1_add, _op2, _op2_addr from 'read_hex_input'
+    @ uses addr, op1 , op1 _add, op2 , op2 addr from 'read_hex_input'
     @ uses strd 
-    @ lsl _addr, _addr, #20 addr unused
+    @ lsl addr, addr, #20 addr unused
     @
     @ Converts 40 bits read from input into 2 registers, as defined above, then
     @ inserts into stack at fp+20+2*_addr
 
     b test_addr
 
-    lsl _op1, _op1, #12
-    lsl _op2, _op2, #24
-    lsl _op2_addr, _op2_addr, #12
-    orr r0, _op1, _op1_addr
-    orr r1, _op2, _op2_addr
-    add _addr, _addr, #20       @ _addr = _addr + 20, will be used below to compensate
-    strd r1, r0, [fp, -_addr]   @ Store [r0][r1] to [fp-20-_addr][fp-20-_addr - 4]
+    lsl op1, op1, #12
+    lsl op2, op2, #24
+    lsl op2_addr, op2_addr, #12
+    orr r1, op1, op1_addr
+    orr r0, op2, op2_addr
+    add addr, addr, #20        @ addr = addr + 20, will be used below to compensate
+    strd r0, r1, [fp, -addr]   @ Store [r0][r1] to [fp-20-_addr][fp-20-addr - 4]
     
 
 test_addr:
     @ Tests if address at r0 is less then 1023 (0x3FF)
     push {lr}
     @ r0 contains address to be tested
-    cmp r0, #1023
-    @ldr r1, =1023
-    @cmp r0, r1  @ if r0-1023
+    ldr r1, =1023
+    cmp r0, r1  @ if r0-1023 < 0 the address is valid
     blt test_addr_exit
     mov r1, r0
     ldr r0, =text_invalid_addr
@@ -273,64 +273,64 @@ exec_mem_map_begin:
 exec_loop:
 
     @ switch(OP_CODE)
-    cmp _addr, 0x01  @ LOAD
+    cmp addr, #0x01  @ LOAD
     beq op_load
 
-    cmp _addr, 0x09  @ LOADMQM
+    cmp addr, #0x09  @ LOADMQM
     beq op_loadmqm
 
-    cmp _addr, 0x0A  @ LOADMQ
+    cmp addr, #0x0A  @ LOADMQ
     beq op_loadmq
 
-    cmp _addr, 0x03  @ LOADABS
+    cmp addr, #0x03  @ LOADABS
     beq op_loadabs
 
-    cmp _addr, 0x02  @ LOADN
+    cmp addr, #0x02  @ LOADN
     beq op_loadn
 
-    cmp _addr, 0x21  @ STOR
+    cmp addr, #0x21  @ STOR
     beq op_stor
 
-    cmp _addr, 0x12  @ STORL
+    cmp addr, #0x12  @ STORL
     beq op_storl
 
-    cmp _addr, 0x13  @ STORR
+    cmp addr, #0x13  @ STORR
     beq op_storr
 
-    cmp _addr, 0x05  @ ADD
+    cmp addr, #0x05  @ ADD
     beq op_add
 
-    cmp _addr, 0x07  @ ADDABS
+    cmp addr, #0x07  @ ADDABS
     beq op_addabs
 
-    cmp _addr, 0x06  @ SUB
+    cmp addr, #0x06  @ SUB
     beq op_sub
 
-    cmp _addr, 0x08  @ SUBABS
+    cmp addr, #0x08  @ SUBABS
     beq op_subabs
 
-    cmp _addr, 0x0B  @ MUL
+    cmp addr, #0x0B  @ MUL
     beq op_mul
 
-    cmp _addr, 0x0C  @ DIV
+    cmp addr, #0x0C  @ DIV
     beq op_div
 
-    cmp _addr, 0x15  @ RSH
+    cmp addr, #0x15  @ RSH
     beq op_rsh
 
-    cmp _addr, 0x14  @ LSH
+    cmp addr, #0x14  @ LSH
     beq op_lsh
 
-    cmp _addr, 0x0D  @ JUMPL
+    cmp addr, #0x0D  @ JUMPL
     beq op_jumpl
 
-    cmp _addr, 0x0E  @ JUMPR
+    cmp addr, #0x0E  @ JUMPR
     beq op_jumpr
 
-    cmp _addr, 0x0F  @ JUMPPL
+    cmp addr, #0x0F  @ JUMPPL
     beq op_jumppl
 
-    cmp _addr, 0x10  @ JUMPPR
+    cmp addr, #0x10  @ JUMPPR
     beq op_jumppr
 
     b exec_mem_map_end
