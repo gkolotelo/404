@@ -1,7 +1,10 @@
-@ Trabalho 2
-@
-@ 2015
-@ Guilherme Kairalla Kolotelo
+@ +----------------------------------------+
+@ | MC404 Turma E - 2015 semestre 1        |
+@ | Trabalho 2 - Simulador de IAS para ARM |
+@ +----------------------------------------+
+@ | Guilherme Kairalla Kolotelo            |
+@ | 137943 Alexandre Seidy Ioshisaqui      |
+@ +----------------------------------------+
 
 .globl main
 
@@ -88,6 +91,7 @@ main:
     @ fp - 8191 will point to 1st char of buffer
     push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ Cannot writeback to SP! Do we even need to care for SP?
+
     @ Define register names:
     _ac .req r8
     _mq .req r9
@@ -97,21 +101,24 @@ main:
     _op1_addr   .req r5
     _op2        .req r6
     _op2_addr   .req r7
+
     @ Set FP
     mov fp, sp
     sub fp, fp, #4
+
     @ Allocate memory on stack
     @ Stack: 1st 8192 bytes: MemoryMap, remaining 20 bytes: string buffer
     sub sp, sp, #8192
     sub sp, sp, #20
 
-
-
-
+    @ Bloco de leitura
     bl read_line
     bl read_hex_input
 
-
+    @ Bloco de execucao
+    @ printf("A simulacao ta comecando.")
+    bl exec_mem_map_begin
+    @ printf("A simulacao terminou.")
 
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
@@ -242,17 +249,119 @@ test_addr:
     mov r1, r0
     ldr r0, =text_invalid_addr
     bl printf
+
+
 test_addr_exit:
     pop {lr}
     bx lr
 
 
+@ Bloco de execucao do mapa de memoria
+exec_mem_map_begin:
+    push{lr}
+    @ Inicia variaveis
+    @ ac, mq, pc, jump, side, error, inst
+
+    @   printf("Estado inicial")
+    @   printf("AC:, MQ:, PC:")
+    @   printf("-----------")
+
+    @   while(true):
+    @       for(j=left, (conditions), j++):
+    @       (conditions) := side:(left,right) && jump:false && error:false
+    @           switch(OP_CODE):
+exec_loop:
+
+    @ switch(OP_CODE)
+    cmp addr, 0x01  @ LOAD
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x09  @ LOADMQM
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x0A  @ LOADMQ
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x03  @ LOADABS
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x02  @ LOADN
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x21  @ STOR
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x12  @ STORL
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x13  @ STORR
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x05  @ ADD
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x07  @ ADDABS
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x06  @ SUB
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x08  @ SUBABS
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x0B  @ MUL
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x0C  @ DIV
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x15  @ RSH
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x14  @ LSH
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x0D  @ JUMPL
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x0E  @ JUMPR
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x0F  @ JUMPPL
+    bleq op_
+    b op_case_end
+
+    cmp addr, 0x10  @ JUMPPR
+    bleq op_
+    b op_case_end
+
+    @ default:error
+
+op_case_end:
 
 
 
-
-
-
+exec_mem_map_end:
+    pop{lr}
+    bx lr
 
 
 
