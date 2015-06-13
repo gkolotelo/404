@@ -266,79 +266,111 @@ exec_mem_map_begin:
     @   printf("AC:, MQ:, PC:")
     @   printf("-----------")
 
-    @   while(true):
-    @       for(j=left, (conditions), j++):
-    @       (conditions) := side:(left,right) && jump:false && error:false
-    @           switch(OP_CODE):
-exec_loop:
+    @ Overview do loop:
+    @ | while(true):
+    @ |  |-> for(j=left, (conditions), j++):
+    @ |  |   (conditions) := side:(left,right) && jump:false && error:false
+    @ |      |-> switch(OP_CODE): seleciona operacao
+    @ |      |-> executa ate encontrar operacao invalida
+
+exec_loop_begin:
+    @ printf("Executando instrucao")
+    @ if (side == left): left-shift 20bits + mascara 0xFFFFF
+    @ else: mascara 0xFFFFF
 
     @ switch(OP_CODE)
-    cmp addr, #0x01  @ LOAD
+    cmp addr, #0x01  @ case LOAD:
     beq op_load
 
-    cmp addr, #0x09  @ LOADMQM
+    cmp addr, #0x09  @ case LOADMQM:
     beq op_loadmqm
 
-    cmp addr, #0x0A  @ LOADMQ
+    cmp addr, #0x0A  @ case LOADMQ:
     beq op_loadmq
 
-    cmp addr, #0x03  @ LOADABS
+    cmp addr, #0x03  @ case LOADABS:
     beq op_loadabs
 
-    cmp addr, #0x02  @ LOADN
+    cmp addr, #0x02  @ case LOADN:
     beq op_loadn
 
-    cmp addr, #0x21  @ STOR
+    cmp addr, #0x21  @ case STOR:
     beq op_stor
 
-    cmp addr, #0x12  @ STORL
+    cmp addr, #0x12  @ case STORL:
     beq op_storl
 
-    cmp addr, #0x13  @ STORR
+    cmp addr, #0x13  @ case STORR:
     beq op_storr
 
-    cmp addr, #0x05  @ ADD
+    cmp addr, #0x05  @ case ADD:
     beq op_add
 
-    cmp addr, #0x07  @ ADDABS
+    cmp addr, #0x07  @ case ADDABS:
     beq op_addabs
 
-    cmp addr, #0x06  @ SUB
+    cmp addr, #0x06  @ case SUB:
     beq op_sub
 
-    cmp addr, #0x08  @ SUBABS
+    cmp addr, #0x08  @ case SUBABS:
     beq op_subabs
 
-    cmp addr, #0x0B  @ MUL
+    cmp addr, #0x0B  @ case MUL:
     beq op_mul
 
-    cmp addr, #0x0C  @ DIV
+    cmp addr, #0x0C  @ case DIV:
     beq op_div
 
-    cmp addr, #0x15  @ RSH
+    cmp addr, #0x15  @ case RSH:
     beq op_rsh
 
-    cmp addr, #0x14  @ LSH
+    cmp addr, #0x14  @ case LSH:
     beq op_lsh
 
-    cmp addr, #0x0D  @ JUMPL
+    cmp addr, #0x0D  @ case JUMPL:
     beq op_jumpl
 
-    cmp addr, #0x0E  @ JUMPR
+    cmp addr, #0x0E  @ case JUMPR:
     beq op_jumpr
 
-    cmp addr, #0x0F  @ JUMPPL
+    cmp addr, #0x0F  @ case JUMPPL:
     beq op_jumppl
 
-    cmp addr, #0x10  @ JUMPPR
+    cmp addr, #0x10  @ case JUMPPR:
     beq op_jumppr
 
-    b exec_mem_map_end
     @ default:error
+    @ fprintf(stderr, "Erro! Instrucao invalida.")
+    @ error := true
+
+    b exec_mem_map_end
 
 op_case_end:
-    
+    @   if(error == true) exec_mem_map_end
+    @   else:
+    @      ac &= 0xFFFFFFFFFF;
+    @      mq &= 0xFFFFFFFFFF;
+    @      pc &= 0xFFFFFFFFFF;
+    @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
+    @   printf("--------------------------------------------------------------\n");
 
+    @ j < 2 && jump == 0 && error == 0
+    @ := side:(left,right) && jump:false && error:false
+    @ Loop conditions
+@    cmp rSide, #1          @ side is left or right (j < 2)
+@    bgt exec_loop_end
+@    cmp rJump, #1          @ jump == false
+@    beq exec_loop_end
+@    cmp rError, #1         @ error == false
+@    beq exec_loop_end
+
+@    b exec_loop_begin
+
+exec_loop_end:
+    @   if (jump == false):
+    @       pc := pc + 1
+    @       first := 0
+    @   else: jump := 0
 
 exec_mem_map_end:
     pop {lr}
