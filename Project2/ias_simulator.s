@@ -86,9 +86,9 @@ strtol_end_addr: .word 0x0
 .text
 
 main:
-    @ preallocate 20 bytes for 20 characters + 2*4*1024 bytes for IAS memory (1024 bytes @ 64bit each)
-    @ fp will point to char array
-    @ fp + 80 to fp + 80 + 8192 will point to IAS memory
+    @ preallocate 20 bytes for 20 characters + 2*4*1024 bytes for IAS memory (1024 bytes @ 64bits each)
+    @ fp will point to start o MemoryMap (IAS memory entry every 8 bytes)
+    @ fp - 8191 will point to 1st char of buffer
     push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ Cannot writeback to SP! Do we even need to care for SP?
 
@@ -107,8 +107,9 @@ main:
     sub fp, fp, #4
 
     @ Allocate memory on stack
-    sub sp, sp, #20
+    @ Stack: 1st 8192 bytes: MemoryMap, remaining 20 bytes: string buffer
     sub sp, sp, #8192
+    sub sp, sp, #20
 
     @ Bloco de leitura
     bl read_line
@@ -160,7 +161,7 @@ read_hex_input:
     push {lr}
     @ _addr
     mov r0, fp      
-    sub r0, r0, #19             @ (strtol arg) str: fp-19, points to 1st char read by scanf
+    sub r0, r0, #8191           @ (strtol arg) str: fp-8191, points to 1st char read by scanf
     ldr r1, =strtol_end_addr    @ (strtol arg) endPptr: will be stored in 'strtol_end_addr'
     mov r2, #16                 @ (strtol arg) base: base 16 (hex)
     bl strtol                   @ Call strtol
@@ -225,19 +226,25 @@ add_to_memory:
     @
     @ Converts 40 bits read from input into 2 registers, as defined above, then
     @ inserts into stack at fp+20+2*_addr
+
+    b test_addr
+
     lsl _op1, _op1, #12
     lsl _op2, _op2, #24
     lsl _op2_addr, _op2_addr, #12
     orr r0, _op1, _op1_addr
     orr r1, _op2, _op2_addr
-    strd r1, r0, 
+    add _addr, _addr, #20       @ _addr = _addr + 20, will be used below to compensate
+    strd r1, r0, [fp, -_addr]   @ Store [r0][r1] to [fp-20-_addr][fp-20-_addr - 4]
     
 
 test_addr:
+    @ Tests if address at r0 is less then 1023 (0x3FF)
     push {lr}
-
-    ldr r0, =1023
-    cmp
+    @ r0 contains address to be tested
+    cmp r0, #1023
+    @ldr r1, =1023
+    @cmp r0, r1  @ if r0-1023
     blt test_addr_exit
     mov r1, r0
     ldr r0, =text_invalid_addr
