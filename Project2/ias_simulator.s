@@ -266,85 +266,87 @@ exec_mem_map_begin:
 exec_loop:
 
     @ switch(OP_CODE)
-    cmp addr, 0x01          @ LOAD
-    bl op_
+    cmp addr, 0x01  @ LOAD
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x09          @ LOADMQM
-    bl op_
+    cmp addr, 0x09  @ LOADMQM
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x0A          @ LOADMQ
-    bl op_
+    cmp addr, 0x0A  @ LOADMQ
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x03          @ LOADABS
-    bl op_
+    cmp addr, 0x03  @ LOADABS
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x02          @ LOADN
-    bl op_
+    cmp addr, 0x02  @ LOADN
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x21          @ STOR
-    bl op_
+    cmp addr, 0x21  @ STOR
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x12          @ STORL
-    bl op_
+    cmp addr, 0x12  @ STORL
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x13          @ STORR
-    bl op_
+    cmp addr, 0x13  @ STORR
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x05          @ ADD
-    bl op_
+    cmp addr, 0x05  @ ADD
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x07          @ ADDABS
-    bl op_
+    cmp addr, 0x07  @ ADDABS
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x06          @ SUB
-    bl op_
+    cmp addr, 0x06  @ SUB
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x08          @ SUBABS
-    bl op_
+    cmp addr, 0x08  @ SUBABS
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x0B          @ MUL
-    bl op_
+    cmp addr, 0x0B  @ MUL
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x0C          @ DIV
-    bl op_
+    cmp addr, 0x0C  @ DIV
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x15          @ RSH
-    bl op_
+    cmp addr, 0x15  @ RSH
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x14          @ LSH
-    bl op_
+    cmp addr, 0x14  @ LSH
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x0D          @ JUMPL
-    bl op_
+    cmp addr, 0x0D  @ JUMPL
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x0E          @ JUMPR
-    bl op_
+    cmp addr, 0x0E  @ JUMPR
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x0F          @ JUMPPL
-    bl op_
+    cmp addr, 0x0F  @ JUMPPL
+    bleq op_
     b op_case_end
 
-    cmp addr, 0x10          @ JUMPPR
-    bl op_
+    cmp addr, 0x10  @ JUMPPR
+    bleq op_
     b op_case_end
+
+    @ default:error
 
 op_case_end:
 
