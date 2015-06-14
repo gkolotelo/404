@@ -253,9 +253,9 @@ test_addr:
     push {lr}
     @ r0 contains address to be tested
     ldr r1, =0x3FF  @(1023)
-    cmp r0, r1      @ if r0-1023 < 0 the address is valid
+    cmp r0, r1      @ if r0-1023 <= 0 the address is valid
     mov r0, #0      @ return 0 (error = false)
-    blt test_addr_exit
+    ble test_addr_exit
 
     ldr r1, =multiuse_temp_addr
     str r0, [r1]
