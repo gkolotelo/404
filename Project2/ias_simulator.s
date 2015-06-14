@@ -285,6 +285,7 @@ exec_mem_map_begin:
     mov r2, #0      @ r2:jump
     mov addr, #0    @ r3:addr
     mov r4, #0      @ r4:error
+    mov r5, #0      @ r5:aux
 
 @   printf("Estado inicial")
 @   printf("AC:, MQ:, PC:")
@@ -302,6 +303,7 @@ exec_loop_begin:
 
     @ Identificando o lado atual a ser executado
     cmp r1, #0              @   if (side == left):
+    ldr r5, =0xFFFFF
 @!!! Corrigir para ler do memory map
 @    moveq r0, r0, lsr #20   @       inst = (memory[pc] >> 20) & 0xFFFFF
 @    andeq r0, r0, #0xFFFFF  @
@@ -310,7 +312,8 @@ exec_loop_begin:
 @    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
 
     @ Separando instrucao de endereco
-@    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
+    ldr r5, =0x00FFF
+@    and addr, r0, r5  @   addr = inst & 0x00FFF
     mov r0, r0, lsr #12     @   inst = (inst >> 12)
 
     @ switch(OP_CODE)
