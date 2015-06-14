@@ -313,7 +313,7 @@ exec_mem_map_begin:
 
 exec_loop_begin:
     push {r0, r1, r2, r3}
-    ldr r0, =text_executing_at_addr
+    ldr r0, =text_executing_at_addr     @ "Executando instrucao no endereco"
     bl printf
     pop {r0, r1, r2, r3}
 
@@ -440,7 +440,7 @@ exec_loop_end:
 
     @ Memory map execution loop update 
     cmp r2, #0         @   if (r2:jump == false):
-    addeq pc_ias, #1   @       pc := pc + 1
+    addeq pc_ias, pc_ias, #1   @       pc := pc + 1
     moveq r1, #0       @       r1:side := left
     movne r2, #0       @   else: r2:jump := false
 
