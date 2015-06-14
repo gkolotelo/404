@@ -274,7 +274,7 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push {lr, r4}
+    push {r4, lr}
 
     @ Inicializa variaveis que serao utilizadas
     mov ac, #0      @ r8:ac
@@ -303,14 +303,14 @@ exec_loop_begin:
     @ Identificando o lado atual a ser executado
     cmp r1, #0              @   if (side == left):
 @!!! Corrigir para ler do memory map
-    moveq r0, r0, lsr #20   @       inst = (memory[pc] >> 20) & 0xFFFFF
-    andeq r0, r0, #0xFFFFF  @
+@    moveq r0, r0, lsr #20   @       inst = (memory[pc] >> 20) & 0xFFFFF
+@    andeq r0, r0, #0xFFFFF  @
 @!!! Corrigir para ler do memory map
-    movne r0, r0, lsr #20   @   else:
-    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
+@    movne r0, r0, lsr #20   @   else:
+@    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
 
     @ Separando instrucao de endereco
-    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
+@    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
     mov r0, r0, lsr #12     @   inst = (inst >> 12)
 
     @ switch(OP_CODE)
@@ -416,7 +416,7 @@ exec_loop_end:
     b exec_loop_begin
 
 exec_mem_map_end:
-    pop {lr, r4}
+    pop {r4, lr}
     bx lr
 
 op_load:
