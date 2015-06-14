@@ -94,25 +94,25 @@ main:
     @ Cannot writeback to SP! Do we even need to care for SP?
 
     @ Define register names:
-    ac         .req r8
-    mq         .req r9
-    pc_ias         .req r10
-    addr       .req r3
+    ac          .req r8
+    mq          .req r9
+    pc_ias      .req r10
+    addr        .req r3
     op1         .req r4
-    op1_addr   .req r5
+    op1_addr    .req r5
     op2         .req r6
-    op2_addr   .req r7
+    op2_addr    .req r7
 
     @ Set FP
     mov fp, sp
     sub fp, fp, #4
-
     @ Allocate memory on stack
     @ Stack: 1st 8192 bytes: MemoryMap, remaining 20 bytes: string buffer
     sub sp, sp, #8192
     sub sp, sp, #20
 
     @ Bloco de leitura
+    bl initialize_zeros
     bl read_line
     bl read_hex_input
     bl add_to_memory
@@ -225,7 +225,9 @@ build_memory_map:
     @
     @   [32][32] -> [000 DD DDD][DD DDD 000]
     @   ...
-    for:
+    @ Initialize all memory locations with zero
+    bl initialize_zeros
+    
     bl read_line
     bl read_hex_input
     bl add_to_memory @ uses addr, op1 , op1 _add, op2 , op2 addr 
@@ -247,11 +249,29 @@ add_to_memory:
     lsl op1, op1, #12
     lsl op2, op2, #24
     lsl op2_addr, op2_addr, #12
-    orr r0, op1, op1_addr
-    orr r1, op2, op2_addr
-    add addr, addr, #4          @ addr = addr + 24, will be used below to compensate
+    orr r1, op1, op1_addr       @ r0 has [000 DD DDD]
+    orr r0, op2, op2_addr       @ r1 has [DD DDD 000]
+    lsl addr, addr, #3          @ Multiply by 8, since an IAS memory line occurs every 8 bytes
+    add addr, addr, #4          @ addr = addr + 4, will be used below to compensate stack direction
     strd r0, r1, [fp, -addr]    @ Stores [r0][r1] to [fp - addr - 4][fp - addr]
-    
+
+initialize_zeros:
+    @ Initializes 1024*2*4 bytes of memory with zeros
+    push {lr}
+    mov addr, #0
+    mov r4, #0
+    mov r5, #0
+    ldr r1, =0x3FF      @(1023)
+initialize_zeros_compare:
+    cmp addr, r1        @ if r0-1023 <= 0 continue initilaizing zeros
+    ble initialize_zeros_init
+    pop {lr}
+    bx lr
+initialize_zeros_init:
+    strd r4, r5, [fp, -addr]
+    add addr, addr, #8  @ New IAS memory line every 8 bytes
+    b initialize_zeros_compare
+
 
 test_addr:
     @ Tests if address at r0 is less then 1023 (0x3FF)
