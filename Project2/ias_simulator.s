@@ -310,7 +310,7 @@ exec_loop_begin:
 @    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
 
     @ Separando instrucao de endereco
-    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
+@    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
     mov r0, r0, lsr #12     @   inst = (inst >> 12)
 
     @ switch(OP_CODE)
