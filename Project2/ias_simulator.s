@@ -456,67 +456,67 @@ exec_for_begin:
     @ Separando instrucao de endereco
     ldr r5, =0x00FFF
     and addr, r0, r5        @   addr := inst & 0x00FFF
-    mov r0, r0, lsr #12     @   inst := (inst >> 12)
+    mov r0, r0, lsr #12     @   r0:inst := (inst >> 12)
 
     @ switch(OP_CODE)
-    cmp addr, #0x01  @ case LOAD:
+    cmp r0, #0x01  @ case LOAD:
     beq op_load
 
-    cmp addr, #0x09  @ case LOADMQM:
+    cmp r0, #0x09  @ case LOADMQM:
     beq op_loadmqm
 
-    cmp addr, #0x0A  @ case LOADMQ:
+    cmp r0, #0x0A  @ case LOADMQ:
     beq op_loadmq
 
-    cmp addr, #0x03  @ case LOADABS:
+    cmp r0, #0x03  @ case LOADABS:
     beq op_loadabs
 
-    cmp addr, #0x02  @ case LOADN:
+    cmp r0, #0x02  @ case LOADN:
     beq op_loadn
 
-    cmp addr, #0x21  @ case STOR:
+    cmp r0, #0x21  @ case STOR:
     beq op_stor
 
-    cmp addr, #0x12  @ case STORL:
+    cmp r0, #0x12  @ case STORL:
     beq op_storl
 
-    cmp addr, #0x13  @ case STORR:
+    cmp r0, #0x13  @ case STORR:
     beq op_storr
 
-    cmp addr, #0x05  @ case ADD:
+    cmp r0, #0x05  @ case ADD:
     beq op_add
 
-    cmp addr, #0x07  @ case ADDABS:
+    cmp r0, #0x07  @ case ADDABS:
     beq op_addabs
 
-    cmp addr, #0x06  @ case SUB:
+    cmp r0, #0x06  @ case SUB:
     beq op_sub
 
-    cmp addr, #0x08  @ case SUBABS:
+    cmp r0, #0x08  @ case SUBABS:
     beq op_subabs
 
-    cmp addr, #0x0B  @ case MUL:
+    cmp r0, #0x0B  @ case MUL:
     beq op_mul
 
-    cmp addr, #0x0C  @ case DIV:
+    cmp r0, #0x0C  @ case DIV:
     beq op_div
 
-    cmp addr, #0x15  @ case RSH:
+    cmp r0, #0x15  @ case RSH:
     beq op_rsh
 
-    cmp addr, #0x14  @ case LSH:
+    cmp r0, #0x14  @ case LSH:
     beq op_lsh
 
-    cmp addr, #0x0D  @ case JUMPL:
+    cmp r0, #0x0D  @ case JUMPL:
     beq op_jumpl
 
-    cmp addr, #0x0E  @ case JUMPR:
+    cmp r0, #0x0E  @ case JUMPR:
     beq op_jumpr
 
-    cmp addr, #0x0F  @ case JUMPPL:
+    cmp r0, #0x0F  @ case JUMPPL:
     beq op_jumppl
 
-    cmp addr, #0x10  @ case JUMPPR:
+    cmp r0, #0x10  @ case JUMPPR:
     beq op_jumppr
 
     @ Default: Erro de instrucao invalida
