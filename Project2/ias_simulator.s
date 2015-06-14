@@ -255,11 +255,13 @@ print_memory_map_loop:
 
     lsl r0, addr, #3
     sub r1, fp, r0
+    ldr r1, [r0]
     ldr r0, =temphex_pf_mask
     bl printf
     lsl r0, addr, #3
     sub r1, fp, r0
     sub r1, r1, #4
+    ldr r1, [r0]
     ldr r0, =temphex_pf_mask
     bl printf
 
