@@ -73,11 +73,11 @@
     text_OP_jump:               .asciz "@ Salto realizado\n"
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
-    text_scanf_mask:            .asciz "%[^\n]s"
+    text_scanf_mask:            .asciz "%[^\n]s\n"
     @ args: addr, op1, op1addr, op2, op2addr -> AAA DD DDD DD DDD
     @ input cal also be data, however it'll have the same format above
     deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" 
-    temp_sf_mask: .asciz "%s"
+    temp_sf_mask: .asciz "%s\n"
     temp_pf_mask:.asciz "read: %s\n"
     temphex_pf_mask:.asciz "read: %X\n"
 
@@ -113,6 +113,8 @@ main:
 
     @ Bloco de leitura
     bl build_memory_map
+    mov addr, #0
+    bl print_memory_map
 
     @ Bloco de execucao
     ldr r0, =text_sim_started   @ "A simulacao ta comecando."
@@ -137,7 +139,7 @@ exit:
 
 
 
-
+@ read_line -->
 read_line:
     push {lr}
 
@@ -147,18 +149,17 @@ read_line:
     sub r1, r1, #8192
     add r1, r1, #1
 
-    bl scanf
-
-    ldr r0, =temp_pf_mask
-    mov r1, fp
-    sub r1, r1, #8192
-    add r1, r1, #1
-
-    bl printf
-
+    bl scanf    @ r0 contains return value. If 0, nothing was read
+    @ldr r0, =temp_pf_mask
+    @mov r1, fp
+    @sub r1, r1, #8192
+    @add r1, r1, #1
+    @bl printf
     pop {lr}
     bx lr
+@ <-- read_line
 
+@ read_hex_input -->
 read_hex_input:
     @ r0 has address on stack where input string is located
     @ strtol will be run 5 times 
@@ -206,8 +207,9 @@ read_hex_input:
     pop {addr}                  @ Restore addr
     pop {lr}
     bx lr
+@ <-- read_hex_input
 
-
+@ build_memory_map -->
 build_memory_map:
     @ MemoryMap definition:
     @ addr ponts to pair of consecutive stack addresses:
@@ -222,17 +224,88 @@ build_memory_map:
     @
     @   [32][32] -> [000 DD DDD][DD DDD 000]
     @   ...
-    @ Initialize all memory locations with zero
     push {lr}
 
-    bl initialize_zeros
+    bl initialize_zeros     @ Initializes IAS memory with zeros
+build_memory_map_loop:
+    @ Loop through input while read_line does not return 0:
     bl read_line
+    cmp r0, #0
+    beq build_memory_map_finish
+
     bl read_hex_input
-    bl add_to_memory @ uses addr, op1 , op1 _add, op2 , op2 addr 
+    bl add_to_memory @ uses addr, op1 , op1 _add, op2 , op2 addr
+    b build_memory_map_loop
+build_memory_map_finish:
+    pop {lr}
+    bx lr
+@ <-- build_memory_map
+
+@ print_memory_map -->
+print_memory_map:
+    @ prints from starting address at 'addr' until 0x3FF (IAS memory) is reached
+    push {lr}
+print_memory_map_loop:
+
+    ldr r0, =0x3FF  @(1023)
+    cmp addr, r0
+
+    popgt {lr}      @ If higher than 1023 return
+    bxgt lr
+
+    lsl r0, addr, #3
+    add r1, fp, r0
+    ldr r0, =temphex_pf_mask
+    bl printf
+    lsl r0, addr, #3
+    add r1, fp, r0
+    add r1, r1, #4
+    ldr r0, =temphex_pf_mask
+    bl printf
+
+    b print_memory_map_loop
+    
+
+
+
+    
+
+
+
+@ <-- print_memory_map
+
+@ load_memory_location -->
+load_memory_location:
+    @ given address at 'addr' register, load memory into r1, r0
+    push {lr}
+    @ 'addr' register contains address to be accessed
+    lsl r0, addr, #3        @ Multiply by 8, since an IAS memory line occurs every 8 bytes
+    add r0, r0, #4          @ addr = addr + 4, will be used below to compensate stack ldrd direction
+    ldrd r0, r1, [fp, -r0]  @ Loads [r0][r1] from (lower)[fp - offset][fp - offset + 4](higher)
+    @ r1 has [000 DD DDD], r0 has [DD DDD 000]
+    pop {lr}
+    bx lr
+@ <-- load_memory_location
+
+@ extract_memory_elements -->
+extract_memory_elements:
+    @ 'load_memory_location' must be called before execution 'extract_memory_elements'!
+    @ Shitf and set registers, r1 has [000 DD DDD], r0 has [DD DDD 000] from 'load_memory_location':
+    @ IAS instruction schema: ---------> [OP1 DAT] ------- [OP2 DAT]
+    push {lr}
+
+    and op1, r1, #0xFF000
+    and op2, r0, #0xFF000000
+    ldr r2, =0x00FFF
+    and op1_addr, r1, r2
+    ldr r2, =0x00FFF000
+    and op2_addr, r0, r2
 
     pop {lr}
     bx lr
+@ <-- extract_memory_elements
 
+@ add_to_memory -->
 add_to_memory:
     @ uses addr, op1 , op1 _add, op2 , op2 addr from 'read_hex_input'
     @ uses strd 
@@ -240,6 +313,7 @@ add_to_memory:
     @
     @ Converts 40 bits read from input into 2 registers, as defined above, then
     @ inserts into stack at fp+20+2*_addr
+    push {lr}
 
     mov r0, addr                @ Move addr for validation
 
@@ -250,12 +324,25 @@ add_to_memory:
     lsl op1, op1, #12
     lsl op2, op2, #24
     lsl op2_addr, op2_addr, #12
-    orr r1, op1, op1_addr       @ r0 has [000 DD DDD]
-    orr r0, op2, op2_addr       @ r1 has [DD DDD 000]
+    orr r1, op1, op1_addr       @ r1 has [000 DD DDD] => [OP1 DAT]
+    orr r0, op2, op2_addr       @ r0 has [DD DDD 000] => [OP2 DAT]
     lsl addr, addr, #3          @ Multiply by 8, since an IAS memory line occurs every 8 bytes
-    add addr, addr, #4          @ addr = addr + 4, will be used below to compensate stack direction
-    strd r0, r1, [fp, -addr]    @ Stores [r0][r1] to [fp - addr - 4][fp - addr]
+    add addr, addr, #4          @ addr = addr + 4, will be used below to compensate stack strd direction
+    strd r0, r1, [fp, -addr]    @ Stores [r0][r1] to (lower)[fp - offset][fp - offset + 4](higher)
+    @ Description of storage format:
+    @   input data: [000 DD DDD][DD DDD 000] IAS memory (40bits SEX to 64bits, centered)
+    @   stack insertion:
+    @       fp (higher addr) ->: [000 DD DDD]
+    @       fp - 4 ----------->: [DD DDD 000]
+    @       fp - 8 ----------->: [000 DD DDD]
+    @       fp - 12 ---------->: [DD DDD 000]
+    @       (...so on for lower addresses...)
+    @
+    pop {lr}
+    bx lr
+@ <-- add_to_memory
 
+@ initialize_zeros -->
 initialize_zeros:
     @ Initializes 1024*2*4 bytes of memory with zeros
     push {lr}
@@ -272,8 +359,9 @@ initialize_zeros_init:
     strd r4, r5, [fp, -addr]
     add addr, addr, #8  @ New IAS memory line every 8 bytes
     b initialize_zeros_compare
+@ <-- initialize_zeros
 
-
+@ test_addr -->
 test_addr:
     @ Tests if address at r0 is less then 1023 (0x3FF)
     push {lr}
@@ -288,13 +376,18 @@ test_addr:
     ldr r0, =text_invalid_addr
     bl printf
     mov r0, #1      @ return 1 (error = true)
-@    mov r0, #1  @ Exit with return code 1
-@    mov r7, #1
-@    svc 0x00
-
+    @mov r0, #1  @ Exit with return code 1
+    @mov r7, #1
+    @svc 0x00
 test_addr_exit:
     pop {lr}
     bx lr
+@ <-- test_addr
+
+
+
+
+
 
 
 @ Bloco de execucao do mapa de memoria
