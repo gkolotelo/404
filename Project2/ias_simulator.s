@@ -118,9 +118,13 @@ main:
     bl add_to_memory
 
     @ Bloco de execucao
-    @ printf("A simulacao ta comecando.")
+    ldr r0, =text_sim_started   @ "A simulacao ta comecando."
+    bl printf
+    
     bl exec_mem_map_begin
-    @ printf("A simulacao terminou.")
+
+    ldr r0, =text_sim_finished  @ "A simulacao terminou."
+    bl printf
 
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
@@ -294,7 +298,7 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push {r4, lr}
+    push {r4, r5, lr}
 
     @ Inicializa variaveis que serao utilizadas
     mov ac, #0      @ r8:ac
@@ -305,10 +309,20 @@ exec_mem_map_begin:
     mov r2, #0      @ r2:jump
     mov addr, #0    @ r3:addr
     mov r4, #0      @ r4:error
+    mov r5, #0      @ r5:aux
 
-@   printf("Estado inicial")
-@   printf("AC:, MQ:, PC:")
-@   printf("-----------")
+    push {r0, r1, r2, r3}
+
+    ldr r0, =text_init_state    @ "Estaco inicial"
+    bl printf
+
+    ldr r0, =text_reg_info      @ "AC/MQ/PC"
+    bl printf
+
+    ldr r0, =text_separator     @ "--------------"
+    bl printf
+
+    pop {r0, r1, r2, r3}
 
     @@ Overview do loop:
     @@ | while(true):
@@ -318,19 +332,27 @@ exec_mem_map_begin:
     @@ |      |-> executa ate encontrar operacao invalida
 
 exec_loop_begin:
-@ printf("Executando instrucao")
+    push {r0, r1, r2, r3}
+    ldr r0, =text_executing_at_addr
+    bl printf
+    pop {r0, r1, r2, r3}
 
     @ Identificando o lado atual a ser executado
-    cmp r1, #0              @   if (side == left):
-@!!! Corrigir para ler do memory map
-@    moveq r0, r0, lsr #20   @       inst = (memory[pc] >> 20) & 0xFFFFF
-@    andeq r0, r0, #0xFFFFF  @
-@!!! Corrigir para ler do memory map
-@    movne r0, r0, lsr #20   @   else:
-@    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
+    cmp r1, #0
+    ldr r5, =0xFFFFF
+    sub r0, fp, pc_ias, lsl #3
+
+    ldreq r0, [r0]          @   if (side == left):
+    andeq r0, r0, r5        @       r0:inst := memory[pc] (left)
+
+    subne r0, r0, #4        @   else
+    ldrne r0, [r0]          @       r0:inst := memory[pc] (right)
+    movne r0, r0, lsr #12
+    andne r0, r0, r5
 
     @ Separando instrucao de endereco
-@    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
+    ldr r5, =0x00FFF
+    and addr, r0, r5        @   addr = inst & 0x00FFF
     mov r0, r0, lsr #12     @   inst = (inst >> 12)
 
     @ switch(OP_CODE)
@@ -395,7 +417,10 @@ exec_loop_begin:
     beq op_jumppr
 
     @ Default: Erro de instrucao invalida
-@ fprintf(stderr, "Erro! Instrucao invalida.")
+@ !!! deveria ser fprintf(stderr, string, opcode)
+    ldr r0, =text_OP_invalid    @ "Erro!. Instrucao invalida"
+    bl printf
+
     mov r4, #1  @ error := true
 
 
@@ -404,14 +429,20 @@ op_case_end:
     cmp r4, #1             @ r4:error
     beq exec_mem_map_end   @ if (error): return
     
-@!!! Corrigir \/\/\/
-@    and ac, ac, 0xFFFFFFFFFF
-@    and mq, mq, 0xFFFFFFFFFF
-@    and pc_ias, pc_ias, 0xFFFFFFFFFF
-@!!! Corrigir /\/\/\    
+    @ Montagem dos registros AC/MQ/PC para impressao
+@ !!! Por enquanto, usando 32-bits mesmo
+
+    push {r0, r1, r2, r3}
 
 @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
+    ldr r0, =text_curr_location
+    bl printf
+
 @   printf("--------------------------------------------------------------\n");
+    ldr r0, =text_separator
+    bl printf
+
+    pop {r0, r1, r2, r3}
 
     @ Loop conditions
     cmp r1, #1             @ r1:side is left or right (j < 2)
@@ -436,7 +467,7 @@ exec_loop_end:
     b exec_loop_begin
 
 exec_mem_map_end:
-    pop {r4, lr}
+    pop {r4, r5, lr}
     bx lr
 
 op_load:
