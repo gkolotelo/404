@@ -254,12 +254,12 @@ print_memory_map_loop:
     bxgt lr
 
     lsl r0, addr, #3
-    add r1, fp, r0
+    sub r1, fp, r0
     ldr r0, =temphex_pf_mask
     bl printf
     lsl r0, addr, #3
-    add r1, fp, r0
-    add r1, r1, #4
+    sub r1, fp, r0
+    sub r1, r1, #4
     ldr r0, =temphex_pf_mask
     bl printf
 
