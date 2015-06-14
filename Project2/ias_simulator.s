@@ -236,6 +236,8 @@ add_to_memory:
     mov r0, addr                @ Move addr for validation
 
     bl test_addr
+    cmp r0, #1      @ if (error == true)
+    beq exit
 
     lsl op1, op1, #12
     lsl op2, op2, #24
@@ -252,14 +254,17 @@ test_addr:
     @ r0 contains address to be tested
     ldr r1, =0x3FF  @(1023)
     cmp r0, r1      @ if r0-1023 < 0 the address is valid
+    mov r0, #0      @ return 0 (error = false)
     blt test_addr_exit
+
     ldr r1, =multiuse_temp_addr
     str r0, [r1]
     ldr r0, =text_invalid_addr
     bl printf
-    mov r0, #1  @ Exit with return code 1
-    mov r7, #1
-    svc 0x00
+    mov r0, #1      @ return 1 (error = true)
+@    mov r0, #1  @ Exit with return code 1
+@    mov r7, #1
+@    svc 0x00
 
 test_addr_exit:
     pop {lr}
@@ -392,7 +397,7 @@ op_case_end:
     bgt exec_loop_end
     cmp r2, #1             @ r2:jump == false
     beq exec_loop_end
-    
+
 @!!! Acho que nao precisa \/\/\/
 @@    cmp r4, #1             @ r4:error == false
 @@    beq exec_mem_map_end   @ if (error): return
@@ -473,14 +478,7 @@ op_jumppl:
 op_jumppr:
     b op_case_end
 
-
-
-
-
-
-
-
-
-
-
-
+exit:
+    mov r0, #1  @ Exit with return code 1
+    mov r7, #1
+    svc 0x00
