@@ -11,6 +11,8 @@
 .extern printf
 .extern scanf
 .extern strtol
+.extern fgets
+.extern getchar
 
 @ Reference:
 @ OP_LOAD #0x01
@@ -73,13 +75,14 @@
     text_OP_jump:               .asciz "@ Salto realizado\n"
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
-    text_scanf_mask:            .asciz "%[^\n]s\n"
+    text_scanf_mask:            .asciz "%[^\n]s"
     @ args: addr, op1, op1addr, op2, op2addr -> AAA DD DDD DD DDD
     @ input cal also be data, however it'll have the same format above
     deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" 
     temp_sf_mask: .asciz "%s\n"
     temp_pf_mask:.asciz "read: %s\n"
-    temphex_pf_mask:.asciz "read: %X\n"
+    temphex_pf_mask:.asciz "%X\n"
+    temphex_pf_mask_nonl:.asciz "%X "
 
 strtol_end_addr: .word 0x0
 multiuse_temp_addr: .word 0x0
@@ -143,13 +146,26 @@ exit:
 read_line:
     push {lr}
 
+    @ Older scanf mode
     ldr r0, =text_scanf_mask
     @ set starting addr on lower stack addresses, since scanf goes up the stack
     mov r1, fp
     sub r1, r1, #8192
     add r1, r1, #1
-
+    
     bl scanf    @ r0 contains return value. If 0, nothing was read
+    push {r0}
+    bl getchar  @ gets remaining newline from stdin
+    pop {r0}
+
+    @@ Newer fgets mode:
+    @mov r0, fp          @ r0 has pointer to buffer
+    @sub r0, r0, #8192
+    @add r0, r0, #1
+    @mov r1, #19         @ max 20 characters
+    @mov r2, #0          @ stdin
+    @bl fgets
+
     @ldr r0, =temp_pf_mask
     @mov r1, fp
     @sub r1, r1, #8192
@@ -256,15 +272,21 @@ print_memory_map_loop:
     lsl r0, addr, #3
     sub r1, fp, r0
     ldr r1, [r1]
-    ldr r0, =temphex_pf_mask
+    ldr r0, =temphex_pf_mask_nonl
+    push {addr}
     bl printf
+    pop {addr}
     lsl r0, addr, #3
     sub r1, fp, r0
     sub r1, r1, #4
     ldr r1, [r1]
+    lsr r1, r1, #12
     ldr r0, =temphex_pf_mask
+    push {addr}
     bl printf
+    pop {addr}
 
+    add addr, addr, #1
     b print_memory_map_loop
     
 
@@ -351,7 +373,7 @@ initialize_zeros:
     mov addr, #0
     mov r4, #0
     mov r5, #0
-    ldr r1, =0x3FF      @(1023)
+    ldr r1, =8192      @(1023*2*4)
 initialize_zeros_compare:
     cmp addr, r1        @ if r0-1023 <= 0 continue initilaizing zeros
     ble initialize_zeros_init
