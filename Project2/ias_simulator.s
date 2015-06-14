@@ -112,10 +112,7 @@ main:
     sub sp, sp, #20
 
     @ Bloco de leitura
-    bl initialize_zeros
-    bl read_line
-    bl read_hex_input
-    bl add_to_memory
+    bl build_memory_map
 
     @ Bloco de execucao
     ldr r0, =text_sim_started   @ "A simulacao ta comecando."
@@ -226,11 +223,15 @@ build_memory_map:
     @   [32][32] -> [000 DD DDD][DD DDD 000]
     @   ...
     @ Initialize all memory locations with zero
+    push {lr}
+
     bl initialize_zeros
-    
     bl read_line
     bl read_hex_input
     bl add_to_memory @ uses addr, op1 , op1 _add, op2 , op2 addr 
+
+    pop {lr}
+    bx lr
 
 add_to_memory:
     @ uses addr, op1 , op1 _add, op2 , op2 addr from 'read_hex_input'
