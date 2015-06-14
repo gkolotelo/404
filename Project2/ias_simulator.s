@@ -268,27 +268,44 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push {lr}
-    @ Inicia variaveis
-@ ac, mq, pc, jump, side, error, inst
+    push {lr, r4}
+
+    @ Inicializa variaveis que serao utilizadas
+    mov ac, #0      @ r8:ac
+    mov mq, #0      @ r9:mq
+    mov pc_ias, #0  @ r10:pc_ias
+    mov r0, #0      @ r0:inst
+    mov r1, #0      @ r1:side
+    mov r2, #0      @ r2:jump
+    mov addr, #0    @ r3:addr
+    mov r4, #0      @ r4:error
 
 @   printf("Estado inicial")
 @   printf("AC:, MQ:, PC:")
 @   printf("-----------")
 
-    @ Overview do loop:
-    @ | while(true):
-    @ |  |-> for(j=left, (conditions), j++):
-    @ |  |   (conditions) := side:(left,right) && jump:false && error:false
-    @ |      |-> switch(OP_CODE): seleciona operacao
-    @ |      |-> executa ate encontrar operacao invalida
+    @@ Overview do loop:
+    @@ | while(true):
+    @@ |  |-> for(j=left, (conditions), j++):
+    @@ |  |   (conditions) := side:(left,right) && jump:false && error:false
+    @@ |      |-> switch(OP_CODE): seleciona operacao
+    @@ |      |-> executa ate encontrar operacao invalida
 
 exec_loop_begin:
 @ printf("Executando instrucao")
-@ if (side == left):    inst = (memory[pc] >> 20) & 0xFFFFF
-@ else:                 inst = memory[pc] & 0xFFFFF
-@ addr = inst & 0x00FFF
-@ inst = (inst >> 12)
+
+    @ Identificando o lado atual a ser executado
+    cmp r1, #0              @   if (side == left):
+@!!! Corrigir para ler do memory map
+    moveq r0, r0, lsr #20   @       inst = (memory[pc] >> 20) & 0xFFFFF
+    andeq r0, r0, #0xFFFFF  @
+@!!! Corrigir para ler do memory map
+    movne r0, r0, lsr #20   @   else:
+    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
+
+    @ Separando instrucao de endereco
+    and addr, r0, #0x00FFF  @   addr = inst & 0x00FFF
+    mov r0, r0, lsr #12     @   inst = (inst >> 12)
 
     @ switch(OP_CODE)
     cmp addr, #0x01  @ case LOAD:
@@ -351,40 +368,49 @@ exec_loop_begin:
     cmp addr, #0x10  @ case JUMPPR:
     beq op_jumppr
 
-@ default:error
+    @ Default: Erro de instrucao invalida
 @ fprintf(stderr, "Erro! Instrucao invalida.")
+    mov r4, #1  @ error := true
 
-@    mov rError, #1  @ error := true
 
 op_case_end:
-@   if(error == true) exec_mem_map_end
-@   else:
-@      ac &= 0xFFFFFFFFFF;
-@      mq &= 0xFFFFFFFFFF;
-@      pc &= 0xFFFFFFFFFF;
+    @ Verifica se houve erro na execucao e encerra caso positivo
+    cmp r4, #1             @ r4:error
+    beq exec_mem_map_end   @ if (error): return
+    
+@!!! Corrigir \/\/\/
+@    and ac, ac, 0xFFFFFFFFFF
+@    and mq, mq, 0xFFFFFFFFFF
+@    and pc_ias, pc_ias, 0xFFFFFFFFFF
+@!!! Corrigir /\/\/\    
+
 @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
 @   printf("--------------------------------------------------------------\n");
 
     @ Loop conditions
-@    cmp rSide, #1          @ side is left or right (j < 2)
-@    bgt exec_loop_end
-@    cmp rJump, #1          @ jump == false
-@    beq exec_loop_end
-@    cmp rError, #1         @ error == false
-@    beq exec_mem_map_end   @ if (error): return
+    cmp r1, #1             @ r1:side is left or right (j < 2)
+    bgt exec_loop_end
+    cmp r2, #1             @ r2:jump == false
+    beq exec_loop_end
+    
+@!!! Acho que nao precisa \/\/\/
+@@    cmp r4, #1             @ r4:error == false
+@@    beq exec_mem_map_end   @ if (error): return
 
-@    b exec_loop_begin
+    b exec_loop_begin
 
 exec_loop_end:
 
     @ Memory map execution loop update 
-@    cmp rJump, #0       @   if (jump == false):
-@    addeq pc_ias, #1    @       pc := pc + 1
-@    moveq rSide, #0     @       side := left
-@    movne rJump, #0     @   else: jump := false
+    cmp r2, #0         @   if (r2:jump == false):
+    addeq pc_ias, #1   @       pc := pc + 1
+    moveq r1, #0       @       r1:side := left
+    movne r2, #0       @   else: r2:jump := false
+
+    b exec_loop_begin
 
 exec_mem_map_end:
-    pop {lr}
+    pop {lr, r4}
     bx lr
 
 op_load:
