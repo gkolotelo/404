@@ -125,7 +125,7 @@ main:
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ If SP needs to be back to original location, add:
-    add sp, sp, #20 @ fp-19 points to last position (where 1st char will end up)
+    add sp, sp, #20
     add sp, sp, #8192
 
 exit:
@@ -245,8 +245,8 @@ add_to_memory:
     lsl op2_addr, op2_addr, #12
     orr r0, op1, op1_addr
     orr r1, op2, op2_addr
-    add addr, addr, #24         @ addr = addr + 24, will be used below to compensate
-    strd r0, r1, [fp, -addr]    @ Store [r0][r1] to [fp-20-_addr - 4][fp-20-addr]
+    add addr, addr, #4          @ addr = addr + 24, will be used below to compensate
+    strd r0, r1, [fp, -addr]    @ Stores [r0][r1] to [fp - addr - 4][fp - addr]
     
 
 test_addr:
