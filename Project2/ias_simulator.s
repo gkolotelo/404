@@ -128,6 +128,7 @@ main:
     add sp, sp, #20 @ fp-19 points to last position (where 1st char will end up)
     add sp, sp, #8192
 
+exit:
     mov r0, #0
     mov r7, #1
     svc 0x00
@@ -478,7 +479,3 @@ op_jumppl:
 op_jumppr:
     b op_case_end
 
-exit:
-    mov r0, #1  @ Exit with return code 1
-    mov r7, #1
-    svc 0x00
