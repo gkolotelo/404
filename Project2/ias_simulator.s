@@ -274,7 +274,7 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push {r4, lr}
+    push {r4, r5, lr}
 
     @ Inicializa variaveis que serao utilizadas
     mov ac, #0      @ r8:ac
@@ -302,18 +302,21 @@ exec_loop_begin:
 @ printf("Executando instrucao")
 
     @ Identificando o lado atual a ser executado
-    cmp r1, #0              @   if (side == left):
+    cmp r1, #0
     ldr r5, =0xFFFFF
-@!!! Corrigir para ler do memory map
-@    moveq r0, r0, lsr #20   @       inst = (memory[pc] >> 20) & 0xFFFFF
-@    andeq r0, r0, #0xFFFFF  @
-@!!! Corrigir para ler do memory map
-@    movne r0, r0, lsr #20   @   else:
-@    andne r0, r0, #0xFFFFF  @       inst = memory[pc] & 0xFFFFF
+    sub r0, fp, pc_ias, lsl #3
+
+    ldreq r0, [r0]          @   if (side == left):
+    andeq r0, r0, r5        @       r0:inst := memory[pc] (left)
+
+    subne r0, r0, #4        @   else
+    ldrne r0, [r0]          @       r0:inst := memory[pc] (right)
+    movne r0, r0, lsr #12
+    andne r0, r0, r5
 
     @ Separando instrucao de endereco
     ldr r5, =0x00FFF
-@    and addr, r0, r5  @   addr = inst & 0x00FFF
+    and addr, r0, r5        @   addr = inst & 0x00FFF
     mov r0, r0, lsr #12     @   inst = (inst >> 12)
 
     @ switch(OP_CODE)
@@ -387,11 +390,13 @@ op_case_end:
     cmp r4, #1             @ r4:error
     beq exec_mem_map_end   @ if (error): return
     
+    @ Montagem dos registros AC/MQ/PC para impressao
 @!!! Corrigir \/\/\/
-@    and ac, ac, 0xFFFFFFFFFF
-@    and mq, mq, 0xFFFFFFFFFF
-@    and pc_ias, pc_ias, 0xFFFFFFFFFF
-@!!! Corrigir /\/\/\    
+@    mov r5, #0xFFFFFFFFFF
+@    and ac, ac, r5
+@    and mq, mq, r5
+@    and pc_ias, pc_ias, r5
+@!!! Corrigir /\/\/\
 
 @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
 @   printf("--------------------------------------------------------------\n");
@@ -419,7 +424,7 @@ exec_loop_end:
     b exec_loop_begin
 
 exec_mem_map_end:
-    pop {r4, lr}
+    pop {r4, r5, lr}
     bx lr
 
 op_load:
