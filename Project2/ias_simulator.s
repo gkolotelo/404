@@ -2,7 +2,7 @@
 @ | MC404 Turma E - 2015 semestre 1        |
 @ | Trabalho 2 - Simulador de IAS para ARM |
 @ +----------------------------------------+
-@ | 135964 Guilherme Kairalla Kolotelo            |
+@ | 135964 Guilherme Kairalla Kolotelo     |
 @ | 137943 Alexandre Seidy Ioshisaqui      |
 @ +----------------------------------------+
 
@@ -388,11 +388,12 @@ test_addr_exit:
 
 
 
+@ load_mem_map_word -->
+@ <-- load_mem_map_word
 
+@@ Bloco de execucao do mapa de memoria
 
-
-
-@ Bloco de execucao do mapa de memoria
+@ exec_mem_map -->
 exec_mem_map_begin:
     push {r4, r5, r6, lr}
 
@@ -414,6 +415,9 @@ exec_mem_map_begin:
     bl printf
 
     ldr r0, =text_reg_info      @ "AC/MQ/PC"
+    mov r1, #0
+    mov r2, #0
+    mov r3, #0
     bl printf
 
     ldr r0, =text_separator     @ "--------------"
@@ -433,6 +437,7 @@ exec_while_begin:
 exec_for_begin:
     push {r0, r1, r2, r3}
     ldr r0, =text_executing_at_addr     @ "Executando instrucao no endereco"
+    mov r1, pc_ias
     bl printf
     pop {r0, r1, r2, r3}
 
@@ -524,6 +529,7 @@ exec_for_begin:
     @ Default: Erro de instrucao invalida
 @ !!! deveria ser fprintf(stderr, string, opcode)
     ldr r0, =text_OP_invalid    @ "Erro!. Instrucao invalida"
+    mov r1, addr
     bl printf
 
     mov r4, #1  @ error := true
@@ -541,6 +547,9 @@ op_case_end:
 
 @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
     ldr r0, =text_curr_location
+    mov r1, ac
+    mov r2, mq
+    mov r3, pc_ias
     bl printf
 
 @   printf("--------------------------------------------------------------\n");
@@ -550,7 +559,7 @@ op_case_end:
     pop {r0, r1, r2, r3}
 
     @ Loop update
-    add r5, r5, #1         @ r1:side (j++)
+    add r5, r5, #1         @ r5:j (j++)
 
     @ Loop conditions ((j < 2) && (jump == false))
     cmp r5, #1             @ r5:j
@@ -574,17 +583,40 @@ exec_for_end:
 
     b exec_while_begin
 
-
 exec_mem_map_end:
     pop {r4, r5, r6, lr}
     bx lr
+@ <-- exec_mem_map
 
 
+@@ Operacoes do IAS
+@ --> op_load
 op_load:
-    b op_case_end
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_LOAD   @ "LOAD M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
 
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    @ ac = memory[addr]
+
+    movne r4, #1
+
+    b op_case_end
+@ <-- op_load
+
+@ --> op_loadmqm
 op_loadmqm:
     b op_case_end
+@ <-- op_loadmqm
+
 
 op_loadmq:
     b op_case_end
