@@ -118,9 +118,13 @@ main:
     bl add_to_memory
 
     @ Bloco de execucao
-    @ printf("A simulacao ta comecando.")
+    ldr r0, =text_sim_started   @ "A simulacao ta comecando."
+    bl printf
+    
     bl exec_mem_map_begin
-    @ printf("A simulacao terminou.")
+
+    ldr r0, =text_sim_finished  @ "A simulacao terminou."
+    bl printf
 
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
@@ -287,9 +291,18 @@ exec_mem_map_begin:
     mov r4, #0      @ r4:error
     mov r5, #0      @ r5:aux
 
-@   printf("Estado inicial")
-@   printf("AC:, MQ:, PC:")
-@   printf("-----------")
+    push {r0, r1, r2, r3}
+
+    ldr r0, =text_init_state    @ "Estaco inicial"
+    bl printf
+
+    ldr r0, =text_reg_info      @ "AC/MQ/PC"
+    bl printf
+
+    ldr r0, =text_separator     @ "--------------"
+    bl printf
+
+    pop {r0, r1, r2, r3}
 
     @@ Overview do loop:
     @@ | while(true):
@@ -299,7 +312,10 @@ exec_mem_map_begin:
     @@ |      |-> executa ate encontrar operacao invalida
 
 exec_loop_begin:
-@ printf("Executando instrucao")
+    push {r0, r1, r2, r3}
+    ldr r0, =text_executing_at_addr
+    bl printf
+    pop {r0, r1, r2, r3}
 
     @ Identificando o lado atual a ser executado
     cmp r1, #0
@@ -381,7 +397,10 @@ exec_loop_begin:
     beq op_jumppr
 
     @ Default: Erro de instrucao invalida
-@ fprintf(stderr, "Erro! Instrucao invalida.")
+@ !!! deveria ser fprintf(stderr, string, opcode)
+    ldr r0, =text_OP_invalid    @ "Erro!. Instrucao invalida"
+    bl printf
+
     mov r4, #1  @ error := true
 
 
@@ -391,15 +410,19 @@ op_case_end:
     beq exec_mem_map_end   @ if (error): return
     
     @ Montagem dos registros AC/MQ/PC para impressao
-@!!! Corrigir \/\/\/
-@    mov r5, #0xFFFFFFFFFF
-@    and ac, ac, r5
-@    and mq, mq, r5
-@    and pc_ias, pc_ias, r5
-@!!! Corrigir /\/\/\
+@ !!! Por enquanto, usando 32-bits mesmo
+
+    push {r0, r1, r2, r3}
 
 @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
+    ldr r0, =text_curr_location
+    bl printf
+
 @   printf("--------------------------------------------------------------\n");
+    ldr r0, =text_separator
+    bl printf
+
+    pop {r0, r1, r2, r3}
 
     @ Loop conditions
     cmp r1, #1             @ r1:side is left or right (j < 2)
