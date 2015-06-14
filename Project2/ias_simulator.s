@@ -299,7 +299,7 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push {r4, r5, lr}
+    push {r4, r5, r6, lr}
 
     @ Inicializa variaveis que serao utilizadas
     mov ac, #0      @ r8:ac
@@ -311,6 +311,7 @@ exec_mem_map_begin:
     mov addr, #0    @ r3:addr
     mov r4, #0      @ r4:error
     mov r5, #0      @ r5:aux
+    mov r6, #0      @ r6:j(iterador)
 
     push {r0, r1, r2, r3}
 
@@ -332,29 +333,37 @@ exec_mem_map_begin:
     @@ |      |-> switch(OP_CODE): seleciona operacao
     @@ |      |-> executa ate encontrar operacao invalida
 
-exec_loop_begin:
+exec_while_begin:
+    mov r6, r1      @ r6:j := r1:side
+exec_for_begin:
     push {r0, r1, r2, r3}
-    ldr r0, =text_executing_at_addr
+    ldr r0, =text_executing_at_addr     @ "Executando instrucao no endereco"
     bl printf
     pop {r0, r1, r2, r3}
 
     @ Identificando o lado atual a ser executado
-    cmp r1, #0
+    cmp r6, #0
     ldr r5, =0xFFFFF
     sub r0, fp, pc_ias, lsl #3
 
     ldreq r0, [r0]          @   if (side == left):
     andeq r0, r0, r5        @       r0:inst := memory[pc] (left)
+    ldreq r0, =text_intruction_at_left
 
     subne r0, r0, #4        @   else
     ldrne r0, [r0]          @       r0:inst := memory[pc] (right)
     movne r0, r0, lsr #12
     andne r0, r0, r5
+    ldrne r0, =text_intruction_at_right
+
+    push {r0, r1, r2, r3}
+    bl printf               @ "instrucao a esquerda/direita"
+    pop {r0, r1, r2, r3}
 
     @ Separando instrucao de endereco
     ldr r5, =0x00FFF
-    and addr, r0, r5        @   addr = inst & 0x00FFF
-    mov r0, r0, lsr #12     @   inst = (inst >> 12)
+    and addr, r0, r5        @   addr := inst & 0x00FFF
+    mov r0, r0, lsr #12     @   inst := (inst >> 12)
 
     @ switch(OP_CODE)
     cmp addr, #0x01  @ case LOAD:
@@ -431,7 +440,7 @@ op_case_end:
     beq exec_mem_map_end   @ if (error): return
     
     @ Montagem dos registros AC/MQ/PC para impressao
-@ !!! Por enquanto, usando 32-bits mesmo
+@ !!! Por enquanto, usando 32-bits mesmo, entao nao fazemos nada aqui
 
     push {r0, r1, r2, r3}
 
@@ -445,31 +454,36 @@ op_case_end:
 
     pop {r0, r1, r2, r3}
 
-    @ Loop conditions
-    cmp r1, #1             @ r1:side is left or right (j < 2)
-    bgt exec_loop_end
-    cmp r2, #1             @ r2:jump == false
-    beq exec_loop_end
+    @ Loop update
+    add r5, r5, #1         @ r1:side (j++)
+
+    @ Loop conditions ((j < 2) && (jump == false))
+    cmp r5, #1             @ r5:j
+    bgt exec_for_end
+    cmp r2, #1             @ r2:jump
+    beq exec_for_end
 
 @!!! Acho que nao precisa \/\/\/
 @@    cmp r4, #1             @ r4:error == false
 @@    beq exec_mem_map_end   @ if (error): return
 
-    b exec_loop_begin
+    b exec_for_begin
 
-exec_loop_end:
-
+exec_for_end:
     @ Memory map execution loop update 
-    cmp r2, #0         @   if (r2:jump == false):
-    addeq pc_ias, #1   @       pc := pc + 1
-    moveq r1, #0       @       r1:side := left
-    movne r2, #0       @   else: r2:jump := false
+    cmp r2, #0                  @   if (r2:jump == false):
+    addeq pc_ias, pc_ias, #1    @       pc := pc + 1
+    moveq r1, #0                @       r1:side := left
 
-    b exec_loop_begin
+    movne r2, #0                @   else: r2:jump := false
+
+    b exec_while_begin
+
 
 exec_mem_map_end:
-    pop {r4, r5, lr}
+    pop {r4, r5, r6, lr}
     bx lr
+
 
 op_load:
     b op_case_end
