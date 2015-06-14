@@ -274,7 +274,7 @@ test_addr_exit:
 
 @ Bloco de execucao do mapa de memoria
 exec_mem_map_begin:
-    push {lr, r4}
+    push {r4, lr}
 
     @ Inicializa variaveis que serao utilizadas
     mov ac, #0      @ r8:ac
@@ -416,7 +416,7 @@ exec_loop_end:
     b exec_loop_begin
 
 exec_mem_map_end:
-    pop {lr, r4}
+    pop {r4, lr}
     bx lr
 
 op_load:
