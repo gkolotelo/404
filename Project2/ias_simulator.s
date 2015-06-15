@@ -960,9 +960,23 @@ op_mul:
 
     bne op_case_end
 
-@    push {}
-    @ MULTIPLICACAO
-@    pop {}
+    @ Multiplicacao (32-bits)
+    @ mq:           AAAABBBB
+    @ memory[addr]: CCCCDDDD
+    @ h0: AAAA ; l0: BBBB
+    @ h1: CCCC ; l1: DDDD
+    @ mq = ((l0 * l1) + ((l0 * h1 + l1 * h0) << 20)) & 0xFFFFFFFF
+    @ if (mq < (l0 * l1) & 0xFFFFFFFF):
+    @       ac = 1 + (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20)
+    @ else: ac = (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20)
+    push {r0, r1, r2, r3}
+    
+    @ r0:(l0 * l1)
+    @ r1:(l0 * h1)
+    @ r2:(l1 * h0)
+    @ r3:(h0 * h1)
+    
+    pop {r0, r1, r2, r3}
 
     b op_case_end
 @ <-- op_mul
