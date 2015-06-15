@@ -1188,7 +1188,7 @@ op_jumppr:
     pop {r0, r1, r2, r3}
 
     push {r0}
-    @mov r0, ac, lsr #39
+    mov r0, ac, lsr #31
     cmp r0, #0
     pop {r0}
     bne op_case_end
