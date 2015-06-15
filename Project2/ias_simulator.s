@@ -77,7 +77,6 @@ op2_addr    .req r7
     temphex_pf_mask_nonl:.asciz "%X "
 
 strtol_end_addr: .word 0x0
-multiuse_temp_addr: .word 0x0
 
 .text
 
@@ -376,11 +375,10 @@ test_addr:
     @ r0 contains address to be tested
     ldr r1, =0x3FF  @(1023)
     cmp r0, r1      @ if r0-1023 <= 0 the address is valid
-    mov r0, #0      @ return 0 (error = false)
+    movle r0, #0      @ return 0 (error = false)
     ble test_addr_exit
 
-    ldr r1, =multiuse_temp_addr
-    str r0, [r1]
+    mov r1, r0
     ldr r0, =text_invalid_addr
     bl printf
     mov r0, #1      @ return 1 (error = true)
@@ -711,7 +709,7 @@ op_loadabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    @mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
     cmp r1, #0
     moveq ac, r0            @ ac = memory[addr]
     movne r1, #0            @ ac = -memory[addr]
@@ -875,7 +873,7 @@ op_addabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    @mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
     cmp r1, #0
     addeq ac, ac, r0        @ ac += memory[addr]
     subne ac, ac, r0        @ ac -= memory[addr]
@@ -932,7 +930,7 @@ op_subabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    @mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
     cmp r1, #0
     subeq ac, ac, r0        @ ac -= memory[addr]
     addne ac, ac, r0        @ ac += memory[addr]
@@ -1090,7 +1088,7 @@ op_jumppl:
     pop {r0, r1, r2, r3}
 
     push {r0}
-    mov r0, ac, lsr #39
+    @mov r0, ac, lsr #39
     cmp r0, #0
     pop {r0}
     bne op_case_end
@@ -1121,7 +1119,7 @@ op_jumppr:
     pop {r0, r1, r2, r3}
 
     push {r0}
-    mov r0, ac, lsr #39
+    @mov r0, ac, lsr #39
     cmp r0, #0
     pop {r0}
     bne op_case_end
