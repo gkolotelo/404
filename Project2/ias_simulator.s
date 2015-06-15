@@ -967,7 +967,7 @@ op_subabs:
 @ <-- op_subabs
 
 @ op_mul -->
-op_mul:
+@op_mul:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_MUL   @ "MUL M(X)"
     mov r1, addr
@@ -1019,6 +1019,9 @@ op_mul:
 
     b op_case_end
 @ <-- op_mul
+
+op_mul:
+
 
 @ op_div -->
 op_div:
