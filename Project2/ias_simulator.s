@@ -711,7 +711,7 @@ op_loadabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
     cmp r1, #0
     moveq ac, r0            @ ac = memory[addr]
     movne r1, #0            @ ac = -memory[addr]
@@ -875,7 +875,7 @@ op_addabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
     cmp r1, #0
     addeq ac, ac, r0        @ ac += memory[addr]
     subne ac, ac, r0        @ ac -= memory[addr]
@@ -932,7 +932,7 @@ op_subabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
     cmp r1, #0
     subeq ac, ac, r0        @ ac -= memory[addr]
     addne ac, ac, r0        @ ac += memory[addr]
