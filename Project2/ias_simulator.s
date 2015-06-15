@@ -409,8 +409,25 @@ test_addr_exit:
 @ <-- test_addr
 
 
-
 @ load_mem_map_word -->
+@ Carrega uma palavra em 32-bits
+@ input:    r0:address
+@ output:   r0:word (32-bits)
+load_mem_map_word:
+    push {lr}
+
+    bl load_memory_location     @ input:addr
+                                @ output:r1(left), r0(right)
+    ldr r2, =0x00000FFF         @ left:     000LLLLL
+    and r1, r1, r2              @        => 00000LLL
+    mov r1, r1, lsl #20         @        => LLL00000
+                                @ right:    RRRRR000
+    mov r0, r0, lsr #12         @        => 000RRRRR
+
+    add r0, r0, r1              @ word:     LLLRRRRR
+
+    pop {lr}
+    bx lr
 @ <-- load_mem_map_word
 
 @@ Bloco de execucao do mapa de memoria
@@ -627,27 +644,125 @@ op_load:
     pop {r0, r1, r2, r3}
 
     moveq r4, #0
-    @ ac = memory[addr]
-
     movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    mov ac, r0            @ ac = memory[addr]
+    pop {r0, r1, r2}
 
     b op_case_end
 @ <-- op_load
 
 @ --> op_loadmqm
 op_loadmqm:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_LOADMQM   @ "LOAD MQ,M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    mov mq, r0            @ mq = memory[addr]
+    pop {r0, r1, r2}
+
     b op_case_end
 @ <-- op_loadmqm
 
-
+@ --> op_loadmq
 op_loadmq:
-    b op_case_end
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_LOADMQ   @ "LOAD MQ(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
 
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0    
+    movne r4, #1
+
+    mov ac, mq              @ ac = mq
+
+    b op_case_end
+@ <-- op_loadmq
+
+@ --> op_loadabs
 op_loadabs:
-    b op_case_end
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_LOADABS   @ "LOAD |M(X)|"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
 
-op_loadn:
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    cmp r1, #0
+    moveq ac, r0            @ ac = memory[addr]
+    movne r1, #0            @ ac = -memory[addr]
+    subne ac, r1, r0
+    pop {r0, r1, r2}
+
     b op_case_end
+@ <-- op_loadabs
+
+@ --> op_loadn
+op_loadn:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_LOAD   @ "LOAD M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    mov r1, #0
+    sub ac, r1, r0          @ ac = -memory[addr]
+    pop {r0, r1, r2}
+
+    b op_case_end
+@ <-- op_loadn
 
 op_stor:
     b op_case_end
