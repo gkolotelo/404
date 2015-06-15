@@ -963,14 +963,15 @@ op_mul:
     @ if (mq < (l0 * l1) & 0xFFFFFFFF):
     @       ac = 1 + (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20)
     @ else: ac = (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20)
-    push {r0, r1, r2, r3}
-    
+    push {r0, r1, r2, r3, r4, r5}
+    bl load_mem_map_word    @ r0 = memory[addr]
+    @mov r1, r0
     @ r0:(l0 * l1)
     @ r1:(l0 * h1)
     @ r2:(l1 * h0)
     @ r3:(h0 * h1)
     
-    pop {r0, r1, r2, r3}
+    pop {r0, r1, r2, r3, r4, r5}
 
     b op_case_end
 @ <-- op_mul
