@@ -1014,7 +1014,7 @@ op_mul:
     mov r4, r3              @       ac = 1 + (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20)
     mov r5, r1
     add r5, r5, r2
-    mov, r5, r5, lsr #20
+    mov r5, r5, lsr #20
     add r5, r4, r5          @ else: ac = (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20)
     addlt r5, r5, #1
     mov ac, r5
