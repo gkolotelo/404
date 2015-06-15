@@ -579,10 +579,10 @@ op_case_end:
     pop {r0, r1, r2, r3}
 
     @ Loop update
-    add r5, r5, #1         @ r5:j (j++)
+    add r6, r6, #1         @ r5:j (j++)
 
     @ Loop conditions ((j < 2) && (jump == false))
-    cmp r5, #1             @ r5:j
+    cmp r6, #1             @ r5:j
     bgt exec_for_end
     cmp r2, #1             @ r2:jump
     beq exec_for_end
