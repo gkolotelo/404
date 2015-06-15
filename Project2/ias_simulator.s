@@ -801,10 +801,10 @@ op_storl:
     bne op_case_end
 
     push {r0,r1,r2,r3}
-    @ ac(32bit)[000 00 DDD] 12 right-most bits to [000 XX XXX][XX AAA 000]
-    @ Note that [000 XX XXX][XX DDD 000] @ addr can contain stuff already that must be preserved
+    @ ac(32bit)[000 00 DDD] 12 right-most bits to [000 XX AAA][XX XXX 000]
+    @ Note that [000 XX DDD][XX XXX 000] @ addr can contain stuff already that must be preserved
     ldr r2, =0x00000FFF
-    and r2, ac, r2              @ r0 has [00 000 AAA]
+    and r2, ac, r2              @ r20x7ed04630 has [00 000 AAA]
     lsl addr, addr, #3      
     add addr, addr, #4      
     ldrd r0, r1, [fp, -addr]    @ r1 has [000 DD DDD], r0 has [DD DDD 000], we'll mod r1 for storl
@@ -836,16 +836,16 @@ op_storr:
     bne op_case_end
 
     push {r0,r1,r2,r3}
-    @ ac(32bit)[000 00 DDD] 12 right-most bits to [000 XX AAA][XX XXX 000]
+    @ ac(32bit)[000 00 DDD] 12 right-most bits to [000 XX XXX][XX AAA 000]
     @ Note that [000 XX XXX][XX DDD 000] @ addr can contain stuff already that must be preserved
     ldr r2, =0x00000FFF
-    and r2, ac, r2              @ r0 has [00 000 AAA]
-    lsl r2, r2, #12             @ r0 now has [00 AAA 000]
+    and r2, ac, r2              @ r2 has [00 000 AAA]
+    lsl r2, r2, #12             @ r2 now has [00 AAA 000]
     lsl addr, addr, #3      
     add addr, addr, #4      
     ldrd r0, r1, [fp, -addr]    @ r1 has [000 DD DDD], r0 has [DD DDD 000], we'll mod r0 for storr
     and r0, r0, #0xFF000000      @ r0 now has [DD 000 000]
-    orr r1, r1, r2              @ r0 now has [DD AAA 000]
+    orr r0, r0, r2              @ r0 now has [DD AAA 000]
     strd r0, r1, [fp, -addr]    @ Put it back
     pop {r0,r1,r2,r3}
 
