@@ -873,7 +873,7 @@ op_addabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    @mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
+    mov r1, r0, lsr #31      @ if (memory[addr] >> 31 != 0) (32-bits)
     cmp r1, #0
     addeq ac, ac, r0        @ ac += memory[addr]
     subne ac, ac, r0        @ ac -= memory[addr]
@@ -930,7 +930,7 @@ op_subabs:
 
     push {r0, r1, r2}
     bl load_mem_map_word
-    @mov r1, r0, lsr #39      @ if (memory[addr] >> 39 != 0)
+    mov r1, r0, lsr #31      @ if (memory[addr] >> 31 != 0) (32-bits)
     cmp r1, #0
     subeq ac, ac, r0        @ ac -= memory[addr]
     addne ac, ac, r0        @ ac += memory[addr]
@@ -1088,7 +1088,7 @@ op_jumppl:
     pop {r0, r1, r2, r3}
 
     push {r0}
-    @mov r0, ac, lsr #39
+    mov r0, ac, lsr #31
     cmp r0, #0
     pop {r0}
     bne op_case_end
