@@ -1020,7 +1020,36 @@ op_subabs:
     b op_case_end
 @ <-- op_mul
 
+@ op_mul -->
 op_mul:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_MUL   @ "MUL M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    @ Multiplicacao
+    push {r0}
+                            @ mq:               AAAABBBB
+    bl load_mem_map_word    @ r0:memory[addr]:  CCCCDDDD
+
+    smull mq, ac, mq, r0
+
+    pop {r0}
+
+    b op_case_end
+@ <-- op_mul
 
 
 @ op_div -->
