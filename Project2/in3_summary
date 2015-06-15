@@ -1,0 +1,145 @@
+
+
+
+
+
+data elements:
+
+100 00 000 00 005
+101 00 000 00 004 never changed
+102 FF FFF FF FFF never changed
+103 00 000 00 000 never changed
+104 00 000 00 006 never changed
+
+
+Comments:
+
+data: 
+0x100 -> 5
+0x101 -> 4
+0x102 -> -1
+0x103 -> 0
+0x104 -> 6
+
+Ref: OP -> Registers after op executed
+
+---------------- Testing basic operations -----------------
+initial -------> ac = 0, mq = 0, pc = 0, side = l
+
+LOAD M(0x100) -> ac = 5, mq = 0, pc = 0, side = l
+ADD  M(0x101) -> ac = 9, mq = 0, pc = 0, side = r
+
+STOR M(0x100) -> ac = 9, mq = 0, pc = 1, side = l -> 0x100 now has 0x00 000 00 009 !!!
+SUB  M(0x100) -> ac = 4, mq = 0, pc = 1, side = r
+
+LMQX M(0x100) -> ac = 4, mq = 5, pc = 2, side = l
+LDMQ -------- -> ac = 5, mq = 5, pc = 2, side = r
+
+RSH  -------- -> ac = 2, mq = 5, pc = 3, side = l -> 5/2 = 2
+LSH  -------- -> ac = 4, mq = 5, pc = 3, side = r
+
+---------------- Testing storl/r operations ---------------
+
+LMQX M(0x103) -> ac = 5, mq = 0, pc = 4, side = l
+STRL M(0x100) -> ac = 5, mq = 0, pc = 4, side = r -> 0x100 now has 0x00 005 00 009 !!!
+
+STRR M(0x100) -> ac = 5, mq = 0, pc = 5, side = l -> 0x100 now has 0x00 005 00 005 !!!
+LOAD M(0x103) -> ac = 0, mq = 0, pc = 5, side = r
+
+STRL M(0x100) -> ac = 0, mq = 0, pc = 6, side = l -> 0x100 now has 0x00 000 00 005 !!!
+LOAD M(0x100) -> ac = 5, mq = 0, pc = 6, side = r -> Check if ok!
+
+---------------- Testing complex-ish arith ----------------
+
+MUL  M(0x101) -> ac = 0, mq = 0, pc = 7, side = l -> Multiply by zero
+LMQX M(0x101) -> ac = 0, mq = 4, pc = 7, side = r
+
+MUL  M(0x101) -> ac = 0, mq = 8, pc = 8, side = l -> 4*4 = 0:8
+ADAB M(0x101) -> ac = 4, mq = 8, pc = 8, side = l -> Test for pisitive numbers
+
+SUAB M(0x101) -> ac = 0, mq = 8, pc = 9, side = l -> Test for positive numbers
+LDAB M(0x101) -> ac = 4, mq = 8, pc = 9, side = l -> Test for positive numbers
+
+---------------- Testing negative numbers -----------------
+
+LOAD M(0x102) -> ac =-1, mq = 8, pc = 0a, side = l -> ac = 0xFF FFF FF FFF             <<<<<<< issues not SEX
+LDAB M(0x102) -> ac = 1, mq = 4, pc = 0a, side = r -> ac = 0x00 000 00 001
+
+ADD  M(0x102) -> ac = 0, mq = 4, pc = 0b, side = l -> ac = 0x00 000 00 000
+SUB  M(0x102) -> ac = 1, mq = 4, pc = 0b, side = r -> ac = 0x00 000 00 001
+
+SUAB M(0x102) -> ac = 0, mq = 4, pc = 0c, side = l -> ac = 0x00 000 00 000
+ADAB M(0x102) -> ac = 1, mq = 4, pc = 0c, side = r -> ac = 0x00 000 00 001
+
+MUL  M(0x102) -> ac = 0, mq =-4, pc = 0d, side = l -> (mq)*(0x102) -> 4*(-1)		-> mq = 0xFF FFF FF FFC			<<<<<issues
+MUL  M(0x102) -> ac = 0, mq =-16,pc = 0d, side = r -> (mq)*(0x102) -> (-4)4*(-4) -> mq = 0xFF FFF FF FF0
+
+LDNX M(0x101) -> ac =-4, mq =-16,pc = 0e, side = l -> ac = 0xFF FFF FF FFC
+STOR M(0x100) -> ac =-4, mq =-16,pc = 0e, side = r -> 0x100 now has 0xFF FFF FF FFC
+
+LMQX M(0x102) -> ac =-4, mq =-1, pc = 0f, side = l
+LDMQ -------- -> ac =-1, mq =-1, pc = 0f, side = r
+
+LDNX M(0x102) -> ac = 1, mq =-1, pc = 10, side = l
+LMQX M(0x103) -> ac = 1, mq = 0, pc = 10, side = r
+
+---------------- Testing jumps ----------------------------
+@0x11:
+JMPL M(0x200) -> ac = 1, mq = 0, pc =200, side = l -> JMP located @ 11l
+000
+
+@0x200:
+JMPR M(0x250) -> ac = 1, mq = 0, pc =250, side = l -> JMP located @ 200l			
+000
+
+@0x250:
+000
+JP+L M(0x300) -> ac = 1, mq = 0, pc =300, side = r -> JMP located @ 250r, will make jump (ac>0)    
+
+@0x300:
+JP+R M(0x350) -> ac = 1, mq = 0, pc =350, side = l -> JMP located @ 300r, will make jump (ac>0)    <<<<<<< issues not jumping
+000
+
+@0x350:
+000
+LOAD M(0x102) -> ac =-1, mq = 0, pc = 350, side = r -> ac = 0xFF FFF FF FFF
+
+@0x351:
+JP+L M(0x3FF) -> ac =-1, mq = 0, pc = 351, side = l -> Will not make jump (ac<0)
+JP+R M(0x3FF) -> ac =-1, mq = 0, pc = 351, side = r -> Will not make jump (ac<0)
+
+---------------- Testing division -------------------------
+
+LOAD M(0x104) -> ac = 6, mq = 0, pc = 352, side = l
+DIV  M(0x101) -> ac = 2, mq = 1, pc = 352, side = r -> 6/4 = 1 + r=2
+
+DIV  M(0x102) -> ac = 0, mq =-2, pc = 353, side = l -> 2/-1 = -2 + r=0
+DIV  M(0x102) -> ac = 0, mq = 2, pc = 353, side = r -> -2/-1 = 2 + r=0
+
+DIV  M(0x103) -> ac = 0, mq = 2, pc = 354, side = l -> 2/0 => HALT! 
+000
+
+
+
+
+
+@ case LOAD:		√√N
+@ case LOADMQM:		√√N
+@ case LOADMQ:		√√N
+@ case LOADABS:		√√N
+@ case LOADN:		√√N
+@ case STOR:		√√N
+@ case STORL:		√
+@ case STORR:		√
+@ case ADD:			√√N
+@ case ADDABS:		√√N
+@ case SUB:			√√N
+@ case SUBABS:		√√N
+@ case MUL:			√√N
+@ case DIV:			√√N√0
+@ case RSH:			√
+@ case LSH:			√
+@ case JUMPL:		√
+@ case JUMPR:		√
+@ case JUMPPL:		√
+@ case JUMPPR:		√
