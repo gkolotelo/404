@@ -14,27 +14,19 @@
 .extern fgets
 .extern getchar
 
-@ Reference:
-@ OP_LOAD #0x01
-@ OP_LOADMQM #0x09
-@ OP_LOADMQ #0x0A
-@ OP_LOADABS #0x03
-@ OP_LOADN #0x02
-@ OP_STOR #0x21
-@ OP_STORL #0x12
-@ OP_STORR #0x13
-@ OP_ADD #0x05
-@ OP_ADDABS #0x07
-@ OP_SUB #0x06
-@ OP_SUBABS #0x08
-@ OP_MUL #0x0B
-@ OP_DIV #0x0C
-@ OP_RSH #0x15
-@ OP_LSH #0x14
-@ OP_JUMPL #0x0D
-@ OP_JUMPR #0x0E
-@ OP_JUMPPL #0x0F
-@ OP_JUMPPR #0x10
+@ Define register names:
+ac          .req r8
+mq          .req r9
+pc_ias      .req r10
+addr        .req r3
+op1         .req r4
+op1_addr    .req r5
+op2         .req r6
+op2_addr    .req r7
+
+@ Define aliases:
+.equ alloc_space, 8212          @ Stack: 1st 8192 bytes: MemoryMap, remaining 20 bytes: string buffer
+.equ buffer_pointer, 8208       @ Points to where buffer starts
 
 .data
     @ Errors and messages
@@ -96,23 +88,13 @@ main:
     push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ Cannot writeback to SP! Do we even need to care for SP?
 
-    @ Define register names:
-    ac          .req r8
-    mq          .req r9
-    pc_ias      .req r10
-    addr        .req r3
-    op1         .req r4
-    op1_addr    .req r5
-    op2         .req r6
-    op2_addr    .req r7
 
     @ Set FP
     mov fp, sp
     sub fp, fp, #4
     @ Allocate memory on stack
-    @ Stack: 1st 8192 bytes: MemoryMap, remaining 20 bytes: string buffer
-    sub sp, sp, #8192
-    sub sp, sp, #20
+    ldr r0, =alloc_space
+    sub sp, sp, r0
 
     @ Bloco de leitura
     bl build_memory_map
@@ -131,8 +113,8 @@ main:
 
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ If SP needs to be back to original location, add:
-    add sp, sp, #20
-    add sp, sp, #8192
+    ldr r0, =alloc_space
+    add sp, sp, r0
 
 exit:
     mov r0, #0
@@ -149,9 +131,10 @@ read_line:
     @ Older scanf mode
     ldr r0, =text_scanf_mask
     @ set starting addr on lower stack addresses, since scanf goes up the stack
-    mov r1, fp
-    sub r1, r1, #8192
-    add r1, r1, #1
+    @mov r1, fp
+    ldr r1, =buffer_pointer 
+    sub r1, fp, r1
+    @add r1, r1, #1+4 dont thin I need
     
     bl scanf    @ r0 contains return value. If 0, nothing was read
     push {r0}
@@ -183,9 +166,10 @@ read_hex_input:
 
     push {lr}
     @ _addr
-    mov r0, fp      
-    sub r0, r0, #8192           @ (strtol arg) str: fp-8191, points to 1st char read by scanf
-    add r0, r0, #1              @ must add 1, since immediate is higher than 12bits (-8192+1)
+    @mov r0, fp     
+    ldr r1, =buffer_pointer 
+    sub r0, fp, r1              @ (strtol arg) str: fp-8191, points to 1st char read by scanf
+    @add r0, r0, #1              @ must add 1, since immediate is higher than 12bits (-8192+1)
     ldr r1, =strtol_end_addr    @ (strtol arg) endPptr: will be stored in 'strtol_end_addr'
     mov r2, #16                 @ (strtol arg) base: base 16 (hex)
     bl strtol                   @ Call strtol
