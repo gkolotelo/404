@@ -476,6 +476,7 @@ exec_while_begin:
 exec_for_begin:
     push {r0, r1, r2, r3}
     ldr r0, =text_executing_at_addr     @ "Executando instrucao no endereco"
+@ !!! deveria ser (unsigned int)pc
     mov r1, pc_ias
     bl printf
     pop {r0, r1, r2, r3}
@@ -739,7 +740,7 @@ op_loadabs:
 @ --> op_loadn
 op_loadn:
     push {r0, r1, r2, r3}
-    ldr r0, =text_OP_LOAD   @ "LOAD M(X)"
+    ldr r0, =text_OP_LOADN   @ "LOAD -(M(X))"
     mov r1, addr
     bl printf
     pop {r0, r1, r2, r3}
@@ -765,47 +766,352 @@ op_loadn:
 @ <-- op_loadn
 
 op_stor:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_STOR   @ "STOR M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+@    push {}
+    @ STORE 40-bits AQUI
+@    pop {}
+
     b op_case_end
 
 op_storl:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_STORL   @ "STOR M(X, 8:19)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+@    push {}
+    @ STORE LEFT 12-bits AQUI
+@    pop {}
+
     b op_case_end
 
 op_storr:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_STORR   @ "STOR M(X, 28:39)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+@    push {}
+    @ STORE RIGHT 12-bits AQUI
+@    pop {}
+
     b op_case_end
 
 op_add:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_ADD   @ "ADD M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    add ac, ac, r0          @ ac += memory[addr]
+    pop {r0, r1, r2}
+
     b op_case_end
 
 op_addabs:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_ADDABS   @ "ADD |M(X)|"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    cmp r1, #0
+    addeq ac, ac, r0        @ ac += memory[addr]
+    subne ac, ac, r0        @ ac -= memory[addr]
+    pop {r0, r1, r2}
+
     b op_case_end
 
 op_sub:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_SUB   @ "SUB M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    sub ac, ac, r0          @ ac -= memory[addr]
+    pop {r0, r1, r2}
+
     b op_case_end
 
 op_subabs:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_SUBABS   @ "SUB |M(X)|"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+    push {r0, r1, r2}
+    bl load_mem_map_word
+    mov r1, r0, lsr 39      @ if (memory[addr] >> 39 != 0)
+    cmp r1, #0
+    subeq ac, ac, r0        @ ac -= memory[addr]
+    addne ac, ac, r0        @ ac += memory[addr]
+    pop {r0, r1, r2}
+
     b op_case_end
 
 op_mul:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_MUL   @ "MUL M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+@    push {}
+    @ MULTIPLICACAO
+@    pop {}
+
     b op_case_end
 
 op_div:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_DIV  @ "DIV M(X)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    bne op_case_end
+
+@    push {}
+    @ DIVISAO
+@    pop {}
+
     b op_case_end
 
 op_rsh:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_RSH  @ "RSH"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    mov ac, ac, lsr #1
+
     b op_case_end
 
 op_lsh:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_LSH  @ "LSH"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    mov ac, ac, lsl #1
+
     b op_case_end
 
 op_jumpl:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_JUMPL  @ "JUMP M(X, 0:19)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    mov pc_ias, addr        @ pc = addr
+    mov r1, #0              @ side = left
+    mov r2, #1              @ jump = true
+
     b op_case_end
 
 op_jumpr:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_JUMPR  @ "JUMP M(X, 20:39)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    mov pc_ias, addr        @ pc = addr
+    mov r1, #1              @ side = right
+    mov r2, #1              @ jump = true
+
     b op_case_end
 
 op_jumppl:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_JUMPPL  @ "JUMP+ M(X, 0:19)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0}
+    mov r0, ac, lsr #39
+    cmp r0, #0
+    pop {r0}
+    bne op_case_end
+
+    @ if(ac >> 39 == 0)
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    mov pc_ias, addr        @ pc = addr
+    mov r1, #0              @ side = left
+    mov r2, #1              @ jump = true
+
     b op_case_end
 
 op_jumppr:
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_JUMPPr  @ "JUMP+ M(X, 20:39)"
+    mov r1, addr
+    bl printf
+    pop {r0, r1, r2, r3}
+
+    push {r0}
+    mov r0, ac, lsr #39
+    cmp r0, #0
+    pop {r0}
+    bne op_case_end
+
+    @ if(ac >> 39 == 0)
+    push {r0, r1, r2, r3}
+    mov r0, addr            @ error = test_addr(addr)
+    bl test_addr
+    cmp r0, #0              @ if(!error)
+    pop {r0, r1, r2, r3}
+
+    moveq r4, #0
+    movne r4, #1
+
+    mov pc_ias, addr        @ pc = addr
+    mov r1, #1              @ side = right
+    mov r2, #1              @ jump = true
+
     b op_case_end
 
