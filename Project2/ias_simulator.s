@@ -418,20 +418,6 @@ load_mem_map_word:
 exec_mem_map_begin:
     push {r4, r5, r6, lr}
 
-    @ Inicializa variaveis que serao utilizadas
-    mov ac, #0      @ r8:ac
-    mov mq, #0      @ r9:mq
-    mov pc_ias, #0  @ r10:pc_ias
-    mov r0, #0      @ r0:inst
-    mov r1, #0      @ r1:side
-    mov r2, #0      @ r2:jump
-    mov addr, #0    @ r3:addr
-    mov r4, #0      @ r4:error
-    mov r5, #0      @ r5:aux
-    mov r6, #0      @ r6:j(iterador)
-
-    push {r0, r1, r2, r3}
-
     ldr r0, =text_init_state    @ "Estaco inicial"
     bl printf
 
@@ -444,7 +430,17 @@ exec_mem_map_begin:
     ldr r0, =text_separator     @ "--------------"
     bl printf
 
-    pop {r0, r1, r2, r3}
+    @ Inicializa variaveis que serao utilizadas
+    mov ac, #0      @ r8:ac
+    mov mq, #0      @ r9:mq
+    mov pc_ias, #0  @ r10:pc_ias
+    mov r0, #0      @ r0:inst
+    mov r1, #0      @ r1:side
+    mov r2, #0      @ r2:jump
+    mov addr, #0    @ r3:addr
+    mov r4, #0      @ r4:error
+    mov r5, #0      @ r5:aux
+    mov r6, #0      @ r6:j(iterador)
 
     @@ Overview do loop:
     @@ | while(true):
