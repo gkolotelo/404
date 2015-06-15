@@ -35,11 +35,11 @@ op2_addr    .req r7
     text_invalid_addr:          .asciz "IASIM: Erro! Endereco invalido de numero %04X.\n"           @ args: addr
     @ Simulation messages
     text_init_state:            .asciz "@ Estado inicial:\n"
-    text_reg_info:              .asciz "+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n"  @ args: ac & 0xFFFFFFFFFF, mq & 0xFFFFFFFFFF, pc & 0xFFFFFFFFFF
+    text_reg_info:              .asciz "+ AC:  0x%010X     MQ: 0x%010X        PC: 0x%010X\n"  @ args: ac & 0xFFFFFFFFFF, mq & 0xFFFFFFFFFF, pc & 0xFFFFFFFFFF
     text_executing_at_addr:     .asciz "@ Executando instrucao no endereco %010X "                  @ args: pc
     text_intruction_at_left:    .asciz "(instrucao a esquerda)\n"
     text_intruction_at_right:   .asciz "(instrucao a direita)\n"
-    text_curr_location:         .asciz "+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n"  @ args: ac, mq, pc
+    text_curr_location:         .asciz "+ AC:  0x%010X     MQ: 0x%010X        PC: 0x%010X\n"  @ args: ac, mq, pc
     text_separator:             .asciz "--------------------------------------------------------------\n"
     @ opcodes   
     text_OP_LOAD:               .asciz "@ LOAD M(X), X = 0x%04X\n"          @ args: addr
