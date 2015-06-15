@@ -58,10 +58,10 @@ op2_addr    .req r7
     text_OP_DIV:                .asciz "@ DIV M(X), X = 0x%04X\n"           @ args: addr
     text_OP_RSH:                .asciz "@ RSH, X = 0x%04X\n"                @ args: addr
     text_OP_LSH:                .asciz "@ LSH, X = 0x%04X\n"                @ args: addr
-    text_OP_JUMPR:              .asciz "@ JUMP M(X,0:19), X = 0x%04X\n"     @ args: addr
-    text_OP_JUMPL:              .asciz "@ JUMP M(X,20:39), X = 0x%04X\n"    @ args: addr
+    text_OP_JUMPL:              .asciz "@ JUMP M(X,0:19), X = 0x%04X\n"     @ args: addr
+    text_OP_JUMPR:              .asciz "@ JUMP M(X,20:39), X = 0x%04X\n"    @ args: addr
     text_OP_JUMPPL:             .asciz "@ JUMP+ M(X,0:19), X = 0x%04X\n"    @ args: addr
-    text_OP_JUMPPr:             .asciz "@ JUMP+ M(X,20:39), X = 0x%04X\n"   @ args: addr
+    text_OP_JUMPPR:             .asciz "@ JUMP+ M(X,20:39), X = 0x%04X\n"   @ args: addr
     @ opcode-specific errors and messages
     text_OP_Err_div_zero:       .asciz "IASIM: Erro! Divisao por zero.\n"
     text_OP_jump_taken:               .asciz "@ Salto realizado\n"
@@ -600,10 +600,6 @@ exec_for_end:
     moveq r1, #0                @       r1:side := left
     beq exec_while_begin
     @ Else, jump == true
-    push {r0, r1, r2, r3}
-    ldr r0, =text_OP_jump_taken
-    bl printf
-    pop {r0, r1, r2, r3}
     mov r2, #0                @   else: r2:jump := false
 
     b exec_while_begin
@@ -1152,13 +1148,18 @@ op_jumppl:
     mov r1, #0              @ side = left
     mov r2, #1              @ jump = true
 
+    pusheq {r0, r1, r2, r3}
+    ldreq r0, =text_OP_jump_taken
+    bleq printf
+    popeq {r0, r1, r2, r3}
+
     b op_case_end
 @ <-- op_jumppl
 
 @ op_jumppr -->
 op_jumppr:
     push {r0, r1, r2, r3}
-    ldr r0, =text_OP_JUMPPr  @ "JUMP+ M(X, 20:39)"
+    ldr r0, =text_OP_JUMPPR  @ "JUMP+ M(X, 20:39)"
     mov r1, addr
     bl printf
     pop {r0, r1, r2, r3}
@@ -1182,6 +1183,11 @@ op_jumppr:
     mov pc_ias, addr        @ pc = addr
     mov r1, #1              @ side = right
     mov r2, #1              @ jump = true
+
+    pusheq {r0, r1, r2, r3}
+    ldreq r0, =text_OP_jump_taken
+    bleq printf
+    popeq {r0, r1, r2, r3}
 
     b op_case_end
 @ <-- op_jumppr
