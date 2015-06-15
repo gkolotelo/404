@@ -614,7 +614,7 @@ exec_mem_map_end:
 
 
 @@ Operacoes do IAS
-@ --> op_load
+@ op_load -->
 op_load:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_LOAD   @ "LOAD M(X)"
@@ -641,7 +641,7 @@ op_load:
     b op_case_end
 @ <-- op_load
 
-@ --> op_loadmqm
+@ op_loadmqm -->
 op_loadmqm:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_LOADMQM   @ "LOAD MQ,M(X)"
@@ -668,7 +668,7 @@ op_loadmqm:
     b op_case_end
 @ <-- op_loadmqm
 
-@ --> op_loadmq
+@ op_loadmq -->
 op_loadmq:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_LOADMQ   @ "LOAD MQ(X)"
@@ -690,7 +690,7 @@ op_loadmq:
     b op_case_end
 @ <-- op_loadmq
 
-@ --> op_loadabs
+@ op_loadabs -->
 op_loadabs:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_LOADABS   @ "LOAD |M(X)|"
@@ -721,7 +721,7 @@ op_loadabs:
     b op_case_end
 @ <-- op_loadabs
 
-@ --> op_loadn
+@ op_loadn -->
 op_loadn:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_LOADN   @ "LOAD -(M(X))"
@@ -749,6 +749,7 @@ op_loadn:
     b op_case_end
 @ <-- op_loadn
 
+@ op_stor -->
 op_stor:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_STOR   @ "STOR M(X)"
@@ -772,7 +773,9 @@ op_stor:
 @    pop {}
 
     b op_case_end
+@ <-- op_stor
 
+@ op_storl -->
 op_storl:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_STORL   @ "STOR M(X, 8:19)"
@@ -796,7 +799,9 @@ op_storl:
 @    pop {}
 
     b op_case_end
+@ <-- op_storl
 
+@ op_storr -->
 op_storr:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_STORR   @ "STOR M(X, 28:39)"
@@ -820,7 +825,9 @@ op_storr:
 @    pop {}
 
     b op_case_end
+@ <-- op_storr
 
+@ op_add -->
 op_add:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_ADD   @ "ADD M(X)"
@@ -845,7 +852,9 @@ op_add:
     pop {r0, r1, r2}
 
     b op_case_end
+@ <-- op_add
 
+@ op_addabs -->
 op_addabs:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_ADDABS   @ "ADD |M(X)|"
@@ -873,7 +882,9 @@ op_addabs:
     pop {r0, r1, r2}
 
     b op_case_end
+@ <-- op_addabs
 
+@ op_sub -->
 op_sub:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_SUB   @ "SUB M(X)"
@@ -898,7 +909,9 @@ op_sub:
     pop {r0, r1, r2}
 
     b op_case_end
+@ <-- op_sub
 
+@ op_subabs -->
 op_subabs:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_SUBABS   @ "SUB |M(X)|"
@@ -926,7 +939,9 @@ op_subabs:
     pop {r0, r1, r2}
 
     b op_case_end
+@ <-- op_subabs
 
+@ op_mul -->
 op_mul:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_MUL   @ "MUL M(X)"
@@ -950,7 +965,9 @@ op_mul:
 @    pop {}
 
     b op_case_end
+@ <-- op_mul
 
+@ op_div -->
 op_div:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_DIV  @ "DIV M(X)"
@@ -974,7 +991,9 @@ op_div:
 @    pop {}
 
     b op_case_end
+@ <-- op_div
 
+@ op_rsh -->
 op_rsh:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_RSH  @ "RSH"
@@ -985,7 +1004,9 @@ op_rsh:
     mov ac, ac, lsr #1
 
     b op_case_end
+@ <-- op_rsh
 
+@ op_lsh -->
 op_lsh:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_LSH  @ "LSH"
@@ -996,7 +1017,9 @@ op_lsh:
     mov ac, ac, lsl #1
 
     b op_case_end
+@ <-- op_lsh
 
+@ op_jumpl -->
 op_jumpl:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_JUMPL  @ "JUMP M(X, 0:19)"
@@ -1018,7 +1041,9 @@ op_jumpl:
     mov r2, #1              @ jump = true
 
     b op_case_end
+@ <-- op_jumpl
 
+@ op_jumpr -->
 op_jumpr:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_JUMPR  @ "JUMP M(X, 20:39)"
@@ -1040,7 +1065,9 @@ op_jumpr:
     mov r2, #1              @ jump = true
 
     b op_case_end
+@ <-- op_jumpr
 
+@ op_jumppl -->
 op_jumppl:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_JUMPPL  @ "JUMP+ M(X, 0:19)"
@@ -1069,7 +1096,9 @@ op_jumppl:
     mov r2, #1              @ jump = true
 
     b op_case_end
+@ <-- op_jumppl
 
+@ op_jumppr -->
 op_jumppr:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_JUMPPr  @ "JUMP+ M(X, 20:39)"
@@ -1098,4 +1127,4 @@ op_jumppr:
     mov r2, #1              @ jump = true
 
     b op_case_end
-
+@ <-- op_jumppr
