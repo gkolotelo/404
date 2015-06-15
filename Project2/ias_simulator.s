@@ -579,10 +579,10 @@ op_case_end:
     pop {r0, r1, r2, r3}
 
     @ Loop update
-    add r6, r6, #1         @ r5:j (j++)
+    add r6, r6, #1         @ r6:j (j++)
 
     @ Loop conditions ((j < 2) && (jump == false))
-    cmp r6, #1             @ r5:j
+    cmp r6, #1             @ r6:j
     bgt exec_for_end
     cmp r2, #1             @ r2:jump
     beq exec_for_end
@@ -1039,9 +1039,32 @@ op_div:
 
     bne op_case_end
 
-@    push {}
-    @ DIVISAO
-@    pop {}
+    @ Divisao (32-bits)
+    push {r0, r1, r2}
+    bl load_mem_map_word    @ r0:memory[addr]
+    cmp r0, #0              @ if(r0 == 0)
+    bne division
+    ldr r0, =text_OP_Err_div_zero @ "Erro! Divisao por zero."
+    bl printf
+    mov r4, #1              @ error = 1
+    b op_case_end
+division:
+    mov r1, r0, lsr #31
+    cmp r1, #1              @ if (memory[addr] >> 31 != 0)
+    mov r1, #0
+    subeq r0, r1, r0            @ div = -div
+
+    mov r1, ac
+    mov r2, r1, lsr #31
+    cmp r2, #1              @ if (ac >> 31 != 0)
+    mov r2, #0
+    subeq r1, r2, r1            @ op = -op
+
+@ !!! DIVISAO    
+    @ mq = r1:op / r0:div
+    @ ac = r1:op % r0:div
+
+    pop {r0, r1, r2}
 
     b op_case_end
 @ <-- op_div
