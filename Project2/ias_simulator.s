@@ -459,22 +459,24 @@ exec_for_begin:
     bl printf
     pop {r0, r1, r2, r3}
 
-    @ Identificando o lado atual a ser executado
-    cmp r6, #0
+    @ Calculate offset
     ldr r5, =0xFFFFF
     sub r0, fp, pc_ias, lsl #3
 
+    @ Identificando o lado atual a ser executado
+    cmp r6, #0
+
     ldreq r0, [r0]          @   if (side == left):
     andeq r0, r0, r5        @       r0:inst := memory[pc] (left)
-    ldreq r0, =text_intruction_at_left
 
     subne r0, r0, #4        @   else
     ldrne r0, [r0]          @       r0:inst := memory[pc] (right)
     movne r0, r0, lsr #12
     andne r0, r0, r5
-    ldrne r0, =text_intruction_at_right
 
     push {r0, r1, r2, r3}
+    ldreq r0, =text_intruction_at_left
+    ldrne r0, =text_intruction_at_right
     bl printf               @ "instrucao a esquerda/direita"
     pop {r0, r1, r2, r3}
 
