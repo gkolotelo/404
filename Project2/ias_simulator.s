@@ -19,8 +19,8 @@ ac          .req r8
 mq          .req r9
 pc_ias      .req r10
 addr        .req r3
-op1         .req r4
-op1_addr    .req r5
+op         .req r4
+op_addr    .req r5
 op2         .req r6
 op2_addr    .req r7
 
@@ -64,11 +64,11 @@ op2_addr    .req r7
     text_OP_JUMPPr:             .asciz "@ JUMP+ M(X,20:39), X = 0x%04X\n"   @ args: addr
     @ opcode-specific errors and messages
     text_OP_Err_div_zero:       .asciz "IASIM: Erro! Divisao por zero.\n"
-    text_OP_jump:               .asciz "@ Salto realizado\n"
+    text_OP_jump_taken:               .asciz "@ Salto realizado\n"
     text_OP_invalid:            .asciz "IASIM: Erro! Instrucao invalida com opcode %02X.\n"         @ args: addr
     @ scanf mask:
     text_scanf_mask:            .asciz "%[^\n]s"
-    @ args: addr, op1, op1addr, op2, op2addr -> AAA DD DDD DD DDD
+    @ args: addr, op, opaddr, op2, op2addr -> AAA DD DDD DD DDD
     @ input cal also be data, however it'll have the same format above
     deprecated_text_scanf_mask:            .asciz "%X %X %X %X %X" 
     temp_sf_mask: .asciz "%s\n"
@@ -161,7 +161,7 @@ read_line:
 read_hex_input:
     @ r0 has address on stack where input string is located
     @ strtol will be run 5 times 
-    @ addr, op1, op1addr, op2, op2addr will be set respectively 
+    @ addr, op, opaddr, op2, op2addr will be set respectively 
 
     push {lr}
     @ _addr
@@ -172,22 +172,22 @@ read_hex_input:
     ldr r1, =strtol_end_addr    @ (strtol arg) endPptr: will be stored in 'strtol_end_addr'
     mov r2, #16                 @ (strtol arg) base: base 16 (hex)
     bl strtol                   @ Call strtol
-    mov addr, r0                @ Move result to corresponding register (addr, op1, op1addr, op2, op2_addr)
+    mov addr, r0                @ Move result to corresponding register (addr, op, opaddr, op2, op2_addr)
     push {addr}                 @ save addr, since r3 can be messed with
-    @ op1 
+    @ op 
     ldr r0, =strtol_end_addr    @ (strtol arg) str: Now strtol gets addr from 'strtol_end_addr' returned last iteration
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov op1 , r0
-    @ op1 _addr
+    mov op , r0
+    @ op_addr
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
     ldr r1, =strtol_end_addr
     mov r2, #16
     bl strtol
-    mov op1_addr, r0
+    mov op_addr, r0
     @ op2 
     ldr r0, =strtol_end_addr
     ldr r0, [r0]
@@ -233,7 +233,7 @@ build_memory_map_loop:
     beq build_memory_map_finish
 
     bl read_hex_input
-    bl add_to_memory @ uses addr, op1 , op1 _add, op2 , op2 addr
+    bl add_to_memory @ uses addr, op , op_add, op2 , op2 addr
     b build_memory_map_loop
 build_memory_map_finish:
     pop {lr}
@@ -301,10 +301,10 @@ extract_memory_elements:
     @ IAS instruction schema: ---------> [OP1 DAT] ------- [OP2 DAT]
     push {lr}
 
-    and op1, r1, #0xFF000
+    and op, r1, #0xFF000
     and op2, r0, #0xFF000000
     ldr r2, =0x00FFF
-    and op1_addr, r1, r2
+    and op_addr, r1, r2
     ldr r2, =0x00FFF000
     and op2_addr, r0, r2
 
@@ -314,7 +314,7 @@ extract_memory_elements:
 
 @ add_to_memory -->
 add_to_memory:
-    @ uses addr, op1 , op1 _add, op2 , op2 addr from 'read_hex_input'
+    @ uses addr, op , op_add, op2 , op2 addr from 'read_hex_input'
     @ uses strd 
     @ lsl addr, addr, #20 addr unused
     @
@@ -325,13 +325,13 @@ add_to_memory:
     mov r0, addr                @ Move addr for validation
 
     bl test_addr
-    cmp r0, #1      @ if (error == true)
+    cmp r0, #1                  @ if (error == true)
     beq exit
 
-    lsl op1, op1, #12
+    lsl op, op, #12
     lsl op2, op2, #24
     lsl op2_addr, op2_addr, #12
-    orr r1, op1, op1_addr       @ r1 has [000 DD DDD] => [OP1 DAT]
+    orr r1, op, op_addr         @ r1 has [000 DD DDD] => [OP1 DAT]
     orr r0, op2, op2_addr       @ r0 has [DD DDD 000] => [OP2 DAT]
     lsl addr, addr, #3          @ Multiply by 8, since an IAS memory line occurs every 8 bytes
     add addr, addr, #4          @ addr = addr + 4, will be used below to compensate stack strd direction
@@ -596,8 +596,13 @@ exec_for_end:
     cmp r2, #0                  @   if (r2:jump == false):
     addeq pc_ias, pc_ias, #1    @       pc := pc + 1
     moveq r1, #0                @       r1:side := left
-
-    movne r2, #0                @   else: r2:jump := false
+    beq exec_while_begin
+    @ Else, jump == true
+    push {r0, r1, r2, r3}
+    ldr r0, =text_OP_jump_taken
+    bl printf
+    pop {r0, r1, r2, r3}
+    mov r2, #0                @   else: r2:jump := false
 
     b exec_while_begin
 
@@ -762,9 +767,18 @@ op_stor:
 
     bne op_case_end
 
-@    push {}
-    @ STORE 40-bits AQUI
-@    pop {}
+    push {r0,r1,r2,r3}
+    @ ac(32bit) (00)[DDD DD DDD] to [000 00 DDD][DD DDD 000]
+    ldr r0, =0x000FFFFF
+    and r0, ac, r0      
+    lsl r0, r0, #12     @ r0 has [DD DDD 000]
+    ldr r1, =0xFFF00000
+    and r1, ac, r1      
+    lsr r1, r1, #20     @ r1 has [000 00 DDD]
+    lsl addr, addr, #3      
+    add addr, addr, #4      
+    strd r0, r1, [fp, -addr]
+    pop {r0,r1,r2,r3}
 
     b op_case_end
 @ <-- op_stor
@@ -788,9 +802,18 @@ op_storl:
 
     bne op_case_end
 
-@    push {}
-    @ STORE LEFT 12-bits AQUI
-@    pop {}
+    push {r0,r1,r2,r3}
+    @ ac(32bit)[000 00 DDD] 12 right-most bits to [000 XX XXX][XX AAA 000]
+    @ Note that [000 XX XXX][XX DDD 000] @ addr can contain stuff already that must be preserved
+    ldr r2, =0x00000FFF
+    and r2, ac, r2              @ r0 has [00 000 AAA]
+    lsl addr, addr, #3      
+    add addr, addr, #4      
+    ldrd r0, r1, [fp, -addr]    @ r1 has [000 DD DDD], r0 has [DD DDD 000], we'll mod r1 for storl
+    and r1, r1, #0x000FF000      @ r1 now has [000 DD 000]
+    orr r1, r1, r2              @ r1 now has [000 DD AAA]
+    strd r0, r1, [fp, -addr]    @ Put it back
+    pop {r0,r1,r2,r3}
 
     b op_case_end
 @ <-- op_storl
@@ -814,9 +837,19 @@ op_storr:
 
     bne op_case_end
 
-@    push {}
-    @ STORE RIGHT 12-bits AQUI
-@    pop {}
+    push {r0,r1,r2,r3}
+    @ ac(32bit)[000 00 DDD] 12 right-most bits to [000 XX AAA][XX XXX 000]
+    @ Note that [000 XX XXX][XX DDD 000] @ addr can contain stuff already that must be preserved
+    ldr r2, =0x00000FFF
+    and r2, ac, r2              @ r0 has [00 000 AAA]
+    lsl r2, r2, #12             @ r0 now has [00 AAA 000]
+    lsl addr, addr, #3      
+    add addr, addr, #4      
+    ldrd r0, r1, [fp, -addr]    @ r1 has [000 DD DDD], r0 has [DD DDD 000], we'll mod r0 for storr
+    and r0, r0, #0xFF000000      @ r0 now has [DD 000 000]
+    orr r1, r1, r2              @ r0 now has [DD AAA 000]
+    strd r0, r1, [fp, -addr]    @ Put it back
+    pop {r0,r1,r2,r3}
 
     b op_case_end
 @ <-- op_storr
