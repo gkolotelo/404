@@ -77,7 +77,6 @@ op2_addr    .req r7
     temphex_pf_mask_nonl:.asciz "%X "
 
 strtol_end_addr: .word 0x0
-multiuse_temp_addr: .word 0x0
 
 .text
 
@@ -379,8 +378,7 @@ test_addr:
     movle r0, #0      @ return 0 (error = false)
     ble test_addr_exit
 
-    ldr r1, =multiuse_temp_addr
-    str r0, [r1]
+    mov r1, r0
     ldr r0, =text_invalid_addr
     bl printf
     mov r0, #1      @ return 1 (error = true)
