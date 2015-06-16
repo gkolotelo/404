@@ -1051,7 +1051,7 @@ op_div:
     den .req r2
     sign .req r3
     mov den, r0
-    mov lo, ac 
+    mov lo, ac
     @ Handle input
     cmp den, #0
     beq div_zero
