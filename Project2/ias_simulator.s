@@ -967,7 +967,7 @@ op_subabs:
 @ <-- op_subabs
 
 @ op_mul -->
-@op_mul:
+op_mul:
     push {r0, r1, r2, r3}
     ldr r0, =text_OP_MUL   @ "MUL M(X)"
     mov r1, addr
@@ -1020,38 +1020,6 @@ op_subabs:
     b op_case_end
 @ <-- op_mul
 
-@ op_mul -->
-op_mul:
-    push {r0, r1, r2, r3}
-    ldr r0, =text_OP_MUL   @ "MUL M(X)"
-    mov r1, addr
-    bl printf
-    pop {r0, r1, r2, r3}
-
-    push {r0, r1, r2, r3}
-    mov r0, addr            @ error = test_addr(addr)
-    bl test_addr
-    cmp r0, #0              @ if(!error)
-    pop {r0, r1, r2, r3}
-
-    moveq r4, #0
-    movne r4, #1
-
-    bne op_case_end
-
-    @ Multiplicacao
-    push {r0}
-                            @ mq:               AAAABBBB
-    bl load_mem_map_word    @ r0:memory[addr]:  CCCCDDDD
-
-    smull mq, ac, mq, r0
-
-    pop {r0}
-
-    b op_case_end
-@ <-- op_mul
-
-
 @ op_div -->
 op_div:
     push {r0, r1, r2, r3}
@@ -1071,34 +1039,62 @@ op_div:
 
     bne op_case_end
 
+    push {r0,r1,r2,r3}
     @ Divisao (32-bits)
-    push {r0, r1, r2}
+    @ ac: numerator
+    @ r0: denominator
     bl load_mem_map_word    @ r0:memory[addr]
-    cmp r0, #0              @ if(r0 == 0)
-    bne division
+    @ Division
+    @ ac -> r0 : numerator, mem[x] -> r2 : denominator
+    lo .req r0
+    hi .req r1
+    den .req r2
+    sign .req r3
+    mov den, r0
+    mov lo, ac 
+    @ Handle input
+    cmp den, #0
+    beq div_zero
+division:
+    @ Make certain that numerator and denominator are positive
+    mov sign, #1
+    rsblt sign, sign, #0        @ If den < 0 => sign = -sign
+    rsblt den, den, #0          @ If den < 0 => den = -den
+    cmp lo, #0
+    rsblt sign, sign, #0        @ If num < 0 => sign = -sign
+    rsblt lo, lo, #0            @ If num < 0 => lo = -lo
+    @ If numerator <= denomitator, end.
+    cmp lo, den
+    movlt hi, lo                @ r1 has remainder
+    movlt lo, #0                @ r0 has quotient
+    moveq lo, #1
+    ble end
+    @ Start division
+    rsb den, den, #0            @ negate den for the divide loop
+    mov hi, #0
+    adds lo, lo, lo             @ first loop instruction relocated here
+    .rept 32                    @ repeat 32 times
+      adcs hi, den, hi, lsl #1
+      subcc hi, hi, den
+      adcs lo, lo, lo
+    .endr
+end:
+    cmp sign, #0                @ quotient = -quotient if sign < 0
+    rsblt lo, lo, #0
+    mov ac, hi
+    mov mq, lo
+    pop {r0,r1,r2,r3}
+    @ ac takes r1(hi) (remainder)
+    @ mq takes r0(lo) (quotient)
+    b op_case_end
+div_zero:
+    push {r0,r1,r2,r3}
     ldr r0, =text_OP_Err_div_zero @ "Erro! Divisao por zero."
     bl printf
+    pop {r0,r1,r2,r3}
     mov r4, #1              @ error = 1
     b op_case_end
-division:
-    mov r1, r0, lsr #31
-    cmp r1, #1              @ if (memory[addr] >> 31 != 0)
-    mov r1, #0
-    subeq r0, r1, r0            @ div = -div
 
-    mov r1, ac
-    mov r2, r1, lsr #31
-    cmp r2, #1              @ if (ac >> 31 != 0)
-    mov r2, #0
-    subeq r1, r2, r1            @ op = -op
-
-@ !!! DIVISAO    
-    @ mq = r1:op / r0:div
-    @ ac = r1:op % r0:div
-
-    pop {r0, r1, r2}
-
-    b op_case_end
 @ <-- op_div
 
 @ op_rsh -->
