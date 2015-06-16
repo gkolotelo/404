@@ -985,37 +985,14 @@ op_mul:
 
     bne op_case_end
 
-    @ Multiplicacao (32-bits)
-    push {r0, r1, r2, r3, r4, r5}
+    @ Multiplicacao
+    push {r0, r1, r2}
                             @ mq:               AAAABBBB
     bl load_mem_map_word    @ r0:memory[addr]:  CCCCDDDD
-    ldr r5, =0x0000FFFF
-    and r2, mq, r5          @ (r2) l0: AAAA
-    mov r3, mq, lsr #16     @ (r3) h0: BBBB
-    and r4, r0, r5          @ (r4) l1: DDDD
-    mov r5, r0, lsr #16     @ (r5) h1: CCCC
-    mul r0, r2, r4          @ r0:(l0 * l1)
-    mul r1, r2, r5          @ r1:(l0 * h1)
-    mul r2, r4, r3          @ r2:(l1 * h0)
-    mul r3, r3, r5          @ r3:(h0 * h1)
-    
-    add r4, r1, r2          @ r4 = (l0 * h1 + l1 * h0)
-    mov r4, r4, lsl #16     @ r4 <<= 16
-    add r4, r0, r4          @ r4 = ((l0 * l1) + ((l0 * h1 + l1 * h0) << 16))
-    ldr r5, =0xFFFFFFFF
-    and mq, r4, r5          @ mq = ((l0 * l1) + ((l0 * h1 + l1 * h0) << 16)) & 0xFFFFFFFF
-    
-    and r4, r0, r5          @ r4 = (l0 * l1) & 0xFFFFFFFF
-    cmp mq, r4              @ if (mq < (l0 * l1) & 0xFFFFFFFF):
-    mov r4, r3              @       ac = 1 + (h0 * h1) + ((l0 * h1 + l1 * h0) >> 16)
-    mov r5, r1
-    add r5, r5, r2
-    mov r5, r5, lsr #16
-    add r5, r4, r5          @ else: ac = (h0 * h1) + ((l0 * h1 + l1 * h0) >> 16)
-    addlt r5, r5, #1
-    mov ac, r5
 
-    pop {r0, r1, r2, r3, r4, r5}
+    smull mq, ac, mq, r0
+
+    pop {r0, r1, r2}
 
     b op_case_end
 @ <-- op_mul
