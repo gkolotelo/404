@@ -39,7 +39,8 @@ op2_addr    .req r7
     text_executing_at_addr:     .asciz "@ Executando instrucao no endereco %010X "                  @ args: pc
     text_intruction_at_left:    .asciz "(instrucao a esquerda)\n"
     text_intruction_at_right:   .asciz "(instrucao a direita)\n"
-    text_curr_location:         .asciz "+ AC:  0x%010X     MQ: 0x%010X        PC: 0x%010X\n"  @ args: ac, mq, pc
+    text_curr_location:         .asciz "+ AC:  0x00%08X     MQ: 0x00%08X        PC: 0x%010X\n"  @ args: ac, mq, pc
+    @ Offsets for SEX: ac: 10-11byte, mq: 27-28 byte
     text_separator:             .asciz "--------------------------------------------------------------\n"
     @ opcodes   
     text_OP_LOAD:               .asciz "@ LOAD M(X), X = 0x%04X\n"          @ args: addr
@@ -85,6 +86,7 @@ main:
     @ fp will point to start o MemoryMap (IAS memory entry every 8 bytes)
     @ fp - 8191 will point to 1st char of buffer
     push {r4,r5,r6,r7,r8,r9,r10,fp,lr}
+    push {sp}
     @ Cannot writeback to SP! Do we even need to care for SP?
 
 
@@ -97,8 +99,8 @@ main:
 
     @ Bloco de leitura
     bl build_memory_map
-    mov addr, #0
-    bl print_memory_map
+    @mov addr, #0
+    @bl print_memory_map
 
     @ Bloco de execucao
     ldr r0, =text_sim_started   @ "A simulacao ta comecando."
@@ -109,11 +111,12 @@ main:
     ldr r0, =text_sim_finished  @ "A simulacao terminou."
     bl printf
 
-
+    pop {r0}
+    mov sp, r0
     pop {r4,r5,r6,r7,r8,r9,r10,fp,lr}
     @ If SP needs to be back to original location, add:
-    ldr r0, =alloc_space
-    add sp, sp, r0
+    @ldr r0, =alloc_space
+    @add sp, sp, r0
 
 exit:
     mov r0, #0
@@ -563,12 +566,22 @@ op_case_end:
     @ Montagem dos registros AC/MQ/PC para impressao
 @ !!! Por enquanto, usando 32-bits mesmo, entao nao fazemos nada aqui
 
-    push {r0, r1, r2, r3}
+    push {r0, r1, r2, r3, r4, r5}
 
 @   printf("+ AC:  0x%010llX     MQ: 0x%010llX        PC: 0x%010llX\n", ac, mq, pc);
     ldr r0, =text_curr_location
     mov r1, ac
+    cmp ac, #0
+    movlt r4, #70 @ 70 is 'F' ascii
+    movge r4, #48 @ 48 is '0' ascii
+    strb r4, [r0, #9]@9
+    strb r4, [r0, #10]@10
     mov r2, mq
+    cmp mq, #0
+    movlt r4, #70 @ 70 is 'F' ascii
+    movge r4, #48 @ 48 is '0' ascii
+    strb r4, [r0, #26]@26
+    strb r4, [r0, #27]@27
     mov r3, pc_ias
     bl printf
 
@@ -576,7 +589,7 @@ op_case_end:
     ldr r0, =text_separator
     bl printf
 
-    pop {r0, r1, r2, r3}
+    pop {r0, r1, r2, r3, r4, r5}
 
     @ Loop update
     add r6, r6, #1         @ r6:j (j++)
