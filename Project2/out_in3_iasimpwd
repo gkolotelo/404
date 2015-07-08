@@ -1,0 +1,201 @@
+
+IASIM: A simulacao esta comecando.
+
+@ Estado inicial:
++ AC:  0x0000000000     MQ: 0x0000000000        PC: 0x0000000000
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000000 (instrucao a esquerda)
+@ LOAD M(X), X = 0x0100
++ AC:  0x0000000005     MQ: 0x0000000000        PC: 0x0000000000
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000000 (instrucao a direita)
+@ ADD M(X), X = 0x0101
++ AC:  0x0000000009     MQ: 0x0000000000        PC: 0x0000000000
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000001 (instrucao a esquerda)
+@ STOR M(X), X = 0x0100
++ AC:  0x0000000009     MQ: 0x0000000000        PC: 0x0000000001
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000001 (instrucao a direita)
+@ SUB M(X), X = 0x0100
++ AC:  0x0000000000     MQ: 0x0000000000        PC: 0x0000000001
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000002 (instrucao a esquerda)
+@ LOAD MQ,M(X), X = 0x0100
++ AC:  0x0000000000     MQ: 0x0000000009        PC: 0x0000000002
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000002 (instrucao a direita)
+@ LOAD MQ, X = 0x0000
++ AC:  0x0000000009     MQ: 0x0000000009        PC: 0x0000000002
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000003 (instrucao a esquerda)
+@ RSH, X = 0x0000
++ AC:  0x0000000004     MQ: 0x0000000009        PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000003 (instrucao a direita)
+@ LSH, X = 0x0000
++ AC:  0x0000000008     MQ: 0x0000000009        PC: 0x0000000003
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000004 (instrucao a esquerda)
+@ STOR M(X,8:19), X =0x0100
++ AC:  0x0000000008     MQ: 0x0000000009        PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000004 (instrucao a direita)
+@ LOAD MQ,M(X), X = 0x0100
++ AC:  0x0000000008     MQ: 0x0000800009        PC: 0x0000000004
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000005 (instrucao a esquerda)
+@ STOR M(X,28:39), X =0x0100
++ AC:  0x0000000008     MQ: 0x0000800009        PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000005 (instrucao a direita)
+@ LOAD MQ,M(X), X = 0x0100
++ AC:  0x0000000008     MQ: 0x0000800008        PC: 0x0000000005
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000006 (instrucao a esquerda)
+@ LOAD M(X), X = 0x0103
++ AC:  0x0000000000     MQ: 0x0000800008        PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000006 (instrucao a direita)
+@ STOR M(X,8:19), X =0x0100
++ AC:  0x0000000000     MQ: 0x0000800008        PC: 0x0000000006
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000007 (instrucao a esquerda)
+@ LOAD MQ,M(X), X = 0x0103
++ AC:  0x0000000000     MQ: 0x0000000000        PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000007 (instrucao a direita)
+@ LOAD M(X), X = 0x0100
++ AC:  0x0000000008     MQ: 0x0000000000        PC: 0x0000000007
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000008 (instrucao a esquerda)
+@ MUL M(X), X = 0x0101
++ AC:  0x0000000000     MQ: 0x0000000000        PC: 0x0000000008
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000008 (instrucao a direita)
+@ LOAD MQ,M(X), X = 0x0101
++ AC:  0x0000000000     MQ: 0x0000000004        PC: 0x0000000008
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000009 (instrucao a esquerda)
+@ MUL M(X), X = 0x0101
++ AC:  0x0000000000     MQ: 0x0000000010        PC: 0x0000000009
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000009 (instrucao a direita)
+@ ADD |M(X)|, X = 0x0101
++ AC:  0x0000000004     MQ: 0x0000000010        PC: 0x0000000009
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000A (instrucao a esquerda)
+@ SUB |M(X)|, X = 0x0101
++ AC:  0x0000000000     MQ: 0x0000000010        PC: 0x000000000A
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000A (instrucao a direita)
+@ LOAD |(M(X)|, X = 0x0101
++ AC:  0x0000000004     MQ: 0x0000000010        PC: 0x000000000A
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000B (instrucao a esquerda)
+@ LOAD M(X), X = 0x0102
++ AC:  0xFFFFFFFFFF     MQ: 0x0000000010        PC: 0x000000000B
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000B (instrucao a direita)
+@ LOAD |(M(X)|, X = 0x0102
++ AC:  0x0000000001     MQ: 0x0000000010        PC: 0x000000000B
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000C (instrucao a esquerda)
+@ ADD M(X), X = 0x0102
++ AC:  0x0000000000     MQ: 0x0000000010        PC: 0x000000000C
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000C (instrucao a direita)
+@ SUB M(X), X = 0x0102
++ AC:  0x0000000001     MQ: 0x0000000010        PC: 0x000000000C
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000D (instrucao a esquerda)
+@ SUB |M(X)|, X = 0x0102
++ AC:  0x0000000000     MQ: 0x0000000010        PC: 0x000000000D
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000D (instrucao a direita)
+@ ADD |M(X)|, X = 0x0102
++ AC:  0x0000000001     MQ: 0x0000000010        PC: 0x000000000D
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000E (instrucao a esquerda)
+@ MUL M(X), X = 0x0102
++ AC:  0xFFFFFFFFFF     MQ: 0xFFFFFFFFF0        PC: 0x000000000E
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000E (instrucao a direita)
+@ MUL M(X), X = 0x0102
++ AC:  0x0000000000     MQ: 0x0000000010        PC: 0x000000000E
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000F (instrucao a esquerda)
+@ LOAD -(M(X)), X = 0x0101
++ AC:  0xFFFFFFFFFC     MQ: 0x0000000010        PC: 0x000000000F
+--------------------------------------------------------------
+@ Executando instrucao no endereco 000000000F (instrucao a direita)
+@ STOR M(X), X = 0x0100
++ AC:  0xFFFFFFFFFC     MQ: 0x0000000010        PC: 0x000000000F
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000010 (instrucao a esquerda)
+@ LOAD MQ,M(X), X = 0x0102
++ AC:  0xFFFFFFFFFC     MQ: 0xFFFFFFFFFF        PC: 0x0000000010
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000010 (instrucao a direita)
+@ LOAD MQ, X = 0x0000
++ AC:  0xFFFFFFFFFF     MQ: 0xFFFFFFFFFF        PC: 0x0000000010
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000011 (instrucao a esquerda)
+@ LOAD -(M(X)), X = 0x0102
++ AC:  0x0000000001     MQ: 0xFFFFFFFFFF        PC: 0x0000000011
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000011 (instrucao a direita)
+@ LOAD MQ,M(X), X = 0x0103
++ AC:  0x0000000001     MQ: 0x0000000000        PC: 0x0000000011
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000012 (instrucao a esquerda)
+@ JUMP M(X,0:19), X = 0x0200
++ AC:  0x0000000001     MQ: 0x0000000000        PC: 0x0000000200
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000200 (instrucao a esquerda)
+@ JUMP M(X,20:39), X = 0x0250
++ AC:  0x0000000001     MQ: 0x0000000000        PC: 0x0000000250
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000250 (instrucao a direita)
+@ JUMP+ M(X,0:19), X = 0x0300
+@ Salto realizado
++ AC:  0x0000000001     MQ: 0x0000000000        PC: 0x0000000300
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000300 (instrucao a esquerda)
+@ JUMP+ M(X,20:39), X = 0x0350
+@ Salto realizado
++ AC:  0x0000000001     MQ: 0x0000000000        PC: 0x0000000350
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000350 (instrucao a direita)
+@ LOAD M(X), X = 0x0102
++ AC:  0xFFFFFFFFFF     MQ: 0x0000000000        PC: 0x0000000350
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000351 (instrucao a esquerda)
+@ JUMP+ M(X,0:19), X = 0x03FF
++ AC:  0xFFFFFFFFFF     MQ: 0x0000000000        PC: 0x0000000351
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000351 (instrucao a direita)
+@ JUMP+ M(X,20:39), X = 0x03FF
++ AC:  0xFFFFFFFFFF     MQ: 0x0000000000        PC: 0x0000000351
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000352 (instrucao a esquerda)
+@ LOAD M(X), X = 0x0104
++ AC:  0x0000000006     MQ: 0x0000000000        PC: 0x0000000352
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000352 (instrucao a direita)
+@ DIV M(X), X = 0x0101
++ AC:  0x0000000002     MQ: 0x0000000001        PC: 0x0000000352
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000353 (instrucao a esquerda)
+@ DIV M(X), X = 0x0102
++ AC:  0x0000000000     MQ: 0xFFFFFFFFFE        PC: 0x0000000353
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000353 (instrucao a direita)
+@ DIV M(X), X = 0x0102
++ AC:  0x0000000000     MQ: 0x0000000000        PC: 0x0000000353
+--------------------------------------------------------------
+@ Executando instrucao no endereco 0000000354 (instrucao a esquerda)
+@ DIV M(X), X = 0x0103
+
+IASIM: A simulacao terminou.
+

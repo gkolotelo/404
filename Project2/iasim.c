@@ -104,7 +104,6 @@ void simulate(FILE * in) {
 					break;
 				case OP_LOADMQ:
 					printf("@ LOAD MQ, X = 0x%04X\n", addr);
-					error = test_addr(addr);
 					ac = mq;
 					break;
 				case OP_LOADABS:
@@ -188,18 +187,15 @@ void simulate(FILE * in) {
 						printf("@ MUL M(X), X = 0x%04X\n", addr);
 						error = test_addr(addr);
 						if (!error) {
-							int64_t l0, h0, l1, h1;
-							l0 = mq & 0xFFFFF;
-							h0 = mq >> 20;
-							l1 = memory[addr] & 0xFFFFF;
-							h1 = memory[addr] >> 20;
-							mq = ((l0 * l1) + ((l0 * h1 +
-									l1 * h0) << 20)) & 0xFFFFFFFFFF;
-							if (mq < (l0 * l1) & 0xFFFFFFFF) {
-								ac = 1 + (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20);
-							} else {
-								ac = (h0 * h1) + ((l0 * h1 + l1 * h0) >> 20);
+							int64_t l = mq, h = memory[addr];
+							if (memory[addr] >> 39) {
+								h |= 0xFFFFFF0000000000;
 							}
+							if (mq >> 39) {
+								l |= 0xFFFFFF0000000000;
+							}
+							ac = (l * h) >> 40;
+							mq = l * h;
 						}
 					}
 					break;
@@ -214,11 +210,11 @@ void simulate(FILE * in) {
 							int64_t div, op;
 							div = memory[addr];
 							if (memory[addr] >> 39 != 0) {
-								div = -div;
+								div |= 0xFFFFFF0000000000;
 							}
 							op = ac;
 							if (ac >> 39 != 0) {
-								op = -op;
+								op |= 0xFFFFFF0000000000;
 							}
 							mq = op / div;
 							ac = op % div;

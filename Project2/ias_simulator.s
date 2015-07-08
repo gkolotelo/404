@@ -1082,6 +1082,7 @@ div_zero:
     ldr r0, =text_OP_Err_div_zero @ "Erro! Divisao por zero."
     bl printf
     pop {r0,r1,r2,r3}
+    pop {r0,r1,r2,r3}
     mov r4, #1              @ error = 1
     b op_case_end
 
